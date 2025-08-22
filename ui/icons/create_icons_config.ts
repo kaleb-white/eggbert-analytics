@@ -2,7 +2,7 @@ import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 
 const currentFileDir = dirname(fileURLToPath(import.meta.url))
-const relativeIconDirPath = join(currentFileDir, `../../public/svg_icons/`)
+export const relativeIconDirPath = join(currentFileDir, `../../public/svg_icons/`)
 
 const createStringRouteToSVG = (svgName: string): string => `${relativeIconDirPath}${svgName}.svg`
 

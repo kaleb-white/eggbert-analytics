@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from "fs"
 import { svgFileLocations, tsxOutputFilePath } from "./create_icons_config.ts"
+import { fileURLToPath } from "url"
 
-function getRawSvgXML(path: string): string | Error {
+export function getRawSvgXML(path: string): string | Error {
     let res: Error | string = new Error(`Loading svg at ${path} failed`)
     try {
         res = readFileSync(path).toString()
@@ -11,18 +12,18 @@ function getRawSvgXML(path: string): string | Error {
     return res
 }
 
-function extractSvgFromXML(rawXML: string): string | Error {
-    const attemptedExtraction = rawXML.match(/<svg[\s\S]*?<\/svg>/)
+export function extractSvgFromXML(rawXML: string): string | Error {
+    const attemptedExtraction = rawXML.match(/<svg[\s\S]*?<\/svg>/g)
     if (!attemptedExtraction || attemptedExtraction[0] === undefined) return new Error(`No svg found in xml ${rawXML}`)
     if (attemptedExtraction.length > 1) return new Error(`Multiple svg tags found in xml ${rawXML}`)
     return attemptedExtraction.at(0) as string
 }
 
-function uppercaseFirstLetter(word: string) {
+export function uppercaseFirstLetter(word: string) {
     return word.replace(/^[\s\S]{1}/, word[0].toUpperCase())
 }
 
-function createReactComponentAsString(iconName: string): string | Error {
+export function createReactComponentAsString(iconName: string): string | Error {
     if (!Object.keys(svgFileLocations).includes(iconName)) return new Error(`Icon ${iconName} not found among svgs`)
 
     const raw = getRawSvgXML(svgFileLocations[iconName])
@@ -36,7 +37,7 @@ function createReactComponentAsString(iconName: string): string | Error {
     )
 }
 
-function createIconsAsString(icons: {[key: string]: string}): string | Error {
+export function createIconsAsString(icons: {[key: string]: string}): string | Error {
     let errorsWhileProcessing = ""
     let components = ""
 
@@ -47,6 +48,7 @@ function createIconsAsString(icons: {[key: string]: string}): string | Error {
             return
         }
         components = components.concat(`${attemptedCreation}\n\n`)
+        console.log(`Icon ${iconName} converted to string...`)
     })
 
     if (errorsWhileProcessing !== "") console.log(errorsWhileProcessing)
@@ -56,13 +58,18 @@ function createIconsAsString(icons: {[key: string]: string}): string | Error {
 }
 
 function main() {
+    console.log("Beginning create icons...")
     const createIconsAttempt = createIconsAsString(svgFileLocations)
     if (createIconsAttempt instanceof Error) {
         console.error(createIconsAttempt.message)
         return
     }
 
+    console.log(`Saving output to ${tsxOutputFilePath}...`)
     writeFileSync(tsxOutputFilePath, createIconsAttempt)
+    console.log("Success!")
 }
 
-main()
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
+    main()
+}
