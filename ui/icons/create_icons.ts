@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "fs"
-import { svgFileLocations, tsxOutputFilePath } from "./create_icons_config.ts"
+import { svgFileLocations, tsxOutputFilePath, propertyConversions } from "./create_icons_config.ts"
 import { fileURLToPath } from "url"
 
 export function getRawSvgXML(path: string): string | Error {
@@ -19,6 +19,14 @@ export function extractSvgFromXML(rawXML: string): string | Error {
     return attemptedExtraction.at(0) as string
 }
 
+export function convertXMLPropertiesToSvg(svg: string): string {
+    Object.keys(propertyConversions).forEach((xmlProperty) => {
+        if (svg.includes(xmlProperty)) console.log(`\tFound and replaced property ${xmlProperty}...`)
+        svg = svg.replace(new RegExp(xmlProperty, "g"), propertyConversions[xmlProperty])
+    })
+    return svg
+}
+
 export function uppercaseFirstLetter(word: string) {
     return word.replace(/^[\s\S]{1}/, word[0].toUpperCase())
 }
@@ -32,8 +40,10 @@ export function createReactComponentAsString(iconName: string): string | Error {
     const svgAsString = extractSvgFromXML(raw)
     if (svgAsString instanceof Error) return svgAsString
 
+    const svgWithFixedProperties = convertXMLPropertiesToSvg(svgAsString)
+
     return (
-        `export function ${uppercaseFirstLetter(iconName)}() {\n\treturn (${svgAsString})\n}`
+        `export function ${uppercaseFirstLetter(iconName)}() {\n\treturn (${svgWithFixedProperties})\n}`
     )
 }
 
@@ -42,13 +52,13 @@ export function createIconsAsString(icons: {[key: string]: string}): string | Er
     let components = ""
 
     Object.keys(icons).forEach((iconName) => {
+        console.log(`Converting icon ${iconName} to string...`)
         const attemptedCreation = createReactComponentAsString(iconName)
         if (attemptedCreation instanceof Error) {
             errorsWhileProcessing = errorsWhileProcessing.concat(`${attemptedCreation.message}\n\n`)
             return
         }
         components = components.concat(`${attemptedCreation}\n\n`)
-        console.log(`Icon ${iconName} converted to string...`)
     })
 
     if (errorsWhileProcessing !== "") console.log(errorsWhileProcessing)
