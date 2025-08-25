@@ -198,15 +198,178 @@ More directly, "The Database component contains the code that translates the cal
 
 The GUI is not the system. The IO is irrelevant. This is true even for video games - the model of the state of the game is the business rules, whereas the physical display of a character
 
-## Implementing Clean Architecture in Eggbert
+### Boundary Anatomy
 
-### Project File Structure
+#### Between Deployment Components
 
-TODO
+The simplest representation of an architectural boundary is a set of deployable units, which, at deployment time, are gathered together into a single directory or a WAR file, for eample. When deployed like this, they are a monolith. Communications across boundaries are very inexpensive, since they are just function calls, and can be very chatty.
 
-### Testing
+#### Between Threads
 
-TODO
+Threads are not architectural boundaries or deployment units, but a way to organize the schedule of execution. They are generally contained within one or many components, and thus don't require cross-boundary communication.
+
+#### Between Local Processes
+
+Local processes are much stronger boundaries than components. Created from the command line or some sort of system call, they will communicate with other processes via sockets or shared memory (sockets are much more common now, I think; I haven't seen the use of shared memory except for in hardware).
+
+The source code of higher-level processes must not contain the neames, or physical addresses, or registery lookup keys of lower-level processes - lower-level processes should be plugins to higher-level processes!
+
+Communication between processes requires system calls, data conversion to a suitable format for transmission (data marshaling), and context switches, which, together, are moderately expensive.
+
+#### Between Services
+
+A service is the strongest boundary. A service is a process, independent of its location; two communicating services might operate on the same processor and network, but do not depend on doing so.
+
+Communication across service boundaries is expensive as it requires ms of data travel time (latency).
+
+### Using Policy to Decide Level
+
+"Software systems are statement of policy". When a happens, what b should happen? How should c be calculated? Should d be formatted this way or this way?
+
+> Part of the art of developing a software architecture is carefully separatig those policies from one another, and regrouping them based on the ways that they change. Policies that change for the same reasons, and at the same times, are at the same level and belong together in the same component. Policies that change for different reasons, or at different times, are at different levels and should be separated into different components.
+
+Levels describe the distance between the component code and the inputs and outputs of the system.
+
+![Using policies to decide level](/docs/pictures/using%20policies%20to%20decide%20level%20encryption%20program.png)
+
+Read char reads from an input device, and write char writes to an output device. Translate is not dependent on the input or output device, so it is a level above the components responsible for interacting with i/o.
+
+A clean architecture of this system would have two interfaces which create an upwards dependency.
+
+![Proper architecture](/docs/pictures/using%20policies%20to%20decide%20level%20proper%20arch.png)
+
+### What are business rules?
+
+Business rules are the rules that are critical to the business, and would exist with or without the computer system.
+
+Business rules go hand in hand with critical business data. Critical business data, similarly, would exist with or without the computer system.
+
+Critical businesss rules and critical business data are tightly knit, so they should be bound into entities.
+
+#### Entitites
+
+An entity object contains the business data or has easy access to it and the business rules, which are methods that operate on the data.
+
+![Critical business rules example](/docs/pictures/business%20rules%20entity%20example.png)
+
+Entities implement critical concerns. They stand alone - they do not care about databases, user interfaces, or third-party frameworks.
+
+For Eggbert, an excellent example of an entity is the survey. What would the Eggbert operation look like, if the surveys were done manually and results were hand collected and created? There would be surveys, which would contain many responses. You could operate upon the survey in ways such as tallying up the number of responses, finding the average sentiment, and so on.
+
+#### Use Cases
+
+Some business rules describe systems, rather than entities. For example, a computer sales company might require that a sale over $10000 requires a customer's full information, and therefore their sales website would not allow proceeding to the cart without customer information.
+
+These business rules are _application-specific_ as opposed to _critical_, and Martin refers to them as use cases. A use case is a specification that travels from input to output. User stories are used as a way of describing use cases.
+
+![Use case example](/docs/pictures/use%20case%20example.png)
+
+Use cases do not describe UIs or databases, like critical business rules. However, they do describe the data that comes in through the UI and that is saved to the database.
+
+> A use case is an object. It has one or more functions that implement the application-specific business rules. It alos has data elements that include the input data, the output data, and the references to the appropriate Entities with which it interacts.
+
+Application-specific business rules depend on critical business rules. Entities have no knowledge of use cases; use cases depend on entities.
+
+#### Request and Response Models
+
+Even though use cases interact with data, they shouldn't know where the data is coming from. Use cases should accept request data structures and return response data structures.
+
+However, request and response strucutres are NOT entities! Creating request and response interfaces which rely on entities would violate the Common Closure and Single Responsibility Principles. Requests and responses will change for differnt reasons than entities. For example, what a survey looks like will rarely change. Maybe demographics are added later. Requests and responses might change when status message are added, may contain format fields, might signal certain boolean conditions within the use case, etc.
+
+### The Clean Architecture
+
+#### What Existed?
+
+1. Hexagonal Architecture / Pors and Adapters, developed by Alistair Cockburn, adopted by Steve Freeman and Nat Pryce in their _Growing Object Oriented Software with Tests_
+1. DCI, developed by James Coplien and Tygve Reenskaug
+1. BCE, developed by Ivar Jacobsen in _Object Oriented Software Engineering: A Use-Case Driven Approach_
+
+All these architectures create a logical separation of concerns by dividing software into layers. In each system, software is:
+
+1. Independent of frameworks. Frameworks should be tools, rather than constraints to fit into.
+1. Testable. The business rules can be tested without external elements.
+1. Independent of the UI. Web, console, desktop app, should be swappable.
+1. Independent of the database. Your databse should be swappable.
+1. Independent of any external agency. Your business rules shouldn't know about the outside world.
+
+#### Binding These Principles
+
+The clean architecture is a binding of these principles. Here is Robert's diagram:
+
+![clean architecture circular](/docs/pictures/clean%20architecture%20circular.png)
+
+#### Entities
+
+Entities are the _critical business rules_. An entity can be an object with methods, it can be a set of data structures and functions, etc. It doesn't matter as long as the entities are usable by whatever depends on them.
+
+#### Use Cases
+
+Use Cases are the _application-specific business rules_. They orchestrate the flow of data to and from the entities. Changes in this layer do not affect the entities, and are not affected by frameworks, the UI, or the database.
+
+#### Interface Adapters
+
+Interface Adapters convert data from the format most convenient for the use cases and entities to the format most convenient for external agencies such as the database or the web.
+
+For example, this layer will wholly contain the MVC architecture of a GUI. The controllers pass data to the use cases, and then back to the presenters and views.
+
+This layer will have knowledge of the database. For example, if the database is an SQL database, the SQL will be located here.
+
+#### Frameworks and Drivers
+
+The outermost layer of the model is composed of tools such as the database and web frameworks.
+
+These circles are arbitrary; they are a suggestion. The dependency rule, however, should always be followed. Dependencies should point inward.
+
+#### Crossing Boundaries
+
+The flow of control heads inward, then outward. The example in the above circular graph shows control flowing from the controller to the use cases, then back out to the presenter.
+
+What happens when the control flows back out from the use case to the presenter, and the use case needs to call a function within the presenter? The use case has an output interface it depends on, which the presenter implements. This dynamic polymorphism solves issues where source dependencies should oppose the flow of control (as Robert Martin states many times).
+
+#### How should data cross boundaries?
+
+Only isolated, simple data structures are passed across the boundaries. Complicated structures like entities or database orws should not be passed; data structures should not create dependencies that violate the dependency rule.
+
+Data structures that go across boundaries should be what is most convenient for the inner circle.
+
+### Supporting Patterns
+
+#### Presenters and Humble Objects
+
+In the humble object pattern, objects are split into two: those that contain the behaviors that are hard to test, and those that contain the behaviors that are easy to test.
+
+The humble object is hard to test. A good example of a humble object is a view: the exact layout of the gui according to the view specifications can required end-end testing, which is slow and requires additional frameworks and complicated set up.
+
+The testable object is more complicated; a good example is that if dynamic fetching is done within a gui component, or a list is sorted, or data formatted, that behavior would occur in the presenter.
+
+In the presenter/view pattern, the view is only passed enums, strings, and booleans.
+
+The separation of architecture into testable and non-testable parts is a good boundary, as testing is always an attribute of good architectures.
+
+Another example is the database gateways, which stand between the use case interactors and the database. These contain the methods for the CRUD operations required by the application. If the application needs to know the name of all users logged in yesterday, the `UserGateway` interface will have a method named `getLastNamesOfUsersWhoLoggedInAfter(date: Date): string[]`. The gateways are humble: they contain simple sql or whatever database interaction language is used. The use case interactors, however, are not humble: they contain aplication-specific business rules. Because they are not humble, they should be testable.
+
+Humble objects can form boundaries across service interfaces. Service listeners are solely responsible for serializing data and passing it across a boundary.
+
+[Here's an excellent article on implementing this pattern in react.](https://dev.to/krofdrakula/make-testable-components-using-the-humble-object-pattern-1j4o)
+
+#### Partial Boundaries
+
+1. Skip the Last Step
+   Skipping the last step is treating components as completely separate right up until compile time, at which point all components are compiled together.
+
+1. One-Dimensional Boundaries
+   One-dimensional boundaries do not implement reciprocal boundary interfaces; they use interfaces only in one direction across boundaries.
+
+   ![One-dimensional boundaries](/docs/pictures/partial%20boundaries%20one-dimensional.png)
+
+1. Facades
+   Facades compile the functions of lower-level classes and provide them as methods on a facade. In a facade, there is no dependency inversion. Higher-level classes have transitive dependencies on lower-level classes.
+
+   ![Facades](/docs/pictures/partial%20boundares%20facades.png)
+
+Partial boundaries should be used as a placeholder for an eventual full-fledge boundary. If a boundary never materializes, the partial boundaries can be cut down.
+
+### The Main Component
 
 ## Resources
 

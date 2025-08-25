@@ -2,45 +2,59 @@
 
 ## Terms
 
-### survey
+### People
 
-### respondent
+#### respondent
 
 The survey taker.
 
-### dialogue
+#### user
 
-The conversation between the survey respondent and the model.
+Anyone who uses the app.
 
-### response
+### Surveys
 
-The encapsulated summary and data of the response.
+#### survey
 
-### transcript
+A survey.
+
+#### response
+
+The encapsulated summary and data of the response. Responses contain transcript, as well as summaries, transcripts, demographics, etc.
+
+#### dialogue
+
+The conversation between the survey respondent and the model. Not an entity; a description of a transcript in progress.
+
+#### transcript
 
 The full dialogue text.
 
-### demographics
+#### turns
+
+Includes a question and survey respondent answer. Transcripts consist of turns.
+
+#### messages
+
+A model's question or a user's answer. Not an entity, a description.
+
+#### demographics
 
 Demographic information about a survey response.
 
-### turns
+### AI
 
-Includes a question and survey respodent answer.
-
-### messages
-
-A model's question or a user's answer.
-
-### model
+#### model
 
 To be consistent, use 'model' when referring to chatGPT, deepseek, or other generative ai models.
 
-### directories
+### Locations
+
+#### directories
 
 Use `dir` when referring to a folder or directory in code.
 
-### paths
+#### paths
 
 Use `path` when referring to a path, route, or file location.
 
