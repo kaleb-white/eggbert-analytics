@@ -6,7 +6,7 @@ Clean architecture is a design philosophy that emphasizes a separation of concer
 
 ## Why Clean Architecture?
 
-There are many design philosophies out there
+Clean architecture is an encompassing philosophy that doesn't prescribe details like folders, frameworks, databases, etc. Rather, it describes a set of principles ([SOLID principles](#solid-design-principles-and-their-architectural-implications)) which center on the concept of dependency inversion. Regardless of the structure or use of the codebase, SOLID principles emhpasize that core features should be depended upon, not depend on others. This modularity inspires ease of change, extension, and use.
 
 ## Definitions and Concepts in Clean Architecture
 
@@ -370,6 +370,96 @@ Humble objects can form boundaries across service interfaces. Service listeners 
 Partial boundaries should be used as a placeholder for an eventual full-fledge boundary. If a boundary never materializes, the partial boundaries can be cut down.
 
 ### The Main Component
+
+The main component is the component that creates, coordinates, and oversees the other components (not necessarily called main).
+
+The main creates the factories, strategies, etc., and then hand control over to higher-level parts of the system.
+
+Dependency injection happens within the main component.
+
+### Services: Great and Small
+
+What is the difference between an architectural boundary (as Robert Martin defines it) and a service? Services do not necessarily separate low and high level policy by polymorphic obedience to higher level structures; they can just be function calls that don't rely on a well-defined API.
+
+In the Uncle Bob world, functions calls are of two types: calls to functions which are responsible for separate behaviors, and architecturally-significant calls across component lines. Calls to services do not necessarily represent the second type.
+
+Furthermore, services are coupled by the data structures which they use. Changes to fields result in changes to every service that is dependent on those data structures.
+
+#### An Example: the Kitty Problem
+
+Consider this taxi ordering app, where the boxes are independent teams responsible for independent services.
+
+![Taxi app pic](/docs/pictures/services%20issues%20taxi%20suppliers.png)
+
+What happens when the marketing teams announce that the app will now deliver kitties? People can buy kitties (I guess) from their smartphones, and the app will coordinate with the taxi companies to bring them the kitties.
+
+Some of the taxis companies will decline to participate. Some drivers within the participating companies are allergic, and so they are unable to deliver kitties. Maybe kitties could be 'rentable', so they would need a scheduled return delivery. Perhaps customers who have cat allergies should know which taxis carried kitties recently; information which would need to be stored with the information about the taxis.
+
+Attempting to implement this within the service-based system requires significant cross-team collaboration, since all the services would need to change to create the kitty service. Every software system must face the issues created by a significant overhaul, service-oriented or not.
+
+#### Handling the Kitty Problem with SOLID Design Principles
+
+Using SOLID design principles (remember, the [Single Responsibility Principle](#single-responsibility-principle), the [Open-Closed Principle](#the-open-closed-principle), the [Liskov Substitution Principle](#the-liskov-substitution-principle), the [Interface Segregation Principle](#the-interface-segregation-principle), and the [Dependency Inversion Principle](#the-dependency-inversion-principle)), the service-based architecture can be refactored to use abstract classes, specific methods of which are implemented by the kittens or the rides.
+
+![services issues refactored](/docs/pictures/services%20issues%20refactored.png)
+
+The rides and kittens classes implement methods in the abstract classes Taxi Finder, Taxi Selector, Taxi Suppliers, and Taxi Dispatcher. It is absolutely possible to implement this while retaining a service structure:
+
+![service issues refactored as services](/docs/pictures/service%20issues%20refactored%20as%20services.png)
+
+Cross-cutting concerns reveal that boundaries do not fall between services, but within them. To deal with cross-cutting concerns, services must be designed with internal component boudaries that follow the dependency rule (dependencies point upwards).
+
+### The Test Boundary
+
+Tests are the outermost circle of the architecture. They are the most isolated component, and nothing depends on them.
+
+Tests will always be strongly coupled to the system. Small changes to components can cause hundreds, or thousands, of tests to break.
+
+The solution is to design for testability. The first rule of software design, according to Robert Martin, is _don't depend on volatile things_.
+
+#### The Testing API
+
+The testing API allows the verification of the business rules. Tests should be able to avoid security constraints, bypass expensive resources such as databases, and force the system into testable states.
+
+One of the purposes of the testing API is to decouple the tests and the structure of the application. Imagine that there is a test for every production class, and a set of test methods for every production methods. Changing a single class will require changing many tests.
+
+The creation of a testing API allows for the structure of the application to be hidden. The production classes can evolve and refactor.
+
+For security purposes, because of the privileged status of the testing suite, tests should be kept away from source code.
+
+### Details
+
+#### The Database is a Detail
+
+The _way you choose to store your data_ is a detail. The data model itself is not. The database is a utility to persist data.
+
+The relational database model was developed by Edgar Codd in 1970s, and implementations were dominant by the 1980s.
+
+However, organizing data into rows within tables is not significant. It is a detail. Your software should not care that the data is in rows. There are significant differences between storage systems: databases are optimized for content-based access; file systems are optimized for name-based access.
+
+Regardless, when the application loads the data into memory, it loads it in the form of linked-lists, hash maps, objects, arrays, and so on. It isn't organized by rows.
+
+That's what makes the database a detail. Whether you read from a file-based system or a relational database, you transform the data into the form your software works with.
+
+The performance of the database is separate from the performance of the business rules. It should and can still be analyzed and optimized, but that analysis occurs separately.
+
+#### The Web is a Detail
+
+The web has oscillated back and forth between performing processing on the client side or the server side. The business rules are separate from this continuing oscillations.
+
+The GUI is a detail. The web is a GUI. So the web is a detail. There are many IO devices, and the web is one of them. In a web-based application, the boundary is going to be very chatty. The way a web app interacts with the browser will be very different from the way that a web app interacts with a desktop-based application. However, at some point, there will be use cases that consist of taking input, performing actions, and outputting data. Finding the boundaries is hard, but possible.
+
+#### Frameworks are Details
+
+Whenever you make a decision to use a framework, you make a huge commitment to that framework author, which the author does not make to you. Frameworks will provide objects, methods, and ways of doing things, which they will attempt to get you to integrate into your core entities and use cases.
+
+Frameworks can help you get started faster and easier. However, easier startups can mean costs later, if the framework grows in a direction you don't want or aren't interested in, or if you outgrow the framework.
+
+The solution is to avoid marrying the framework. Don't let it touch your business rules.
+
+Your main component can know about frameworks, because it's dirty.
+
+Some frameworks must be married. Standard libraries, compilers, and languages (in a sense), are all dependencies of your business rules. However, these choices should be made intentionally.
 
 ## Resources
 

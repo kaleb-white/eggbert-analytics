@@ -1,6 +1,6 @@
 import { Transcript } from "./transcript"
 
-export class Response {
+export class surveyResponse {
     summary: string
     transcript: Transcript
 

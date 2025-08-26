@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { extractSvgFromXML, getRawSvgXML } from "../create_icons";
-import { relativeIconDirPath, svgFileLocations, tsxOutputFilePath } from "../create_icons_config";
+import { extractSvgFromXML, getRawSvgXML } from "@/ui/icons/create_icons";
+import { svgFileLocations } from "@/ui/icons/create_icons_config";
 
 describe("test func getRawSvgXML", () => {
     test("errors on bad path", () => {

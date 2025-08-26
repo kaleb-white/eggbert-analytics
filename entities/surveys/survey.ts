@@ -1,20 +1,20 @@
 import { ModelDialoguePrompt } from "./model_dialogue_prompt"
-import { Response } from "./response"
+import { surveyResponse } from "./survey_response"
 
 export class Survey {
     modelDialoguePrompts: ModelDialoguePrompt[]
-    responses: Response[]
+    surveyResponses: surveyResponse[]
     createdAt: number
     lastEdited: number
 
     constructor(
         modelDialoguePrompts: ModelDialoguePrompt[],
-        responses: Response[],
+        surveyResponses: surveyResponse[],
         createdAt: number = Date.now(),
         lastEdited: number = Date.now()
     ) {
         this.modelDialoguePrompts = modelDialoguePrompts
-        this.responses = responses
+        this.surveyResponses = surveyResponses
         this.createdAt = createdAt
         this.lastEdited = lastEdited
     }

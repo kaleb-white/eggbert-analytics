@@ -18,9 +18,9 @@ Anyone who uses the app.
 
 A survey.
 
-#### response
+#### surveyResponse
 
-The encapsulated summary and data of the response. Responses contain transcript, as well as summaries, transcripts, demographics, etc.
+The encapsulated summary and data of the surveyResponse. surveyResponses contain transcript, as well as summaries, transcripts, demographics, etc.
 
 #### dialogue
 
