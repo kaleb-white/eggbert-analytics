@@ -1,15 +1,15 @@
 import { ModelDialoguePrompt } from "./model_dialogue_prompt"
-import { surveyResponse } from "./survey_response"
+import { SurveyResponse } from "./survey_response"
 
 export class Survey {
-    modelDialoguePrompts: ModelDialoguePrompt[]
-    surveyResponses: surveyResponse[]
-    createdAt: number
-    lastEdited: number
+    private modelDialoguePrompts: ModelDialoguePrompt[]
+    private surveyResponses: SurveyResponse[]
+    private createdAt: number
+    private lastEdited: number
 
     constructor(
         modelDialoguePrompts: ModelDialoguePrompt[],
-        surveyResponses: surveyResponse[],
+        surveyResponses: SurveyResponse[],
         createdAt: number = Date.now(),
         lastEdited: number = Date.now()
     ) {
@@ -17,5 +17,54 @@ export class Survey {
         this.surveyResponses = surveyResponses
         this.createdAt = createdAt
         this.lastEdited = lastEdited
+    }
+
+    getPrompts() {
+        return this.modelDialoguePrompts
+    }
+
+    getSurveyResponses() {
+        return this.surveyResponses
+    }
+
+    getTimeThisCreated() {
+        return this.createdAt
+    }
+
+    getTimeThisEdited() {
+        return this.lastEdited
+    }
+
+    setPrompts(newPrompts: ModelDialoguePrompt[]) {
+        this.modelDialoguePrompts = newPrompts
+        this.setLastEditedNow()
+    }
+
+    setSurveyResponses(newSurveyResponses: SurveyResponse[]) {
+        this.surveyResponses = newSurveyResponses
+        this.setLastEditedNow()
+    }
+
+    setCreatedAt(newTime: number) {
+        this.createdAt = newTime
+        this.setLastEditedNow()
+    }
+
+    setLastEdited(newTime: number) {
+        this.lastEdited = newTime
+    }
+
+    setLastEditedNow() {
+        this.lastEdited = Date.now()
+    }
+
+    addResponse(newSurveyResponse: SurveyResponse) {
+        this.surveyResponses = this.surveyResponses.concat(newSurveyResponse)
+        this.setLastEditedNow()
+    }
+
+    addPrompt(newPrompt: ModelDialoguePrompt) {
+        this.modelDialoguePrompts = this.modelDialoguePrompts.concat(newPrompt)
+        this.setLastEditedNow()
     }
 }
