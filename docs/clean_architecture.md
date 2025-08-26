@@ -4,6 +4,10 @@ Clean architecture is a design philosophy that emphasizes a separation of concer
 
 ![Clean architecture simple diagram](https://cdn-media-1.freecodecamp.org/images/YsN6twE3-4Q4OYpgxoModmx29I8zthQ3f0OR)
 
+## Attribution
+
+All credit to Robert C. Martin, _Clean Architecture: A Craftsman's Guide to Software Structure and Design_. Consider this document a slice of Martin's book; many sections are directly quoted without quotation marks.
+
 ## Why Clean Architecture?
 
 Clean architecture is an encompassing philosophy that doesn't prescribe details like folders, frameworks, databases, etc. Rather, it describes a set of principles ([SOLID principles](#solid-design-principles-and-their-architectural-implications)) which center on the concept of dependency inversion. Regardless of the structure or use of the codebase, SOLID principles emhpasize that core features should be depended upon, not depend on others. This modularity inspires ease of change, extension, and use.
@@ -460,7 +464,3 @@ The solution is to avoid marrying the framework. Don't let it touch your busines
 Your main component can know about frameworks, because it's dirty.
 
 Some frameworks must be married. Standard libraries, compilers, and languages (in a sense), are all dependencies of your business rules. However, these choices should be made intentionally.
-
-## Resources
-
-Robert C. Martin, _Clean Architecture: A Craftsman's Guide to Software Structure and Design_
