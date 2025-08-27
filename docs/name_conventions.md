@@ -68,6 +68,21 @@ Name files and folders using snake case; for example use `my_folder` instead of 
 
 Variables should use camelCase, ie., `myVariable`. Classes should follow the standard class naming, ie., `MyClass`.
 
+Interfaces should end with `Interface`. Implementations should end with `Impl`. The dependency injector should export the chosen implementation with nothing appended. For example,
+
+```typescript
+export interface MyClassInterface {
+    ...
+}
+
+export class MyClassImpl {
+    ...
+}
+
+// dependency_injector.ts
+export class MyClass
+```
+
 ### CSS Variables
 
 Name css variables using snake case with dashes to follow the Tailwind style, ie., `my-css-variable`.
