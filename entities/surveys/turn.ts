@@ -1,26 +1,10 @@
-import { ModelDialoguePrompt } from "./model_dialogue_prompt";
-
 export class Turn {
-    private dialoguePrompt: ModelDialoguePrompt
-    private modelOutput: string | undefined
-    private userAnswer: string | undefined
+    modelOutput?: string
+    userAnswer?: string
 
-    constructor(dialoguePrompt: ModelDialoguePrompt, modelOutput?: string, userAnswer?: string) {
-        this.dialoguePrompt = dialoguePrompt
+    constructor(modelOutput?: string, userAnswer?: string) {
         this.modelOutput = modelOutput
         this.userAnswer = userAnswer
-    }
-
-    get getDialoguePrompt() {
-        return this.dialoguePrompt
-    }
-
-    get getModelOutput() {
-        return this.modelOutput
-    }
-
-    get getUserAnswer() {
-        return this.userAnswer
     }
 
     /** Returns an empty string if the turn is not complete. */
@@ -39,17 +23,5 @@ export class Turn {
 
     get turnWasTaken() {
         return this.modelOutputExists || this.userAnswerExists
-    }
-
-    set setDialoguePrompt(newDialoguePrompt: ModelDialoguePrompt) {
-        this.dialoguePrompt = newDialoguePrompt
-    }
-
-    set setModelOutput(userCreatedModelOutput: string) {
-        this.modelOutput = userCreatedModelOutput
-    }
-
-    set setUserAnswer(newUserAnswer: string) {
-        this.userAnswer = newUserAnswer
     }
 }

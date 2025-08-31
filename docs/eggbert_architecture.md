@@ -1,5 +1,9 @@
 ## Implementing Clean Architecture in Eggbert
 
+![Good pic for understanding clean architecture in eggbert](/docs/pictures/ocp%20split.png)
+
+This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architecture_ generally mirrors the component setup of eggbert.
+
 ### Project File Structure
 
 - app: routing
