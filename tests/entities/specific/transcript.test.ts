@@ -8,7 +8,7 @@ describe("test survey response",  () => {
     describe("test method dialogueAsString", () => {
         const testPrompt = new ModelDialoguePrompt("test")
         const turns = [new Turn(), new Turn()]
-        const t = new SurveyResponse([testPrompt], turns)
+        const t = new SurveyResponse([testPrompt], "ex", turns)
 
         test("outputs nothing when turns are empty", () => {
             expect(t.dialogueAsString).toBe("")
