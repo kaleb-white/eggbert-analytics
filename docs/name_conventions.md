@@ -58,6 +58,12 @@ Use `dir` when referring to a folder or directory in code.
 
 Use `path` when referring to a path, route, or file location.
 
+### Technical Terms
+
+#### load
+
+Use load when referring to creating an object from storage.
+
 ## Casing conventions
 
 ### Files and folders

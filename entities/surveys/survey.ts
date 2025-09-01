@@ -1,19 +1,26 @@
+import assert from "node:assert"
+import { CryptoUtilityCreator } from "../interfaces/crypto_utility_creator"
 import { ModelDialoguePrompt } from "./model_dialogue_prompt"
 import { SurveyResponse } from "./survey_response"
+import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid"
 
 export class Survey {
     private modelDialoguePrompts: ModelDialoguePrompt[]
     private surveyResponses: SurveyResponse[]
     private createdAt: number
     private lastEdited: number
+    private uniqueid: string
 
     constructor(
         modelDialoguePrompts: ModelDialoguePrompt[],
+        uniqueId: string | CryptoUtilityCreator,
         surveyResponses: SurveyResponse[],
         createdAt: number = Date.now(),
-        lastEdited: number = Date.now()
+        lastEdited: number = Date.now(),
+
     ) {
         this.modelDialoguePrompts = modelDialoguePrompts
+        this.uniqueid = assignOrCreateUniqueId(uniqueId)
         this.surveyResponses = surveyResponses
         this.createdAt = createdAt
         this.lastEdited = lastEdited

@@ -2,6 +2,7 @@ import { isCryptoUtilityCreator } from "@/stable_utilities/type_checks"
 import { CryptoUtilityCreator } from "../interfaces/crypto_utility_creator"
 import { ModelDialoguePrompt } from "./model_dialogue_prompt"
 import { Turn } from "./turn"
+import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid"
 
 export class SurveyResponse {
     summary?: string
@@ -24,25 +25,14 @@ export class SurveyResponse {
         this.modelPrompts = modelPrompts
 
         // Use given id or generate new one
-        this.uniqueId = this.assignOrCreateUniqueId(uniqueId)
+        this.uniqueId = assignOrCreateUniqueId(uniqueId)
 
         // Transcript can start as any turns given by caller
         this.transcript = completedTurns
 
-        // Throw error on model prompts not equal to transcript length
-
-
         this.currentTurn = this.numOfTurnsTaken
         this.timeCreated = timeCreated
         this.lastEdited = lastEdited
-    }
-
-    private assignOrCreateUniqueId(uniqueId: string | CryptoUtilityCreator): string {
-        const testCreateUniqueId = typeof(uniqueId) === 'string' ? uniqueId as string
-            : isCryptoUtilityCreator(uniqueId) ? (uniqueId as CryptoUtilityCreator).createUniqueId()
-            : "fail"
-        if (testCreateUniqueId === "fail") throw new Error('UniqueId argument to survey response constructer was not of expected type!')
-        return testCreateUniqueId
     }
 
     get numOfTurnsTaken() {
