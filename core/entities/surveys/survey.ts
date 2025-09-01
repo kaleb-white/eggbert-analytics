@@ -1,15 +1,14 @@
-import assert from "node:assert";
 import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
 import { ModelDialoguePrompt } from "./model_dialogue_prompt";
 import { SurveyResponse } from "./survey_response";
 import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
 
 export class Survey {
-    private modelDialoguePrompts: ModelDialoguePrompt[];
-    private surveyResponses: SurveyResponse[];
-    private createdAt: number;
-    private lastEdited: number;
-    private uniqueid: string;
+    modelDialoguePrompts: ModelDialoguePrompt[];
+    surveyResponses: SurveyResponse[];
+    createdAt: number;
+    lastEdited: number;
+    uniqueid: string;
 
     constructor(
         modelDialoguePrompts: ModelDialoguePrompt[],
@@ -25,52 +24,16 @@ export class Survey {
         this.lastEdited = lastEdited;
     }
 
-    getPrompts() {
-        return this.modelDialoguePrompts;
-    }
-
-    getSurveyResponses() {
-        return this.surveyResponses;
-    }
-
-    getTimeThisCreated() {
-        return this.createdAt;
-    }
-
-    getTimeThisEdited() {
-        return this.lastEdited;
-    }
-
-    setPrompts(newPrompts: ModelDialoguePrompt[]) {
-        this.modelDialoguePrompts = newPrompts;
-        this.setLastEditedNow();
-    }
-
-    setSurveyResponses(newSurveyResponses: SurveyResponse[]) {
-        this.surveyResponses = newSurveyResponses;
-        this.setLastEditedNow();
-    }
-
-    setCreatedAt(newTime: number) {
-        this.createdAt = newTime;
-        this.setLastEditedNow();
-    }
-
-    setLastEdited(newTime: number) {
-        this.lastEdited = newTime;
-    }
-
-    setLastEditedNow() {
-        this.lastEdited = Date.now();
-    }
-
-    addResponse(newSurveyResponse: SurveyResponse) {
+    addResponse(
+        newSurveyResponse: SurveyResponse,
+        changeTimeLastEdited = true
+    ) {
         this.surveyResponses = this.surveyResponses.concat(newSurveyResponse);
-        this.setLastEditedNow();
+        if (changeTimeLastEdited) this.lastEdited = Date.now();
     }
 
-    addPrompt(newPrompt: ModelDialoguePrompt) {
+    addPrompt(newPrompt: ModelDialoguePrompt, changeTimeLastEdited = true) {
         this.modelDialoguePrompts = this.modelDialoguePrompts.concat(newPrompt);
-        this.setLastEditedNow();
+        if (changeTimeLastEdited) this.lastEdited = Date.now();
     }
 }
