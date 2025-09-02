@@ -28,7 +28,9 @@ def file_structure_text_to_dict(file_structure_text: str):
         .replace("    ", SUBFOLDER_CHAR)
         .splitlines()
     ):
-        preprocessed += line.replace("-   ", "").replace("-  ", "").replace("- ", "")
+        preprocessed += (
+            line.replace("-   ", "").replace("-  ", "").replace("- ", "") + "\n"
+        )
 
     return preprocessed
     for line in preprocessed.splitlines():
