@@ -11,5 +11,5 @@ EGGBERT_ARCHITECTURE_REL_PATH = "../docs/eggbert_architecture.md"
 
 
 if __name__ == "__main__":
-    os.getcwd()
+    console.log(os.getcwd())
     # main()
