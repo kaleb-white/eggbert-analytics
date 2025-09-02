@@ -19,13 +19,18 @@ def get_curr_file_structure_text():
         )
 
 
+def file_structure_text_to_dict(file_structure_text: str):
+    return file_structure_text.replace("\t", "a")
+
+
 def main():
     if not os.getcwd().endswith("eggbert-analytics"):
         print(
             "Please only commit from the eggbert-analytics directory. The hooks are not configured to work from anywhere else."
         )
 
-    print(get_curr_file_structure_text())
+    curr_file_structure_text = get_curr_file_structure_text()
+    print(file_structure_text_to_dict(curr_file_structure_text))
 
 
 if __name__ == "__main__":
