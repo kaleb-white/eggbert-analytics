@@ -134,7 +134,7 @@ def dict_to_output(existing: dict[str, str], at_parse: list[str]) -> str:
             + description
             + "\n"
         )
-    return res
+    return res.rstrip("\n")
 
 
 def main():
