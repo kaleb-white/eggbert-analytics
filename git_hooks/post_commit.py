@@ -22,12 +22,13 @@ def get_curr_file_structure_text():
 
 
 def file_structure_text_to_dict(file_structure_text: str):
-    preprocessed = (
+    preprocessed = ""
+    for line in (
         file_structure_text.replace("\t", SUBFOLDER_CHAR)
         .replace("    ", SUBFOLDER_CHAR)
-        .lstrip("-")
-        .lstrip(" ")
-    )
+        .splitlines()
+    ):
+        preprocessed += line.replace("-   ", "").replace("-  ", "").replace("- ", "")
 
     return preprocessed
     for line in preprocessed.splitlines():
