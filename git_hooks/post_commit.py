@@ -14,7 +14,8 @@ DESCRIPTION_SEPERATOR = ":"
 EXCLUDED_DIRECTORIES = [".next", ".git", "node_modules"]
 ABSOLUTE_DIRECTORY = re.compile(".*eggbert-analytics.{1}")
 
-OUTPUT_LEFT_PADDING = "-  "
+OUTPUT_DIRS_TO_NOT_LIST = ["interfaces"]
+OUTPUT_LEFT_PADDING = "-   "
 OUTPUT_FOLDER_SPACING = "\t"
 
 
@@ -116,6 +117,8 @@ def dict_to_output(existing: dict[str, str], at_parse: list[str]) -> str:
     for dir in at_parse:
         depth = dir.count(FOLDER_SEPERATOR)
         folder_name = dir.split(FOLDER_SEPERATOR)[-1]
+        if folder_name in OUTPUT_DIRS_TO_NOT_LIST:
+            continue
 
         description = (
             existing[dir]
