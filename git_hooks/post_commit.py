@@ -17,6 +17,8 @@ def main():
             "Please only commit from the eggbert-analytics directory. The hooks are not configured to work from anywhere else."
         )
 
+    get_curr_file_structure_text()
+
 
 if __name__ == "__main__":
 
