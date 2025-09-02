@@ -46,7 +46,7 @@ def file_structure_text_to_dict(file_structure_text: str):
     def prepend_parent_folder(stack: list[str], folder_name: str) -> str:
         res = ""
         for folder in stack:
-            res += "folder"
+            res += folder
             res += FOLDER_SEPERATOR
         res += folder_name
         return res
