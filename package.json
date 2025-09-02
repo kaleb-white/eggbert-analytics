@@ -1,32 +1,32 @@
 {
-  "name": "eggbert-analytics",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "bun test",
-    "compile-icons": "bun run ui/icons/create_icons.ts"
-  },
-  "dependencies": {
-    "@types/bun": "^1.2.20",
-    "next": "15.4.6",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20.19.11",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
-    "bun": "^1.2.20",
-    "eslint": "^9",
-    "eslint-config-next": "15.4.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+    "name": "eggbert-analytics",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "python main.py",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "test": "bun test",
+        "compile-icons": "bun run ui/icons/create_icons.ts"
+    },
+    "dependencies": {
+        "@types/bun": "^1.2.20",
+        "next": "15.4.6",
+        "react": "19.1.0",
+        "react-dom": "19.1.0"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3",
+        "@tailwindcss/postcss": "^4",
+        "@types/node": "^20.19.11",
+        "@types/react": "^19.1.10",
+        "@types/react-dom": "^19.1.7",
+        "bun": "^1.2.20",
+        "eslint": "^9",
+        "eslint-config-next": "15.4.6",
+        "tailwindcss": "^4",
+        "typescript": "^5"
+    }
 }
