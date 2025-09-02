@@ -8,7 +8,15 @@ EGGBERT_ARCHITECTURE_ABSOLUTE_PATH = os.getcwd() + EGGBERT_ARCHITECTURE_REL_PATH
 
 def get_curr_file_structure_text():
     with open(EGGBERT_ARCHITECTURE_ABSOLUTE_PATH, "r") as f:
-        print(f.read())
+        return (
+            f.read()
+            .split(
+                "### Project File Structure (DO NOT CHANGE THIS HEADER, GIT HOOK DEPENDS ON IT)"
+            )[1]
+            .split("###")[0]
+            .strip("\n")
+            .rstrip("\n")
+        )
 
 
 def main():
@@ -17,7 +25,7 @@ def main():
             "Please only commit from the eggbert-analytics directory. The hooks are not configured to work from anywhere else."
         )
 
-    get_curr_file_structure_text()
+    print(get_curr_file_structure_text())
 
 
 if __name__ == "__main__":
