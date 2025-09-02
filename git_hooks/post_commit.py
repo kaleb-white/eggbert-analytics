@@ -5,6 +5,8 @@ import sys, os
 EGGBERT_ARCHITECTURE_REL_PATH = "\docs\eggbert_architecture.md"
 EGGBERT_ARCHITECTURE_ABSOLUTE_PATH = os.getcwd() + EGGBERT_ARCHITECTURE_REL_PATH
 
+SUBFOLDER_CHAR = chr(26)
+
 
 def get_curr_file_structure_text():
     with open(EGGBERT_ARCHITECTURE_ABSOLUTE_PATH, "r") as f:
@@ -20,7 +22,16 @@ def get_curr_file_structure_text():
 
 
 def file_structure_text_to_dict(file_structure_text: str):
-    return file_structure_text.replace("\t", "a").replace("    ", "a")
+    preprocessed = (
+        file_structure_text.replace("\t", SUBFOLDER_CHAR)
+        .replace("    ", SUBFOLDER_CHAR)
+        .lstrip("-")
+        .lstrip(" ")
+    )
+
+    return preprocessed
+    for line in preprocessed.splitlines():
+        ...
 
 
 def main():
