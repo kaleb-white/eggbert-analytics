@@ -5,8 +5,10 @@ import sys, os, platform
 EGGBERT_ARCHITECTURE_REL_PATH = "\docs\eggbert_architecture.md"
 EGGBERT_ARCHITECTURE_ABSOLUTE_PATH = os.getcwd() + EGGBERT_ARCHITECTURE_REL_PATH
 
-SUBFOLDER_CHAR = chr(26)
-FOLDER_SEPERATOR = "\\" if platform.system().lower().find("windows") != -1 else "/"
+SUBFOLDER_CHAR = chr(26)  # Ascii 'substitute' character
+FOLDER_SEPERATOR = (
+    chr(92) if platform.system().lower().find("windows") != -1 else "/"
+)  # chr(92) = \
 
 OUTPUT_LEFT_PADDING = "-  "
 OUTPUT_FOLDER_SPACING = "\t"
