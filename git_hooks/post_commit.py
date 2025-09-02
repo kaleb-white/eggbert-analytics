@@ -20,7 +20,7 @@ def get_curr_file_structure_text():
 
 
 def file_structure_text_to_dict(file_structure_text: str):
-    return file_structure_text.replace("\t", "a")
+    return file_structure_text.replace("\t", "a").replace("    ", "a")
 
 
 def main():
