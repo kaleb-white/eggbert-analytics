@@ -11,7 +11,7 @@ FOLDER_SEPERATOR = (
 )  # chr(92) = \
 DESCRIPTION_SEPERATOR = ":"
 
-EXCLUDED_DIRECTORIES = [".next", ".git", "node_modules"]
+EXCLUDED_DIRECTORIES = [".next", ".git", "node_modules", ".devcontainer"]
 ABSOLUTE_DIRECTORY = re.compile(".*eggbert-analytics.{1}")
 
 OUTPUT_DIRS_TO_NOT_LIST = ["interfaces"]
