@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, platform, re
+import os, platform, re
 
 EGGBERT_ARCHITECTURE_REL_PATH = "\docs\eggbert_architecture.md"
 EGGBERT_ARCHITECTURE_ABSOLUTE_PATH = os.getcwd() + EGGBERT_ARCHITECTURE_REL_PATH

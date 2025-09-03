@@ -1,6 +1,6 @@
 export interface SurveyCache {
-    saveSurvey(uniqueId: string, survey: string): null | Error;
-    saveSurveyAsynchronously(uniqueId: string, survey: string): null | Error;
-    loadSurveyWithResponsesFromCache(uniqueId: string): string;
-    loadSurveyWithoutResponsesFromCache(uniqueId: string): string;
+    testConnection(): Promise<null | Error>;
+    saveSurvey(uniqueId: string, survey: string): Promise<null | Error>;
+    saveSurveyAsynchronously(uniqueId: string, survey: string): null;
+    loadSurveyFromCache(uniqueId: string): Promise<string>;
 }

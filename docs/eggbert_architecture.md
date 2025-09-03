@@ -6,6 +6,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 
 ### Project File Structure (DO NOT CHANGE THIS HEADER, GIT HOOK DEPENDS ON IT)
 
+-   .devcontainer: folder has no description
 -   app: routing
 -   core: core logic (entities, use cases, interactors, gateways, controllers)
 	-   entities: contains the project entities
@@ -21,6 +22,8 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 -   docs: documentation, including guides, conventions
 	-   pictures: pictures for documentation
 -   git_hooks: scripts hooked into git (including the script that updates this doc!)
+-   persistent_storage: folder has no description
+	-   surveys: folder has no description
 -   public: public assets, statically hosted by next
 	-   svg_icons: project icons
 -   stable_utilities: simple, easily testable functions that will not change and can be depended on universally (such as type checks for interfaces)

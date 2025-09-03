@@ -14,7 +14,7 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         this.database = database;
     }
 
-    saveSurvey(survey: Survey): null | Error {
+    async saveSurvey(survey: Survey): Promise<null | Error> {
         const tryCacheSave = this.cache.saveSurvey(
             survey.uniqueid,
             JSON.stringify(survey)
@@ -33,20 +33,21 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         return null;
     }
 
-    loadSurveyWithResponses(uniqueId: string): Survey | Error {
+    async loadSurveyWithResponses(uniqueId: string): Promise<Survey | Error> {
         const tryCacheLoad = JSON.parse(
-            this.cache.loadSurveyWithResponsesFromCache(uniqueId)
+            await this.cache.loadSurveyFromCache(uniqueId)
         );
 
-        if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad))
+        if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad)) {
             return tryCacheLoad as Survey;
+        }
         if (!(tryCacheLoad instanceof Error) && !isSurvey(tryCacheLoad))
             return new Error(
                 "Cache returned something that wasn't a survey or an error!"
             );
 
         const tryDatabaseLoad = JSON.parse(
-            this.database.loadSurveyWithResponsesFromDb(uniqueId)
+            await this.database.loadSurveyWithResponsesFromDb(uniqueId)
         );
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad)) {
@@ -61,20 +62,24 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         return new Error("No record found");
     }
 
-    loadSurveyWithoutResponses(uniqueId: string): Survey | Error {
+    async loadSurveyWithoutResponses(
+        uniqueId: string
+    ): Promise<Survey | Error> {
         const tryCacheLoad = JSON.parse(
-            this.cache.loadSurveyWithoutResponsesFromCache(uniqueId)
+            await this.cache.loadSurveyFromCache(uniqueId)
         );
 
-        if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad))
+        if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad)) {
+            (tryCacheLoad as Survey).surveyResponses = [];
             return tryCacheLoad as Survey;
+        }
         if (!(tryCacheLoad instanceof Error) && !isSurvey(tryCacheLoad))
             return new Error(
                 "Cache returned something that wasn't a survey or an error!"
             );
 
         const tryDatabaseLoad = JSON.parse(
-            this.database.loadSurveyWithoutResponsesFromDb(uniqueId)
+            await this.database.loadSurveyWithoutResponsesFromDb(uniqueId)
         );
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad)) {
@@ -89,9 +94,11 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         return new Error("No record found");
     }
 
-    loadSurveyResponses(uniqueId: string): SurveyResponse[] | Error {
+    async loadSurveyResponses(
+        uniqueId: string
+    ): Promise<SurveyResponse[] | Error> {
         const tryCacheLoad = JSON.parse(
-            this.cache.loadSurveyWithResponsesFromCache(uniqueId)
+            await this.cache.loadSurveyFromCache(uniqueId)
         );
 
         if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad))
@@ -102,7 +109,7 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
             );
 
         const tryDatabaseLoad = JSON.parse(
-            this.database.loadSurveyWithResponsesFromDb(uniqueId)
+            await this.database.loadSurveyWithResponsesFromDb(uniqueId)
         );
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad))

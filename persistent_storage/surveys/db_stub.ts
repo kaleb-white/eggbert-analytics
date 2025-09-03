@@ -1,13 +1,13 @@
 import { SurveyDatabase } from "@/core/gateways/surveys/interfaces/survey_database";
 
 export class DatabaseStub implements SurveyDatabase {
-    saveSurvey(uniqueId: string, survey: string): null | Error {
+    async saveSurvey(uniqueId: string, survey: string): Promise<null | Error> {
         return null;
     }
-    loadSurveyWithResponsesFromDb(uniqueId: string): string {
+    async loadSurveyWithResponsesFromDb(uniqueId: string): Promise<string> {
         return JSON.stringify(new Error("Tried to load survey from db stub"));
     }
-    loadSurveyWithoutResponsesFromDb(uniqueId: string): string {
+    async loadSurveyWithoutResponsesFromDb(uniqueId: string): Promise<string> {
         return JSON.stringify(new Error("Tried to load survey from db stub"));
     }
 }

@@ -4,7 +4,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "python main.py",
+        "dev": "bun run next.ts",
+        "redis-cli": "bun run entrypoints/redis-cli.ts",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
@@ -12,8 +13,10 @@
         "compile-icons": "bun run ui/icons/create_icons.ts"
     },
     "dependencies": {
-        "@types/bun": "^1.2.20",
+        "@types/bun": "^1.2.21",
+        "@types/redis": "^4.0.11",
         "next": "15.4.6",
+        "node-redis": "^0.1.7",
         "react": "19.1.0",
         "react-dom": "19.1.0"
     },
