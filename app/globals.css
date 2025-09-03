@@ -2,23 +2,33 @@
 
 @theme {
   --color-success: oklch(0.7346 0.084 162);
+  --color-success-bold: oklch(0.7346 0.1608 162);
   --color-success-subtle: oklch(0.7346 0.084 162 / 75%);
 
   --color-failure: oklch(0.586 0.1841 21.33);
+  --color-failure-bold: oklch(0.586 0.2353 21.33);
   --color-failure-subtle: oklch(0.586 0.1841 21.33 / 75%);
 
   --color-info: oklch(0.9463 0.0407 108.66);
+  --color-info-bold: oklch(0.9463 0.1503 108.66);
   --color-info-subtle: oklch(0.9463 0.0407 108.66 / 75%);
 
   --color-warning: oklch(0.3725 0.0233 331.64);
+  --color-warning-bold: oklch(0.3725 0.1500 331.64);
   --color-warning-subtle: oklch(0.3725 0.0233 331.64 / 75%);
 
   --color-primary: oklch(0.9624 0.0042 236.5);
+  --color-primary-bold: oklch(0.9624 0.0206 236.5);
   --color-primary-subtle: oklch(0.9624 0.0042 236.5 / 75%);
 
   --color-secondary: oklch(0.9016 0.0035 219.54);
+  --color-secondary-bold: oklch(0.9016 0.035 219.54);
   --color-secondary-subtle: oklch(0.9016 0.0035 219.54 / 75%);
 
   --color-tertiary: oklch(0.8096 0.0699 219.71);
+  --color-tertiary: oklch(0.8096 0.1407 219.71);
   --color-tertiary-subtle: oklch(0.8096 0.0699 219.71 / 75%);
+
+  --color-disabled: oklch(0.6458 0.0233 331.64);
+  --color-disabled-bold: oklch(0.3281 0.0233 331.64);
 }

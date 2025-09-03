@@ -28,6 +28,15 @@ export const svgFileLocations: {[key: string]: string} = {
     up: createStringRouteToSVG('up'),
     upload: createStringRouteToSVG('upload'),
     window: createStringRouteToSVG('window'),
+    logo: createStringRouteToSVG('logo'),
+    new: createStringRouteToSVG('new'),
+    switch: createStringRouteToSVG('switch'),
+    feed: createStringRouteToSVG('feed'),
+}
+
+export const propertyConversions: {[key: string]: string} = {
+    'xmlns:xlink': 'xmlnsXlink',
+    'xlink:href' : 'xlinkHref'
 }
 
 const tsxOutputFile = './icons.tsx'
