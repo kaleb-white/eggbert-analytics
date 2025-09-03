@@ -29,6 +29,7 @@ function determineOS(): OperatingSystems {
         case OperatingSystems.MAC:
             return OperatingSystems.MAC;
     }
+    return OperatingSystems.WINDOWS;
 }
 
 function printSubprocessIO(subprocess: SyncSubprocess) {
@@ -125,15 +126,15 @@ function testDockerDaemonRunning(): boolean | Error {
     return true;
 }
 
-function runDockerStartCommandBasedOnOS(): SyncSubprocess {
-    const os = determineOS()
-    switch (os) {
-        case OperatingSystems.LINUX:
-            return Bun.spawnSync(["sudo", "systemctl", "start", "docker"])
-        case
-    }
+// function runDockerStartCommandBasedOnOS(): SyncSubprocess {
+//     const os = determineOS()
+//     switch (os) {
+//         case OperatingSystems.LINUX:
+//             return Bun.spawnSync(["sudo", "systemctl", "start", "docker"])
+//         case
+//     }
 
-}
+// }
 
 function startOrConfirmDockerDaemon(): boolean | Error {
     console.log(

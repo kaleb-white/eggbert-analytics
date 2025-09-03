@@ -21,6 +21,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 			-   model: business rules relating to surveys and models
 -   docs: documentation, including guides, conventions
 	-   pictures: pictures for documentation
+-   entrypoints: folder has no description
 -   git_hooks: scripts hooked into git (including the script that updates this doc!)
 -   persistent_storage: folder has no description
 	-   surveys: folder has no description
