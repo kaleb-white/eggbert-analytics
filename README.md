@@ -2,8 +2,8 @@
 
 ## Getting Started
 
-1. Reccomended, but not required: install bun globally via `npm i bun -g`. Bun is _just faster_ than node, and includes native support for typescript.
-1. Install all dependencies via `npm i` or `bun i`.
+1. Install bun globally via `npm i bun -g`. Bun is _just faster_ than node, and includes native support for typescript. No commands in `package.json` are configure to call node.
+1. Install all dependencies via `bun i`.
 
 ### Project Structure and Documentation
 
@@ -11,6 +11,12 @@ Refer to [the architecture file](./docs/eggbert_architecture.md) to learn more a
 
 There is a also an [abbreviated summary of the key principles of Martin's book.](/docs/clean_architecture.md)
 
-## Credit to Solar Bold Icons for all icons
+## Credit
+
+### Solar Bold Icons for all icons
 
 Find the collection [here.](https://www.svgrepo.com/collection/solar-bold-icons)
+
+### LearnCPP for excellent CPP instruction
+
+Visit them [here.](https://learncpp.com)

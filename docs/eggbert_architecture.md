@@ -6,7 +6,6 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 
 ### Project File Structure (DO NOT CHANGE THIS HEADER, GIT HOOK DEPENDS ON IT)
 
--   .devcontainer: folder has no description
 -   app: routing
 -   core: core logic (entities, use cases, interactors, gateways, controllers)
 	-   entities: contains the project entities
@@ -37,7 +36,6 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   use_cases: tests for use cases
 		-   surveys:
 			-   model: test cases related to use cases survey interactions
--   test_directory: folder has no description
 -   ui: contains the ui implementation
 	-   icons: svg icons for use in the ui
 

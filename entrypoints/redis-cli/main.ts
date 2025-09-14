@@ -1,6 +1,8 @@
+import { RedisBasedSurveyCacheImpl } from "@/persistent_storage/surveys/redis_survey_cache";
 import { RedisClientType } from "@redis/client";
 import { SyncSubprocess } from "bun";
 import { createClient } from "redis";
+import { runDockerStartCommandBasedOnOS } from "./operating_system_docker_utils";
 
 function exit() {
     process.exit(1);
@@ -12,24 +14,6 @@ function printRed(str: string): string {
 
 function printGreen(str: string): string {
     return `\u001b[32m${str}\u001b[0m`;
-}
-
-enum OperatingSystems {
-    WINDOWS = "win32",
-    LINUX = "linux",
-    MAC = "darwin",
-}
-function determineOS(): OperatingSystems {
-    const os = process.platform;
-    switch (os) {
-        case OperatingSystems.WINDOWS:
-            return OperatingSystems.WINDOWS;
-        case OperatingSystems.LINUX:
-            return OperatingSystems.LINUX;
-        case OperatingSystems.MAC:
-            return OperatingSystems.MAC;
-    }
-    return OperatingSystems.WINDOWS;
 }
 
 function printSubprocessIO(subprocess: SyncSubprocess) {
@@ -126,28 +110,18 @@ function testDockerDaemonRunning(): boolean | Error {
     return true;
 }
 
-// function runDockerStartCommandBasedOnOS(): SyncSubprocess {
-//     const os = determineOS()
-//     switch (os) {
-//         case OperatingSystems.LINUX:
-//             return Bun.spawnSync(["sudo", "systemctl", "start", "docker"])
-//         case
-//     }
-
-// }
-
 function startOrConfirmDockerDaemon(): boolean | Error {
     console.log(
-        "Trying to start the docker daemon or confirm that it's running (via dockerd)..."
+        "Trying to start the docker daemon or confirm that it's running..."
     );
     const testDockerDaemon = testDockerDaemonRunning();
-    if (testDockerDaemon instanceof Error) {
-        try {
-            printSubprocessIO(Bun.spawnSync(["systemctl", "start", "docker"]));
-        } catch (err) {
-            return err as Error;
-        }
-    }
+    if (testDockerDaemon instanceof Error)
+        console.log("Docker daemon is not running, attempting to start...");
+    else return true;
+
+    const tryStartDockerDaemon = runDockerStartCommandBasedOnOS();
+    if (tryStartDockerDaemon instanceof Error) return tryStartDockerDaemon;
+
     console.log(printGreen("Docker daemon is running!"));
     return true;
 }
@@ -169,7 +143,7 @@ async function connectClientToRedis() {
     return client;
 }
 
-async function AuthUser(clientUntyped: unknown): Promise<string | Error> {
+async function authUser(clientUntyped: unknown): Promise<string | Error> {
     console.log("Trying to authorize a redis user...");
     const client = clientUntyped as RedisClientType;
     const pass = await client.aclGenPass(8 * 32);
@@ -190,10 +164,8 @@ async function startRedis(): Promise<
     const client = await connectClientToRedis();
     if (client instanceof Error) return client;
 
-    const tryAuthUser = await AuthUser(client);
+    const tryAuthUser = await authUser(client);
     if (tryAuthUser instanceof Error) return tryAuthUser;
-
-    console.log(await client.ping());
 
     return { username: "superuser", password: tryAuthUser };
 }
@@ -211,12 +183,22 @@ async function main() {
         console.log(tryStartDockerDaemon.message);
     }
 
-    const tryStartRedis = await startRedis();
+    let tryStartRedis = await startRedis();
     if (tryStartRedis instanceof Error) {
         console.log(tryStartRedis.message);
         console.log(printRed("Failed to connect to redis!"));
         exit();
     }
+    tryStartRedis = tryStartRedis as { username: string; password: string };
+
+    console.log(
+        "Redis is running and a user is connected. Instantiating objects..."
+    );
+
+    const redisSurveyDataGateway = new RedisBasedSurveyCacheImpl(
+        tryStartRedis.username,
+        tryStartRedis.password
+    );
 }
 
 await main();
