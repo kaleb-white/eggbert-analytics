@@ -6,7 +6,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 
 ### Project File Structure (DO NOT CHANGE THIS HEADER, GIT HOOK DEPENDS ON IT)
 
--   .devcontainer: folder has no description
+-   .vscode: folder has no description
 -   app: routing
 -   core: core logic (entities, use cases, interactors, gateways, controllers)
 	-   entities: contains the project entities
@@ -22,8 +22,21 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 -   docs: documentation, including guides, conventions
 	-   pictures: pictures for documentation
 -   entrypoints: folder has no description
+	-   redis-cli: folder has no description
 -   git_hooks: scripts hooked into git (including the script that updates this doc!)
 -   persistent_storage: folder has no description
+	-   cpp_cache: folder has no description
+		-   comand_line_parser: folder has no description
+		-   headers: folder has no description
+			-   classes: folder has no description
+			-   doctest: folder has no description
+			-   utils: folder has no description
+		-   input_parser: folder has no description
+		-   io: folder has no description
+		-   lru: folder has no description
+		-   main_tests: folder has no description
+		-   objects: folder has no description
+		-   use_cases: folder has no description
 	-   surveys: folder has no description
 -   public: public assets, statically hosted by next
 	-   svg_icons: project icons
@@ -37,7 +50,6 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   use_cases: tests for use cases
 		-   surveys:
 			-   model: test cases related to use cases survey interactions
--   test_directory: folder has no description
 -   ui: contains the ui implementation
 	-   icons: svg icons for use in the ui
 
