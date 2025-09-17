@@ -136,12 +136,12 @@ void LruMapLinkedListImpl::add_id_to_queue_end(LinkedId *id)
     }
 }
 
-void LruMapLinkedListImpl::traverse_n(LinkedId *start, const int n, std::vector<Id> &array_to_save_to)
+void LruMapLinkedListImpl::traverse_n(LinkedId *start, const size_t n, std::vector<Id> &array_to_save_to)
 {
     if (n == 0)
         return;
     array_to_save_to.insert(array_to_save_to.end(), start->id);
-    for (int i{0}; i < n - 1; ++i)
+    for (size_t i{0}; i < n - 1; ++i)
     {
         start = start->next;
         if (start == nullptr)
@@ -150,12 +150,12 @@ void LruMapLinkedListImpl::traverse_n(LinkedId *start, const int n, std::vector<
     }
 }
 
-void LruMapLinkedListImpl::traverse_n_and_return_pointers(LinkedId *start, const int n, std::vector<LinkedId *> &array_to_save_to)
+void LruMapLinkedListImpl::traverse_n_and_return_pointers(LinkedId *start, const size_t n, std::vector<LinkedId *> &array_to_save_to)
 {
     if (n == 0)
         return;
     array_to_save_to.insert(array_to_save_to.end(), start);
-    for (int i{0}; i < n - 1; ++i)
+    for (size_t i{0}; i < n - 1; ++i)
     {
         start = start->next;
         if (start == nullptr)
@@ -229,7 +229,7 @@ void LruMapLinkedListImpl::id_was_deleted(const Id &id)
     }
 };
 
-size_t LruMapLinkedListImpl::delete_n_ids(const Id &start_id, int n)
+size_t LruMapLinkedListImpl::delete_n_ids(const Id &start_id, size_t n)
 {
     try
     {
@@ -264,7 +264,7 @@ void LruMapLinkedListImpl::least_recently_used_n(int n, std::vector<Id> &array_t
     return traverse_n(queue_start, n, array_to_save_result_to);
 }
 
-void LruMapLinkedListImpl::return_n_lru_ids_and_delete_them(int n, std::vector<Id> &array_to_save_result_to)
+void LruMapLinkedListImpl::return_n_lru_ids_and_delete_them(size_t n, std::vector<Id> &array_to_save_result_to)
 {
     traverse_n(queue_start, n, array_to_save_result_to);
 

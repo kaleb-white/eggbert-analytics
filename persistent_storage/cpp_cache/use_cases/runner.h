@@ -99,7 +99,7 @@ public:
         // Bad input, write error message to output
         if (!command.exists)
         {
-            output.append(command.command.append("\n"));
+            output.append(command.command);
             return;
         }
 

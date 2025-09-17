@@ -64,7 +64,7 @@ public:
     CacheResult create(Id &id, std::string &value)
     {
         // Need to reduce size; keep around 90% of requested usage
-        while (static_cast<int>(get_size() * 9 / 10) > args.MaxMemoryBytes.value)
+        while (static_cast<size_t>(get_size() * 9 / 10) > args.MaxMemoryBytes.value)
         {
             if (!(try_reduce_size()))
                 return {false, "Cache hit memory use limit (" + std::to_string(get_size()) + " / " + std::to_string(args.MaxMemoryBytes.value) + ") but failed to reduce size!"};

@@ -7,8 +7,8 @@ struct CommandLineArgument
 {
     std::string name;
     std::string argument;
-    int value;
-    int default_value;
+    size_t value;
+    size_t default_value;
     std::string help_message;
 };
 

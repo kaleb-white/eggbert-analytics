@@ -31,8 +31,8 @@ private:
     void remove_from_start_and_end();
     void remove_id_from_queue_spot(LinkedId *id);
     void add_id_to_queue_end(LinkedId *id);
-    void traverse_n(LinkedId *start, const int n, std::vector<Id> &array_to_save_to);
-    void traverse_n_and_return_pointers(LinkedId *start, const int n, std::vector<LinkedId *> &array_to_save_to);
+    void traverse_n(LinkedId *start, const size_t n, std::vector<Id> &array_to_save_to);
+    void traverse_n_and_return_pointers(LinkedId *start, const size_t n, std::vector<LinkedId *> &array_to_save_to);
 
 public:
     LruMapLinkedListImpl()
@@ -78,9 +78,9 @@ public:
     void id_was_created(const Id &id);
     void id_was_read(const Id &id);
     void id_was_deleted(const Id &id);
-    size_t delete_n_ids(const Id &start_id, int n);
+    size_t delete_n_ids(const Id &start_id, size_t n);
     void least_recently_used(Id &output);
     void least_recently_used_n(int n, std::vector<Id> &array_to_save_result_to);
-    void return_n_lru_ids_and_delete_them(int n, std::vector<Id> &array_to_save_result_to);
+    void return_n_lru_ids_and_delete_them(size_t n, std::vector<Id> &array_to_save_result_to);
     std::string print_queue(short num_items = 10);
 };

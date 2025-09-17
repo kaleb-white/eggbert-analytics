@@ -13,16 +13,19 @@
 #include "custom_cout.h"
 #endif
 
-#ifndef CONSTANTS
-#define CONSTANTS
-#include "constants.h"
-#endif
-
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
 #include <memory>
 #include <chrono>
+#include <cstdint>
+#include <cmath>
+
+#define STX 0x02
+#define ETX 0x03
+#define EOT 0x04
+#define ETB 0x17
+#define NAK 0x15
 
 class WindowsSocketIoImpl : public IOAsRunner
 {
@@ -85,7 +88,7 @@ private:
     // Reference: https://learn.microsoft.com/en-us/windows/win32/WinSock/listening-on-a-socket
     bool begin_listening(SOCKET &server_sock)
     {
-        if (listen(server_sock, args.BacklogSize.value) == SOCKET_ERROR)
+        if (listen(server_sock, static_cast<int>(args.BacklogSize.value)) == SOCKET_ERROR)
         {
             *printer << "Error on start listening: " << std::to_string(WSAGetLastError());
             closesocket(server_sock);
@@ -139,7 +142,7 @@ private:
     }
 
     // Reference: https://learn.microsoft.com/en-us/windows/win32/WinSock/accepting-a-connection
-    bool accept_connection(SOCKET &server_sock, SOCKET &client_sock)
+    bool wait_for_connection(SOCKET &server_sock, SOCKET &client_sock)
     {
         client_sock = INVALID_SOCKET;
         client_sock = accept(server_sock, NULL, NULL);
@@ -153,92 +156,236 @@ private:
         return true;
     }
 
-    bool send_and_receive_until_close(SOCKET &client_sock)
+    // Start functions in which peer should know about error
+
+    struct PeerCommunicationResult
     {
-        // For receiving raw data
-        auto receiving_buffer = std::make_unique<char[]>(args.MaximumInputSizeBytes.value);
-        int receiving_buffer_length = args.MaximumInputSizeBytes.value, received_bytes_len = 1;
+        CommandLineArguments args{};
+        bool was_sucessful{false};
+        std::string failure_message{""};
 
-        // Response code from send call
-        int send_response;
-
-        // For request; command is just used internally by processor
-        std::string a, b, c;
-        Command command_for_parser{a, b, c};
-        std::string response_to_request;
-
-        // For performance statements
-        std::chrono::time_point<std::chrono::system_clock> start;
-        size_t number_of_requests_processed = 0;
-        // if (args.verbose())
-        // {
-        start = std::chrono::system_clock::now();
-        // }
-
-        while (received_bytes_len != 0)
+        void reset()
         {
-            memset(receiving_buffer.get(), 0, receiving_buffer_length);
-            received_bytes_len = recv(client_sock, receiving_buffer.get(), receiving_buffer_length, 0);
-            if (received_bytes_len > 0)
+            was_sucessful = true;
+            failure_message = "";
+        }
+
+        void print_if_verbose(CustomCout *&printer)
+        {
+            if (args.verbose())
             {
-                ++number_of_requests_processed;
-
-                if (args.verbose())
-                {
-                    *printer << "\tReceived message from client: " + std::string{receiving_buffer.get()};
-                }
-
-                // Process command
-                std::string buffer_as_string{receiving_buffer.get()};
-                runner->process_command(buffer_as_string, command_for_parser, response_to_request);
-
-                if (response_to_request == std::string(""))
-                {
-                    if (!shut_client(client_sock))
-                    {
-                        return false;
-                    }
-                };
-
-                if (args.verbose())
-                {
-                    if (response_to_request.at(response_to_request.size() - 1) == '\n')
-                    {
-                        response_to_request.pop_back();
-                    }
-                    *printer << "\tSent response to client: " + response_to_request;
-                }
-
-                // Send response
-                send_response = send(client_sock, response_to_request.c_str(), received_bytes_len, 0);
-                if (send_response == SOCKET_ERROR)
-                {
-                    *printer << "Error while sending to client: ", std::to_string(WSAGetLastError());
-                    closesocket(client_sock);
-                    WSACleanup();
-                    return false;
-                }
+                *printer << failure_message;
             }
-            else if (received_bytes_len == 0)
+        }
+
+        void set_failure(std::string new_failure_message, CustomCout *&printer)
+        {
+            was_sucessful = false;
+            failure_message = new_failure_message;
+            print_if_verbose(printer);
+        }
+
+        bool check_for_socket_error(int socket_response_code, CustomCout *&printer)
+        {
+            if (socket_response_code == SOCKET_ERROR)
             {
-                *printer << "\tClient stopped sending...";
-                // if (args.verbose())
-                // {
-                std::chrono::time_point<std::chrono::system_clock> end =
-                    std::chrono::system_clock::now();
-                auto duration_in_ms = std::chrono::duration<double>(end - start);
-                std::string performance_statement{"\tProcessed "};
-                performance_statement.append(std::to_string(number_of_requests_processed)).append(" requests in ").append(std::to_string(duration_in_ms.count())).append(" seconds");
-                *printer << performance_statement;
-                // }
-                shut_client(client_sock);
+                was_sucessful = false;
+                failure_message = "\tSending or receiving resulted in SOCKET_ERROR";
+                print_if_verbose(printer);
                 return true;
             }
+            return false;
+        }
+    };
+
+    using Clock = std::chrono::time_point<std::chrono::system_clock>;
+
+    bool should_timeout(Clock &start_time)
+    {
+        Clock now = std::chrono::system_clock::now();
+        return std::chrono::duration<double>(now - start_time).count() > (double)args.MaxTransmissionWaitTimeSeconds.value;
+    }
+
+    void wait_for_transmission(SOCKET &client_sock, PeerCommunicationResult &res)
+    {
+        res.reset();
+
+        int receive_result;
+        char single_char_buffer{};
+
+        std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+
+        while (!should_timeout(start))
+        {
+            receive_result = recv(client_sock, &single_char_buffer, 1, 0);
+
+            if (res.check_for_socket_error(receive_result, printer))
+                return;
+
+            if (receive_result >= 1 && single_char_buffer == STX)
+                return;
+            if (receive_result >= 1 && single_char_buffer != STX)
+            {
+                res.set_failure("\tA socket connected, but sent a char which wasn't STX", printer);
+                return;
+            }
+        }
+
+        // Timeout
+        res.set_failure("\tA socket connected, but either failed to send a EOT in their last message, or failed to send STX before timeout, which is set to " + std::to_string(args.MaxTransmissionWaitTimeSeconds.value) + " seconds", printer);
+        return;
+    }
+
+    int get_max_number_of_digits()
+    {
+        return static_cast<int>(std::to_string(UINT_MAX).size()); // Up to uintmax = 4294967295 = 10 chars
+    }
+
+    void read_peer_reported_msg_length(SOCKET &client_sock, uint32_t &peer_reported_message_length, PeerCommunicationResult &res)
+    {
+        res.reset();
+
+        int max_number_of_digits = get_max_number_of_digits();
+        auto temp_char_buffer = std::make_unique<char[]>(max_number_of_digits);
+        memset(temp_char_buffer.get(), 0, max_number_of_digits);
+
+        int receive_result;
+        receive_result = recv(client_sock, temp_char_buffer.get(), max_number_of_digits, 0);
+
+        if (res.check_for_socket_error(receive_result, printer))
+            return;
+        if (receive_result < max_number_of_digits)
+        {
+            res.set_failure("Failed to read the 10 bytes that make up the message length, read " + std::to_string(receive_result) + " bytes", printer);
+            return;
+        }
+
+        peer_reported_message_length = 0;
+        for (int i{0}; i < max_number_of_digits; ++i)
+        {
+            peer_reported_message_length += static_cast<uint32_t>(((temp_char_buffer.get()[i] - '0') * pow(10, max_number_of_digits - (i + 1))));
+        }
+
+        if (peer_reported_message_length > args.MaximumInputSizeBytes.value)
+        {
+            res.set_failure("Reported message length was larger than buffer size! Reported message length was " + std::to_string(peer_reported_message_length) + " while buffer size is " + std::to_string(args.MaximumInputSizeBytes.value), printer);
+        }
+    }
+
+    void read_message(SOCKET &client_sock, uint32_t &peer_reported_message_length, std::unique_ptr<char[]> &receiving_buffer, PeerCommunicationResult &res)
+    {
+        res.reset();
+
+        std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+
+        int recv_result_as_int{0};
+
+        memset(receiving_buffer.get(), 0, peer_reported_message_length);
+        uint32_t total_bytes_received = 0, last_request_bytes_received = 0;
+        while (total_bytes_received != peer_reported_message_length && !should_timeout(start))
+        {
+            recv_result_as_int = recv(client_sock, receiving_buffer.get(), peer_reported_message_length - total_bytes_received, 0);
+
+            if (res.check_for_socket_error(recv_result_as_int, printer))
+                return;
+
+            last_request_bytes_received = static_cast<uint32_t>(recv_result_as_int);
+            total_bytes_received += last_request_bytes_received;
+
+            if (last_request_bytes_received == 0 && total_bytes_received != peer_reported_message_length)
+            {
+                res.set_failure("While reading a message, received " + std::to_string(total_bytes_received) + ", but then received 0 more bytes. Expected " + std::to_string(peer_reported_message_length) + " bytes", printer);
+                return;
+            }
+        }
+        if (should_timeout(start))
+        {
+            res.set_failure("Timeout while reading a message", printer);
+        }
+
+        return;
+    }
+
+    void read_final_char_of_transmission(SOCKET &client_sock, char &peer_end_char, PeerCommunicationResult &res)
+    {
+        res.reset();
+
+        int bytes_received = 0;
+        bytes_received = recv(client_sock, &peer_end_char, 1, 0);
+        if (res.check_for_socket_error(bytes_received, printer))
+            return;
+        if (bytes_received == 1)
+            return;
+
+        res.set_failure("Failed to read final char! Read " + std::to_string(bytes_received) + " bytes, expected to read a singular byte", printer);
+        return;
+    }
+
+    void slice_c_char_arr_into_string(std::unique_ptr<char[]> &src, std::string &output, uint32_t slice_len)
+    {
+        char *dest = new char[slice_len + 1];
+        strncpy(dest, src.get(), slice_len);
+        dest[slice_len] = '\0';
+        output = std::string{dest};
+        delete[] dest;
+    }
+
+    void have_cache_process_peer_command(Command &command_for_runner, std::string &peer_command, std::string &cache_response, PeerCommunicationResult &res)
+    {
+        res.reset();
+
+        runner->process_command(peer_command, command_for_runner, cache_response);
+        if (cache_response == std::string{""})
+        {
+            res.set_failure("Peer sent quit command", printer);
+            return;
+        }
+
+        return;
+    }
+
+    // End functions in which peer should know about error
+
+    void convert_cache_message_to_protocol_format(std::string &message, size_t &message_in_protocol_format_length, bool processing_succeeded)
+    {
+        std::string start_char{char{STX}};
+
+        std::string message_length{std::to_string(message.size())};
+        message_length.insert(0, get_max_number_of_digits() - message_length.size(), '0');
+
+        std::string end_char{processing_succeeded ? char{ETX} : char{NAK}};
+
+        message = start_char.append(message_length).append(message).append(end_char);
+        message_in_protocol_format_length = message.size();
+    }
+
+    bool send_message(SOCKET &client_sock, std::string &message, bool processing_succeeded)
+    {
+        size_t num_bytes_to_send;
+        convert_cache_message_to_protocol_format(message, num_bytes_to_send, processing_succeeded);
+
+        size_t num_bytes_sent{0};
+        int last_send_num_bytes_sent;
+        while (num_bytes_sent < num_bytes_to_send)
+        {
+            last_send_num_bytes_sent = send(client_sock, message.substr(num_bytes_sent).c_str(), static_cast<int>(num_bytes_to_send - num_bytes_sent), 0);
+            if (last_send_num_bytes_sent == SOCKET_ERROR)
+            {
+                *printer << "Sending resulted in SOCKET_ERROR";
+                return false;
+            }
+            if (last_send_num_bytes_sent == 0)
+            {
+                *printer << "Failed to send any bytes to peer!";
+                return false;
+            }
+
+            num_bytes_sent += static_cast<size_t>(last_send_num_bytes_sent);
         }
         return true;
     }
 
-    bool shut_client(SOCKET &client_sock)
+    bool shutdown_current_client(SOCKET &client_sock)
     {
         int shutdown_result = shutdown(client_sock, SD_SEND);
         closesocket(client_sock);
@@ -250,6 +397,128 @@ private:
             return false;
         }
         return true;
+    }
+
+    bool handle_one_peer(SOCKET &client_sock, std::unique_ptr<char[]> &receiving_buffer)
+    {
+        // For determining loop end
+        char peer_ending_char{ETX};
+
+        // Processing / communications failures which peer should know about
+        PeerCommunicationResult res{};
+        res.args = args;
+
+        // For internal use by cache
+        std::string a{}, b{}, c{};
+        Command cmd{a, b, c};
+
+        // For cache to put response in
+        std::string cache_response;
+
+        while (peer_ending_char == char{ETX})
+        {
+            // Wait for transmission
+            if (args.verbose())
+            {
+                *printer << "  Waiting for transmission...";
+            }
+            wait_for_transmission(client_sock, res);
+            if (!res.was_sucessful)
+            {
+                send_message(client_sock, res.failure_message, false);
+                shutdown_current_client(client_sock);
+                return 1;
+            }
+
+            // Read message length
+            if (args.verbose())
+            {
+                *printer << "\tReading message length...";
+            }
+            uint32_t peer_reported_msg_length{0};
+            read_peer_reported_msg_length(client_sock, peer_reported_msg_length, res);
+            if (!res.was_sucessful)
+            {
+                send_message(client_sock, res.failure_message, false);
+                shutdown_current_client(client_sock);
+                return 1;
+            }
+            if (args.verbose())
+            {
+                *printer << "\tMessage length determined to be " + std::to_string(peer_reported_msg_length);
+            }
+
+            // Reading message
+            if (args.verbose())
+            {
+                *printer << "\tReading message...";
+            }
+            read_message(client_sock, peer_reported_msg_length, receiving_buffer, res);
+            std::string command_part_of_buffer;
+            slice_c_char_arr_into_string(receiving_buffer, command_part_of_buffer, peer_reported_msg_length);
+            if (!res.was_sucessful)
+            {
+                send_message(client_sock, res.failure_message, false);
+                shutdown_current_client(client_sock);
+                return 1;
+            }
+            if (args.verbose())
+            {
+                *printer << "\tSuccesfully read message of length " + std::to_string(peer_reported_msg_length) + ": " + command_part_of_buffer;
+            }
+
+            // Process command
+            if (args.verbose())
+            {
+                *printer << "\tPassing command " + command_part_of_buffer + " to cache...";
+            }
+
+            have_cache_process_peer_command(cmd, command_part_of_buffer, cache_response, res);
+            if (!res.was_sucessful)
+            {
+                send_message(client_sock, res.failure_message, 1);
+                shutdown_current_client(client_sock);
+                return 1;
+            }
+            if (args.verbose())
+            {
+                *printer << "\tReceived cache response " + cache_response;
+            }
+
+            // Send command response
+            if (args.verbose())
+            {
+                *printer << "\tSending cache response to peer...";
+            }
+            if (!send_message(client_sock, cache_response, true))
+            {
+                shutdown_current_client(client_sock);
+                return 1;
+            }
+            if (args.verbose())
+            {
+                *printer << "\tSuccessfully sent cache response " + cache_response + " to peer";
+            }
+
+            // Check final char - etx is wait for another communication, eot is end and wait for another connection, etb is end
+            if (args.verbose())
+            {
+                *printer << "\tChecking final char from peer...";
+            }
+            read_final_char_of_transmission(client_sock, peer_ending_char, res);
+            if (!res.was_sucessful)
+            {
+                send_message(client_sock, res.failure_message, false);
+                shutdown_current_client(client_sock);
+                return 1; // Failure, runner should continue
+            }
+        }
+        if (peer_ending_char == char{EOT})
+        {
+            shutdown_current_client(client_sock);
+            return 2; // Sucess, runner should continue
+        }
+        return 0; // Failure, runner should quit
     }
 
 public:
@@ -286,27 +555,57 @@ public:
 
         print_server_sock_port(server_sock);
 
+        // Create buffer
+        if (args.verbose())
+        {
+            *printer << "Creating buffer...";
+        }
+        std::unique_ptr<char[]> receiving_buffer;
+        try
+        {
+            receiving_buffer = std::make_unique<char[]>(args.MaximumInputSizeBytes.value);
+        }
+        catch (std::bad_alloc const &)
+        {
+            *printer << "Failed to create buffer of size " + std::to_string(args.MaximumInputSizeBytes.value) + ". Exiting...";
+            return;
+        }
+        // 0 = cache should quit, 1 = failure, cache should continue, 2 = success, cache should continue
+        int peer_handle_response_code;
         while (true)
         {
+            // Wait for a new connection
             if (args.verbose())
             {
                 *printer << "Waiting for connection...";
             }
-            if (!accept_connection(server_sock, client_sock))
+            if (!wait_for_connection(server_sock, client_sock))
                 break;
-            if (args.verbose())
+
+            *printer << "Connection accepted, waiting for communication...";
+
+            Clock before_handle, after_handle;
+            if (args.timed())
             {
-                *printer << "Connection accepted, waiting for communication...";
+                before_handle = std::chrono::system_clock::now();
+            }
+            peer_handle_response_code = handle_one_peer(client_sock, receiving_buffer);
+            if (args.timed())
+            {
+                after_handle = std::chrono::system_clock::now();
+                double connection_length = std::chrono::duration<double>(after_handle - before_handle).count();
+                *printer << "Connection handled in " + std::to_string(connection_length) + " seconds";
             }
 
-            if (!send_and_receive_until_close(client_sock))
+            if (peer_handle_response_code == 0)
+            {
+                *printer << "Peer ordered cache shutdown, exiting...";
                 break;
+            }
 
             client_sock = INVALID_SOCKET;
         }
 
-        if (!shut_client(client_sock))
-            return;
         closesocket(client_sock);
         closesocket(server_sock);
         WSACleanup();

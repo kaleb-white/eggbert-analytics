@@ -12,6 +12,7 @@
 #include <vector>
 #include <array>
 #include <iostream>
+#include <climits>
 
 #include <ws2tcpip.h>
 
@@ -19,14 +20,20 @@ struct CommandLineArguments
 {
 public:
     // Default 100 MB
-    CommandLineArgument MaxMemoryBytes{"Max Memory in Bytes", "max-memory", 1000000000, 1000000000, "The max allowable memory in bytes for the cache to use. Defaults to 100Mb."};
+    CommandLineArgument MaxMemoryBytes{"Max Memory in Bytes", "max-memory", 1000000000, 1000000000, "The max allowable memory in bytes for the cache to use. Defaults to 100Mb. Does not necessarily describe the total size of the program, just the size of the cache and the LRU."};
     // 1 for true
     CommandLineArgument Verbose{
         "Verbose",
         "v",
         0,
         0,
-        "When set, prints additional information while the program is running."};
+        "When set, prints additional information while the program is running. Significantly degrades performance beause of large number of system calls. "};
+    CommandLineArgument Timed{
+        "Timed",
+        "t",
+        0,
+        0,
+        "When set, prints additional timing information while the program is running."};
     // Default 1037
     CommandLineArgument Port{
         "Port",
@@ -45,8 +52,8 @@ public:
     CommandLineArgument MaximumInputSizeBytes{
         "Maximum Input Size in Bytes",
         "max-input-size-bytes",
-        20000,
-        20000,
+        100000,
+        100000,
         "The max number of bytes to buffer from the client."};
     // Number of ids to delete at a time when mem limits are reached (not currently changeable)
     CommandLineArgument NumberIdsToRemoveAtSizeLimit{
@@ -55,8 +62,14 @@ public:
         5,
         5,
         "When the max limit size is reached, the cache will delete ids until it reaches below the max memory size. The increment it goes at is described by NumberIdsToRemoveAtSizeLimit."};
+    CommandLineArgument MaxTransmissionWaitTimeSeconds{
+        "Max Transmission Wait Time in Seconds",
+        "max-wait-time",
+        10,
+        10,
+        "When the cache accepts a connection, it will continuously read bytes from the connection until it reads and STX, or until the time exceeds MaxTransmissionWaitTimeSeconds."};
 
-    std::array<CommandLineArgument *, 6> all_arguments{&MaxMemoryBytes, &Verbose, &Port, &BacklogSize, &MaximumInputSizeBytes, &NumberIdsToRemoveAtSizeLimit};
+    std::array<CommandLineArgument *, 8> all_arguments{&MaxMemoryBytes, &Verbose, &Timed, &Port, &BacklogSize, &MaximumInputSizeBytes, &NumberIdsToRemoveAtSizeLimit, &MaxTransmissionWaitTimeSeconds};
 
     void set_option(std::string option, int value)
     {
@@ -98,6 +111,11 @@ public:
     bool verbose()
     {
         return Verbose.value == 1;
+    }
+
+    bool timed()
+    {
+        return Timed.value == 1;
     }
 
 private:

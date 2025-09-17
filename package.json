@@ -17,6 +17,8 @@
         "socket-build-all": "bun run string-utils-object && bun run input-parser-object && bun run cl-parser-object && bun run lru-object && bun run build-socket",
         "socket-cache": "./persistent_storage/cpp_cache/socket_cache.exe",
         "socket-cache-verbose": "./persistent_storage/cpp_cache/socket_cache.exe -v=1",
+        "socket-cache-timed": "./persistent_storage/cpp_cache/socket_cache.exe -t=1",
+        "socket-cache-timed-verbose": "./persistent_storage/cpp_cache/socket_cache.exe -v=1 -t=1",
         "socket-test-build": "cd ./persistent_storage/cpp_cache && gcc -o ./main_tests/socket_cache_test.exe ./main_tests/main_windows_socket.test.cpp -I./headers -O2 -lstdc++ -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17 -lws2_32 -lwsock32",
         "socket-test": "./persistent_storage/cpp_cache/main_tests/socket_cache_test.exe",
         "cli-cache": "./persistent_storage/cpp_cache/cli_cache.exe",

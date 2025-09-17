@@ -32,9 +32,9 @@ public:
     virtual void id_was_created(const Id &id) = 0;
     virtual void id_was_read(const Id &id) = 0;
     virtual void id_was_deleted(const Id &id) = 0;
-    virtual size_t delete_n_ids(const Id &start_id, int n) = 0;
+    virtual size_t delete_n_ids(const Id &start_id, size_t n) = 0;
     virtual void least_recently_used(Id &output) = 0;
     virtual void least_recently_used_n(int n, std::vector<Id> &array_to_save_result_to) = 0;
-    virtual void return_n_lru_ids_and_delete_them(int n, std::vector<Id> &array_to_save_result_to) = 0;
+    virtual void return_n_lru_ids_and_delete_them(size_t n, std::vector<Id> &array_to_save_result_to) = 0;
     virtual ~LRU() = default;
 };
