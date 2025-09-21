@@ -26,14 +26,30 @@ Extending the allowed arguments is as simple as registering a new argument in th
 
 A message to the server from the client: ==STX (start message)== -> ==uint peer_reported_message_len, left zero padded to 10 digits, the number of digits in UINT_MAX== -> ==message of length peer_reported_message_len== -> ==ETX (end message) | EOT (end and reset client socket) | ETB (end and shut cache)==
 
-A message to the client from the server: ==STX (start message)== -> ==uint peer_reported_message_len, left zero padded to 10 digits, the number of digits in UINT_MAX== -> ==message of length peer_reported_message_len== -> ==ETX (end message) | NAK (error)==
+A message to the client from the server: ==STX (start message)== -> ==uint peer_reported_message_len, left zero padded to 10 digits, the number of digits in UINT_MAX== -> ==message of length peer_reported_message_len== -> ==ETX (end message)==
+
+#define STX 0x02
+#define ETX 0x03
+#define EOT 0x04
+#define ETB 0x17
 
 ### Server state machine
 
 1. Initialization at predetermined port
-2. Wait for connection
-3. Wait for transmission
-4. Read a char
-5. Read a uint
-6. Read a message
-7. Process and send result
+    1. Failure: exit
+1. Wait for connection
+    1. Failure: exit
+1. Wait for transmission by reading a char
+    1. Failure: wait for conneciton
+1. Read a uint (10 digits)
+    1. Failure: wait for connection
+1. Read a message
+    1. Failure: wait for connection
+1. Send message to cache
+    1. Failure: wait for connection
+    1. Success: send cache response to connection and continue
+1. Read a char
+    1. Failure: wait for connection
+    1. EOB: shut socket
+    1. EOT: wait for connection
+    1. ETX: wait for transmission
