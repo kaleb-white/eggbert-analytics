@@ -246,11 +246,10 @@ private:
         res.reset();
 
         int max_number_of_digits = get_max_number_of_digits();
-        auto temp_char_buffer = std::make_unique<char[]>(max_number_of_digits);
-        memset(temp_char_buffer.get(), 0, max_number_of_digits);
+        char *temp_char_buffer{new char[max_number_of_digits]};
 
         int receive_result;
-        receive_result = recv(client_sock, temp_char_buffer.get(), max_number_of_digits, 0);
+        receive_result = recv(client_sock, temp_char_buffer, max_number_of_digits, 0);
 
         if (res.check_for_socket_error(receive_result, printer))
             return;
@@ -263,13 +262,14 @@ private:
         peer_reported_message_length = 0;
         for (int i{0}; i < max_number_of_digits; ++i)
         {
-            peer_reported_message_length += static_cast<uint32_t>(((temp_char_buffer.get()[i] - '0') * pow(10, max_number_of_digits - (i + 1))));
+            peer_reported_message_length += static_cast<uint32_t>(((temp_char_buffer[i] - '0') * pow(10, max_number_of_digits - (i + 1))));
         }
 
         if (peer_reported_message_length > args.MaximumInputSizeBytes.value)
         {
             res.set_failure("Reported message length was larger than buffer size! Reported message length was " + std::to_string(peer_reported_message_length) + " while buffer size is " + std::to_string(args.MaximumInputSizeBytes.value), printer);
         }
+        delete[] temp_char_buffer;
     }
 
     void read_message(SOCKET &client_sock, uint32_t &peer_reported_message_length, std::unique_ptr<char[]> &receiving_buffer, PeerCommunicationResult &res)
@@ -571,7 +571,7 @@ public:
             return;
         }
         // 0 = cache should quit, 1 = failure, cache should continue, 2 = success, cache should continue
-        int peer_handle_response_code;
+        int peer_handler_response_code;
         while (true)
         {
             // Wait for a new connection
@@ -589,7 +589,7 @@ public:
             {
                 before_handle = std::chrono::system_clock::now();
             }
-            peer_handle_response_code = handle_one_peer(client_sock, receiving_buffer);
+            peer_handler_response_code = handle_one_peer(client_sock, receiving_buffer);
             if (args.timed())
             {
                 after_handle = std::chrono::system_clock::now();
@@ -597,7 +597,7 @@ public:
                 *printer << "Connection handled in " + std::to_string(connection_length) + " seconds";
             }
 
-            if (peer_handle_response_code == 0)
+            if (peer_handler_response_code == 0)
             {
                 *printer << "Peer ordered cache shutdown, exiting...";
                 break;

@@ -9,6 +9,7 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <chrono>
 
 // Change according to defaults in constants.h
 #define DEFAULT_BUFLEN 10000
@@ -18,7 +19,6 @@
 #define ETX 0x03
 #define EOT 0x04
 #define ETB 0x17
-#define NAK 0x15
 
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
 
@@ -204,6 +204,23 @@ TEST_CASE("test windows socket")
                 CHECK(recv_buffer == "a");
             }
         }
+    }
+
+    SUBCASE("time mass send and read")
+    {
+        size_t num_rqs{100000};
+        std::chrono::time_point<std::chrono::steady_clock> before = std::chrono::steady_clock::now();
+        for (size_t i{0}; i < num_rqs; ++i)
+        {
+            msg = "create ";
+            msg.append("a");
+            msg.append(" a");
+            call_res = send_and_recv(client_sock, msg, recv_buffer);
+        }
+        std::chrono::time_point<std::chrono::steady_clock> after = std::chrono::steady_clock::now();
+        double connection_length = std::chrono::duration<double>(after - before).count();
+        std::string output{"Sent " + std::to_string(num_rqs) + " requests in " + std::to_string(connection_length) + " seconds"};
+        MESSAGE(output);
     }
 
     SUBCASE("test delete")
