@@ -24,7 +24,11 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 -   entrypoints: folder has no description
 	-   redis-cli: folder has no description
 -   git_hooks: scripts hooked into git (including the script that updates this doc!)
+-   model_gateway: folder has no description
 -   persistent_storage: folder has no description
+	-   cache_gateway: folder has no description
+		-   ts: folder has no description
+			-   utilities: folder has no description
 	-   cpp_cache: folder has no description
 		-   comand_line_parser: folder has no description
 		-   headers: folder has no description
