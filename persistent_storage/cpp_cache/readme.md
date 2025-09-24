@@ -1,6 +1,14 @@
 # A Simple Cache Implementation
 
-A very simple implementation of an in-memory cache. There is an IO implementation for the winsock2 windows header; but no implementation yet exists for windows.
+A very simple implementation of an in-memory cache. There is an IO implementation for the winsock2 windows header; but no implementation yet exists for linux.
+
+## Commands
+
+| Name   | Args                | Returns                    | Notes                                                                                              |
+| ------ | ------------------- | -------------------------- | -------------------------------------------------------------------------------------------------- |
+| create | create `id` `value` | `Success!` or `Error: ...` | ids CANNOT include spaces, but values can! Spaces are used as a delimiter until parsing the value. |
+| read   | read `id`           | `value` or `Error: ...`    |                                                                                                    |
+| delete | delete `id`         | `Success!` or `Error: ...` |                                                                                                    |
 
 ## Options
 

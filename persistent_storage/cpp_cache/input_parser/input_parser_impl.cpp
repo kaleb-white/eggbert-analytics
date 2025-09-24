@@ -1,5 +1,6 @@
 #ifndef STRING_UTILS_INCLUDED
 #include "utils/string_utils.h"
+#define STRING_UTILS_INCLUDED
 #endif
 
 #include "input_parser_impl.h"
@@ -16,7 +17,7 @@ bool InputParserImpl::check_num_arguments_for_create(std::vector<std::string> &c
 {
     std::string joined_commands{};
     utils::join_string(commands, joined_commands);
-    if (commands.size() != 3)
+    if (commands.size() < 3)
     {
         output = "Create commands are in the format create id value. You entered: " + joined_commands + " which contained " + std::to_string(commands.size()) + " commands.";
         return false;
@@ -71,7 +72,9 @@ void InputParserImpl::parse_input(std::string &raw, Command &output)
         output.command = "create";
         output.exists = true;
         output.id = commands[1];
-        output.value = commands[2];
+
+        std::vector<std::string> delimited_parts_of_value{commands.begin() + 2, commands.end()};
+        utils::join_string(delimited_parts_of_value, output.value);
     }
     else if (commands[0] == "read")
     {

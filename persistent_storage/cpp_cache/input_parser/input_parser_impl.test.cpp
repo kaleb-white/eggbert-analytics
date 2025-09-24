@@ -7,6 +7,11 @@
 #include "input_parser_impl.h"
 #endif
 
+#ifndef STRING_UTILS_INCLUDED
+#define STRING_UTILS_INCLUDED
+#include "utils/string_utils.h"
+#endif
+
 TEST_CASE("test input_parser_impl.cpp")
 {
     SUBCASE("test instantiation")
@@ -39,12 +44,12 @@ TEST_CASE("test input_parser_impl.cpp")
         CHECK(output.command == expected_output);
     }
 
-    SUBCASE("test create wrong number of commands")
+    SUBCASE("test create value contains spaces")
     {
         std::string input{"create id abcd efg"};
         myInputParser->parse_input(input, output);
 
-        std::string expected_output{std::string{"Create commands are in the format create id value. You entered: "}.append(input).append(" which contained ").append("4") + " commands."};
+        std::string expected_output{std::string{"create"}};
         CHECK(output.command == expected_output);
     }
 
@@ -74,6 +79,20 @@ TEST_CASE("test input_parser_impl.cpp")
         std::string expected_command{"create"};
         std::string expected_id{"id"};
         std::string expected_value{"abc"};
+        CHECK(output.exists);
+        CHECK(output.command == expected_command);
+        CHECK(output.id == expected_id);
+        CHECK(output.value == expected_value);
+    }
+
+    SUBCASE("test create success with spaces in value")
+    {
+        std::string input{"create id abc def"};
+        myInputParser->parse_input(input, output);
+
+        std::string expected_command{"create"};
+        std::string expected_id{"id"};
+        std::string expected_value{"abc def"};
         CHECK(output.exists);
         CHECK(output.command == expected_command);
         CHECK(output.id == expected_id);

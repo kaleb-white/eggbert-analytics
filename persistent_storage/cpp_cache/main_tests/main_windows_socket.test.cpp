@@ -371,5 +371,19 @@ TEST_CASE("test windows socket")
         CHECK(recv_buffer == scrap);
     }
 
+    SUBCASE("Test create with spaces in value")
+    {
+        msg = "create jadhfj ";
+        scrap = "abc def ghi";
+        msg.append(scrap);
+        call_res = send_and_recv(client_sock, msg, recv_buffer);
+        CHECK(call_res == 0);
+
+        msg = "read jadhfj";
+        call_res = send_and_recv(client_sock, msg, recv_buffer);
+        CHECK(call_res == 0);
+        CHECK(recv_buffer == scrap);
+    }
+
     teardown(client_sock);
 }
