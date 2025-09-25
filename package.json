@@ -10,39 +10,21 @@
         "lint": "next lint",
         "test": "bun test",
         "compile-icons": "bun run ui/icons/create_icons.ts",
-        "redis-cli": "bun run entrypoints/redis-cli/main.ts",
-        "debug-build-cli": "cd ./persistent_storage/cpp_cache && gcc -o ./cli_cache.exe ./main_cli.cpp ./lru/lru_map_and_linked_list.cpp ./comand_line_parser/command_line_parser_impl.cpp ./input_parser/input_parser_impl.cpp ./headers/utils/string_utils.cpp -I./headers -lstdc++ -O0 -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17",
-        "build-cli": "cd ./persistent_storage/cpp_cache && gcc -o ./cli_cache.exe main.cpp ./lru/lru.o ./comand_line_parser/command_line_parser.o ./input_parser/input_parser.o -I./headers -O2 -lstdc++ -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17",
-        "socket-build": "cd ./persistent_storage/cpp_cache && gcc -o ./socket_cache.exe main_windows_socket.cpp ./headers/utils/string_utils.o ./lru/lru.o ./comand_line_parser/command_line_parser.o ./input_parser/input_parser.o -I./headers -O3 -DNDEBUG -lstdc++ -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17 -lws2_32 -lwsock32",
-        "socket-build-all": "bun run string-utils-object && bun run input-parser-object && bun run cl-parser-object && bun run lru-object && bun run socket-build",
-        "socket-cache": "./persistent_storage/cpp_cache/socket_cache.exe",
-        "socket-cache-verbose": "./persistent_storage/cpp_cache/socket_cache.exe -v=1",
-        "socket-cache-timed": "./persistent_storage/cpp_cache/socket_cache.exe -t=1",
-        "socket-cache-timed-verbose": "./persistent_storage/cpp_cache/socket_cache.exe -v=1 -t=1",
-        "socket-test-build": "cd ./persistent_storage/cpp_cache && gcc -o ./main_tests/socket_cache_test.exe ./main_tests/main_windows_socket.test.cpp -I./headers -O2 -lstdc++ -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17 -lws2_32 -lwsock32",
-        "socket-test": "./persistent_storage/cpp_cache/main_tests/socket_cache_test.exe",
-        "cli-cache": "./persistent_storage/cpp_cache/cli_cache.exe",
-        "cli-cache-verbose": "./persistent_storage/cpp_cache/cli_cache.exe -v=1",
-        "lru-test-compile": "gcc -o ./persistent_storage/cpp_cache/lru/lru.test.exe ./persistent_storage/cpp_cache/lru/lru.test.cpp -I./persistent_storage/cpp_cache/headers -O0 -lstdc++ -DNDEBUG",
-        "lru-test": "./persistent_storage/cpp_cache/lru/lru.test.exe",
-        "lru-object": "cd ./persistent_storage/cpp_cache && gcc -c lru/lru_map_and_linked_list.cpp -o lru/lru.o -I./headers -O3 -lstdc++ -DNDEBUG -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17",
-        "cl-parser-test-compile": "gcc -o ./persistent_storage/cpp_cache/comand_line_parser/command_line_parser_impl.test.exe ./persistent_storage/cpp_cache/comand_line_parser/command_line_parser_impl.cpp ./persistent_storage/cpp_cache/comand_line_parser/command_line_parser_impl.test.cpp -I./persistent_storage/cpp_cache/headers -O0 -lstdc++ -DNDEBUG",
-        "cl-parser-test": "./persistent_storage/cpp_cache/comand_line_parser/command_line_parser_impl.test.exe",
-        "cl-parser-object": "cd ./persistent_storage/cpp_cache && gcc -c comand_line_parser/command_line_parser_impl.cpp -o comand_line_parser/command_line_parser.o -I./headers -O3 -lstdc++ -DNDEBUG -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17",
-        "input-parser-test-compile": "gcc -o ./persistent_storage/cpp_cache/input_parser/input_parser_impl.test.exe ./persistent_storage/cpp_cache/input_parser/input_parser_impl.test.cpp ./persistent_storage/cpp_cache/input_parser/input_parser_impl.cpp -I./persistent_storage/cpp_cache/headers -O0 -lstdc++ -DNDEBUG -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17",
-        "input-parser-test": "./persistent_storage/cpp_cache/input_parser/input_parser_impl.test.exe",
-        "input-parser-object": "cd ./persistent_storage/cpp_cache && gcc -c input_parser/input_parser_impl.cpp -o input_parser/input_parser.o -I./headers -O3 -lstdc++ -DNDEBUG -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17",
-        "string-utils-object": "cd ./persistent_storage/cpp_cache && gcc -c headers/utils/string_utils.cpp -o headers/utils/string_utils.o -I./headers -O3 -lstdc++ -DNDEBUG -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Werror -std=c++17"
+        "redis-cli": "bun run entrypoints/redis-cli/main.ts"
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.63.0",
         "@types/bun": "^1.2.21",
+        "@types/express": "^5.0.3",
         "@types/redis": "^4.0.11",
+        "express": "4",
         "litellm": "^0.12.0",
         "next": "15.4.6",
         "node-redis": "^0.1.7",
         "react": "19.1.0",
-        "react-dom": "19.1.0"
+        "react-dom": "19.1.0",
+        "socket.io": "^4.8.1",
+        "socket.io-client": "^4.8.1"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3",
@@ -54,6 +36,7 @@
         "eslint": "^9",
         "eslint-config-next": "15.4.6",
         "tailwindcss": "^4",
-        "typescript": "^5"
+        "typescript": "^5",
+        "@types/bun": "latest"
     }
 }

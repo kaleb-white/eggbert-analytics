@@ -91,9 +91,6 @@ public:
     void process_command(std::string &buffer, Command &command, std::string &output)
     {
         output = "";
-        if (buffer.find("quit") != std::string::npos || buffer.find("q") != std::string::npos)
-            return;
-
         input_parser->parse_input(buffer, command);
 
         // Bad input, write error message to output
@@ -136,9 +133,6 @@ public:
         while (!input.eof())
         {
             std::getline(input, buffer);
-
-            if (buffer.find("quit") != std::string::npos || buffer.find("q") != std::string::npos)
-                break;
 
             process_command(buffer, command, to_write_to_output);
 

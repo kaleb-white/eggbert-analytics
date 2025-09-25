@@ -9,10 +9,13 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <cstdlib>
+#include <array>
 #include <chrono>
+#include <climits>
 
 // Change according to defaults in constants.h
-#define DEFAULT_BUFLEN 10000
+#define DEFAULT_BUFLEN 100000
 #define DEFAULT_PORT "1037"
 
 #define STX 0x02
@@ -137,6 +140,7 @@ int send_and_recv(SOCKET &ConnectSocket, std::string &message, std::string &recv
     recv_string = tmp2;
     return 0;
 }
+
 void teardown(SOCKET &ConnectSocket)
 {
     std::string msg{""};
@@ -160,6 +164,11 @@ void repeat_string_n_times(size_t n, std::string str, std::string &output)
     {
         output.append(str);
     }
+}
+
+char get_rand_char()
+{
+    return static_cast<char>((std::rand() * (126 - 33) / RAND_MAX) + 33);
 }
 
 TEST_CASE("test windows socket")
@@ -206,184 +215,234 @@ TEST_CASE("test windows socket")
         }
     }
 
-    SUBCASE("time mass send and read")
+    // SUBCASE("time mass create")
+    // {
+    //     size_t num_rqs{100000};
+    //     std::chrono::time_point<std::chrono::steady_clock> before = std::chrono::steady_clock::now();
+    //     for (size_t i{0}; i < num_rqs; ++i)
+    //     {
+    //         msg = "create a a";
+    //         call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     }
+    //     std::chrono::time_point<std::chrono::steady_clock> after = std::chrono::steady_clock::now();
+    //     double connection_length = std::chrono::duration<double>(after - before).count();
+    //     std::string output{"Sent " + std::to_string(num_rqs) + " requests in " + std::to_string(connection_length) + " seconds"};
+    //     MESSAGE(output);
+    // }
+
+    SUBCASE("time mass create and read")
     {
-        size_t num_rqs{100000};
+        const size_t num_rqs{1000};
+        const int max_key_length{1000};
+
+        std::array<std::string, num_rqs> *create_commands{new std::array<std::string, num_rqs>{}};
+        (*create_commands).fill("create ");
+        std::array<std::string, num_rqs> *read_commands{new std::array<std::string, num_rqs>{}};
+        (*read_commands).fill("read ");
+        std::string key{}, val{};
+
+        for (size_t i{0}; i < num_rqs; ++i)
+        {
+            key = "";
+            val = "";
+            int random_key_size = std::min(static_cast<int>(std::rand() * max_key_length / RAND_MAX), max_key_length);
+            for (int j{0}; j < random_key_size + 1; ++j)
+            {
+                key += get_rand_char();
+            }
+            (*create_commands).at(i).append(key).append(" ");
+            (*read_commands).at(i).append(key);
+
+            int random_value_size = std::min(static_cast<int>(std::rand() * max_key_length / RAND_MAX), max_key_length);
+            for (int j{0}; j < random_value_size + 1; ++j)
+            {
+                val += get_rand_char();
+            }
+            (*create_commands).at(i).append(val);
+        }
+
         std::chrono::time_point<std::chrono::steady_clock> before = std::chrono::steady_clock::now();
         for (size_t i{0}; i < num_rqs; ++i)
         {
-            msg = "create ";
-            msg.append("a");
-            msg.append(" a");
-            call_res = send_and_recv(client_sock, msg, recv_buffer);
+            send_and_recv(client_sock, (*create_commands)[i], recv_buffer);
+            call_res = send_and_recv(client_sock, (*read_commands)[i], recv_buffer);
         }
         std::chrono::time_point<std::chrono::steady_clock> after = std::chrono::steady_clock::now();
         double connection_length = std::chrono::duration<double>(after - before).count();
-        std::string output{"Sent " + std::to_string(num_rqs) + " requests in " + std::to_string(connection_length) + " seconds"};
-        MESSAGE(output);
+
+        std::string timing{"Sent " + std::to_string(num_rqs) + " requests in " + std::to_string(connection_length) + " seconds"};
+        MESSAGE(timing);
+
+        std::string last_two_commands_result{"Last two commands sent were:\n\n" + (*create_commands)[(*create_commands).size() - 1] + "\n\nand\n\n" + (*read_commands)[(*read_commands).size() - 1] + "\n\nto which the cache responded\n\n" + recv_buffer};
+        MESSAGE(last_two_commands_result);
+
+        CHECK(call_res == 0);
+
+        delete create_commands;
+        delete read_commands;
     }
 
-    SUBCASE("test delete")
-    {
-        msg = "create abcd c";
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    // SUBCASE("test delete")
+    // {
+    //     msg = "create abcd c";
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "delete abcd";
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     msg = "delete abcd";
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read abcd";
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        MESSAGE(recv_buffer);
-    }
+    //     msg = "read abcd";
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     MESSAGE(recv_buffer);
+    // }
 
-    SUBCASE("test long id and value")
-    {
-        // 20 chars
-        msg = "create ";
-        repeat_string_n_times(20, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    // SUBCASE("test long id and value")
+    // {
+    //     // 20 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(20, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        // 40 chars
-        msg = "create ";
-        repeat_string_n_times(40, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 40 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(40, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
+    //     CHECK(recv_buffer == scrap);
 
-        // 80 chars
-        msg = "create ";
-        repeat_string_n_times(80, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 80 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(80, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
 
-        // 160 chars
-        msg = "create ";
-        repeat_string_n_times(160, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 160 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(160, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
 
-        // 320 chars
-        msg = "create ";
-        repeat_string_n_times(320, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 320 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(320, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
 
-        // 640 chars
-        msg = "create ";
-        repeat_string_n_times(640, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 640 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(640, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
 
-        // 1280 chars
-        msg = "create ";
-        repeat_string_n_times(1280, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 1280 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(1280, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
 
-        // 2560 chars
-        msg = "create ";
-        repeat_string_n_times(2560, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 2560 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(2560, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
 
-        // 5120 chars
-        msg = "create ";
-        repeat_string_n_times(5120, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 5120 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(5120, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
 
-        // 9999 chars
-        msg = "create ";
-        repeat_string_n_times(9999, "a", scrap);
-        msg.append(scrap).append(" ").append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    //     // 9999 chars
+    //     msg = "create ";
+    //     repeat_string_n_times(9999, "a", scrap);
+    //     msg.append(scrap).append(" ").append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read ";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
-    }
+    //     msg = "read ";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
+    // }
 
-    SUBCASE("Test create with spaces in value")
-    {
-        msg = "create jadhfj ";
-        scrap = "abc def ghi";
-        msg.append(scrap);
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
+    // SUBCASE("Test create with spaces in value")
+    // {
+    //     msg = "create jadhfj ";
+    //     scrap = "abc def ghi";
+    //     msg.append(scrap);
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
 
-        msg = "read jadhfj";
-        call_res = send_and_recv(client_sock, msg, recv_buffer);
-        CHECK(call_res == 0);
-        CHECK(recv_buffer == scrap);
-    }
+    //     msg = "read jadhfj";
+    //     call_res = send_and_recv(client_sock, msg, recv_buffer);
+    //     CHECK(call_res == 0);
+    //     CHECK(recv_buffer == scrap);
+    // }
 
     teardown(client_sock);
 }

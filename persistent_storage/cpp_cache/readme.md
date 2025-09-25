@@ -61,3 +61,9 @@ A message to the client from the server: ==STX (start message)== -> ==uint peer_
     1. EOB: shut socket
     1. EOT: wait for connection
     1. ETX: wait for transmission
+
+## TODO
+
+1. Add sigint graceful shutdown
+1. Add timeout to client socket config
+1. Look into ensuring only connections over loopback are allowed
