@@ -18,13 +18,23 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   auth: business rules related to authentication
 			-   cryptography: implements the cryptography utilities utilized by entities
 		-   surveys: application business rules related to surveys
-			-   model: business rules relating to surveys and models
 -   docs: documentation, including guides, conventions
 	-   pictures: pictures for documentation
+	-   user_stories: folder has no description
 -   entrypoints: folder has no description
 	-   redis-cli: folder has no description
--   git_hooks: scripts hooked into git (including the script that updates this doc!)
--   model_gateway: folder has no description
+-   model_client_proxy: folder has no description
+	-   core: folder has no description
+		-   entities: folder has no description
+		-   gateways: folder has no description
+			-   client_gateway: folder has no description
+			-   server_gateway: folder has no description
+		-   use_cases: folder has no description
+			-   query_model: folder has no description
+	-   model: folder has no description
+	-   tests: folder has no description
+		-   run_test_server: folder has no description
+		-   use_cases: folder has no description
 -   persistent_storage: folder has no description
 	-   cache_gateway: folder has no description
 		-   ts: folder has no description
@@ -45,6 +55,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 -   public: public assets, statically hosted by next
 	-   svg_icons: project icons
 -   stable_utilities: simple, easily testable functions that will not change and can be depended on universally (such as type checks for interfaces)
+	-   git_hooks: folder has no description
 -   tests: the tests, current tightly coupled
 	-   entities: tests for entities
 		-   specific: tests that are very tightly coupled and tests that simple methods are doing what they should be

@@ -74,8 +74,6 @@ Input that is meant to hijack the server.
 
 ### AI
 
-abc
-
 #### model
 
 To be consistent, use 'model' when referring to chatGPT, deepseek, or other generative ai models.

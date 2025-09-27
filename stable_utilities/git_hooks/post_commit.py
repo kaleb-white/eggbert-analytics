@@ -2,6 +2,8 @@
 
 import os, platform, re
 
+print("Updating directories in docs/eggbert_architecture.md...")
+
 EGGBERT_ARCHITECTURE_REL_PATH = "\docs\eggbert_architecture.md"
 EGGBERT_ARCHITECTURE_ABSOLUTE_PATH = os.getcwd() + EGGBERT_ARCHITECTURE_REL_PATH
 
