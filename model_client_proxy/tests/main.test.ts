@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import { io } from "socket.io-client";
-import { ConnectionSetup } from "./core/entities/connection_setup";
+import { ConnectionSetup } from "../core/entities/connection_setup";
 
 const PORT = 1038;
 

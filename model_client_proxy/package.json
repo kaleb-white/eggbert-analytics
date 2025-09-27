@@ -11,5 +11,8 @@
     },
     "scripts": {
         "dev": "bun run main.ts dev"
+    },
+    "dependencies": {
+        "zod": "^4.1.11"
     }
 }

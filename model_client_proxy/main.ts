@@ -4,6 +4,11 @@ import { setupProxy } from "./core/use_cases/setup_proxy";
 import { Server } from "socket.io";
 import { checkServerToken } from "./core/use_cases/auth";
 import type { AddressInfo } from "net";
+import type { DialogueContext } from "./core/entities/response_context";
+import { handlePeer } from "./core/use_cases/handle_peer";
+import { LiteLLMModelImpl } from "./core/use_cases/query_model/litellm_model_impl";
+import { SurveyResponse } from "../core/entities/surveys/survey_response";
+import { finalizePeer } from "./core/gateways/server_gateway/finalize_peer";
 
 // CONSTANTS
 export const PORT = 1038;
@@ -20,7 +25,10 @@ const io = new Server(server);
 
 // Storage (just on the stack for now)
 const approvedPeerAddresses: string[] = [];
-const idToContext: Map<string, string> = new Map<string, string>();
+const idToContext: Map<string, DialogueContext> = new Map<
+    string,
+    DialogueContext
+>();
 
 // Routes
 app.post("/create-connection", (req, res) => {
@@ -43,6 +51,7 @@ app.get("/connection-ids", (req, res) => {
     res.status(200);
 });
 
+// Socket
 io.use((socket, next) => {
     if (DEV) {
         console.log(`${space2}socket connection attempted`);
@@ -58,8 +67,6 @@ io.use((socket, next) => {
     }
 
     if (!idToContext.get(headers["connectionid"] as string)) {
-        console.log(headers["connectionid"]);
-        console.log([...idToContext.keys()]);
         err.message = "Unauthorized";
     }
 
@@ -77,9 +84,23 @@ io.use((socket, next) => {
 
 io.on("connection", (peer) => {
     if (DEV) console.log(`${space2}Peer connected`);
-    peer.on("input", () => {
-        peer.emit("response", "hello world");
-    });
+
+    if (!peer.request.headers["connectionid"]) {
+        peer.disconnect();
+        return;
+    }
+
+    const context = idToContext.get(
+        peer.request.headers["connectionId"] as string
+    ) as DialogueContext;
+
+    const surveyResponseInProgress: SurveyResponse = new SurveyResponse(
+        context.surveyResponseId,
+        context.question
+    );
+
+    handlePeer(peer, context, new LiteLLMModelImpl(), surveyResponseInProgress);
+    finalizePeer(peer, context, surveyResponseInProgress);
 });
 
 server.listen(PORT, () => {

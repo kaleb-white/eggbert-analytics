@@ -1,26 +1,17 @@
 import { Question } from "../../../core/entities/surveys/question";
 
-export class ConnectionSetup {
-    connectionId: string;
-    serverToken: string;
+export class DialogueContext {
     surveyResponseId: string;
-    peerAddress: string;
     promptContext: string;
     question: Question;
 
     constructor(
-        connectionId: string = "",
         promptContext: string = "",
-        serverToken: string = "",
-        peerAddress: string = "",
         surveyResponseId: string = "",
         question: Question = new Question()
     ) {
         this.surveyResponseId = surveyResponseId;
-        this.connectionId = connectionId;
         this.promptContext = promptContext;
-        this.serverToken = serverToken;
-        this.peerAddress = peerAddress;
         this.question = question;
     }
 }
