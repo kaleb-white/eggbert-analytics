@@ -1,27 +1,27 @@
 export class Turn {
-    modelOutput?: string
-    userAnswer?: string
+    modelAnswer?: string;
+    respondentInput?: string;
 
-    constructor(modelOutput?: string, userAnswer?: string) {
-        this.modelOutput = modelOutput
-        this.userAnswer = userAnswer
+    constructor(modelAnswer?: string, respondentInput?: string) {
+        this.modelAnswer = modelAnswer;
+        this.respondentInput = respondentInput;
     }
 
     /** Returns an empty string if the turn is not complete. */
-    get modelOutputAndUserAnswerAsString(): string {
-        if (!this.turnWasTaken) return ""
-        return `\nthe model asked: ${this.modelOutput} \nthe user responded: ${this.userAnswer}`
+    get respondentInputAndUserAnswerAsString(): string {
+        if (!this.turnWasTaken) return "";
+        return `\nthe model asked: ${this.modelAnswer} \nthe user responded: ${this.respondentInput}`;
     }
 
-    get modelOutputExists() {
-        return this.modelOutput? true : false
+    get modelAnswerExists() {
+        return this.modelAnswer ? true : false;
     }
 
-    get userAnswerExists() {
-        return this.userAnswer? true: false
+    get respondentInputExists() {
+        return this.respondentInput ? true : false;
     }
 
     get turnWasTaken() {
-        return this.modelOutputExists || this.userAnswerExists
+        return this.modelAnswerExists || this.respondentInputExists;
     }
 }

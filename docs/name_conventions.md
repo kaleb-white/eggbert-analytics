@@ -18,13 +18,21 @@ Anyone who uses the app.
 
 A survey.
 
-#### surveyResponse
+#### question
 
-The encapsulated summary and data of the surveyResponse. surveyResponses contain transcript, as well as summaries, transcripts, demographics, etc.
+A specific question which a survey seeks a respondent response to.
+
+#### survey response
+
+The encapsulated summary and data of the survey response. Survey responses correspond to a question. Survey responses contain transcript, as well as summaries, transcripts, demographics, etc.
 
 #### dialogue
 
 The conversation between the survey respondent and the model. Not an entity; a description of a transcript in progress.
+
+#### dialogue context
+
+A minimal subset of survey response which contains the necessary fields to communicate about a response with the model client proxy server.
 
 #### transcript
 
@@ -38,9 +46,31 @@ Includes a question and survey respondent answer. Transcripts consist of turns.
 
 A model's question or a user's answer. Not an entity, a description.
 
+#### respondent input
+
+A respondent's message.
+
+#### model answer
+
+A model's message.
+
+#### model answer chunk
+
+A streamed piece of a model's message.
+
+#### prompt context
+
+The context provided to a model when giving a user input.
+
 #### demographics
 
 Demographic information about a survey response.
+
+### Auth
+
+#### malicious
+
+Input that is meant to hijack the server.
 
 ### AI
 
