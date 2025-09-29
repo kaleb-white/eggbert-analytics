@@ -4,7 +4,7 @@ import {
     message_to_protocol_format,
     protocol_format_to_message,
 } from "./utilities/utilities";
-import { CacheGateway } from "./cache_gateway";
+import type { CacheGateway } from "./cache_gateway";
 
 export class CacheGatewayImpl implements CacheGateway {
     PORT_NUMBER: number = 1037;

@@ -16,7 +16,6 @@ describe("test use case handle peer", () => {
         // First test model sends the context it was called with, then the user input - which, in our case, should be message
         peer.on("modelAnswerChunk", (msg) => {
             expected_value = msg;
-            console.log(msg);
             called += 1;
 
             if (called == 2) {

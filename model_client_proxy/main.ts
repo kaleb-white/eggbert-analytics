@@ -4,11 +4,13 @@ import { setupProxy } from "./core/use_cases/setup_proxy";
 import { Server } from "socket.io";
 import { checkServerToken } from "./core/use_cases/auth";
 import type { AddressInfo } from "net";
-import type { DialogueContext } from "./core/entities/response_context";
 import { handlePeer } from "./core/use_cases/handle_peer";
 import { LiteLLMModelImpl } from "./core/use_cases/query_model/litellm_model_impl";
-import { SurveyResponse } from "../core/entities/surveys/survey_response";
+import { questionResponse } from "../core/entities/surveys/question_response";
 import { finalizePeer } from "./core/gateways/server_gateway/finalize_peer";
+import type { ConnectionSetup } from "./core/entities/connection_setup";
+import { dialogueContextFromConnectionSetup } from "./core/entities/dialogue_context";
+import { ModelTest } from "./core/use_cases/query_model/test_model";
 
 // CONSTANTS
 export const PORT = 1038;
@@ -24,10 +26,10 @@ const server = createServer(app);
 const io = new Server(server);
 
 // Storage (just on the stack for now)
-const approvedPeerAddresses: string[] = [];
-const idToContext: Map<string, DialogueContext> = new Map<
+let approvedPeerAddresses: string[] = [];
+const idToConnection: Map<string, ConnectionSetup> = new Map<
     string,
-    DialogueContext
+    ConnectionSetup
 >();
 
 // Routes
@@ -35,7 +37,8 @@ app.post("/create-connection", (req, res) => {
     if (DEV) {
         console.log(`${space2}/create-connection called`);
     }
-    setupProxy(req, res, idToContext, approvedPeerAddresses);
+    setupProxy(req, res, idToConnection, approvedPeerAddresses, DEV);
+    res.send();
 });
 
 app.get("/connection-ids", (req, res) => {
@@ -47,8 +50,9 @@ app.get("/connection-ids", (req, res) => {
         return;
     }
 
-    res.json([...idToContext.keys()]);
+    res.json([...idToConnection.keys()]);
     res.status(200);
+    res.send();
 });
 
 // Socket
@@ -66,7 +70,7 @@ io.use((socket, next) => {
         err.message = "Missing connectionId from headers";
     }
 
-    if (!idToContext.get(headers["connectionid"] as string)) {
+    if (!idToConnection.get(headers["connectionid"] as string)) {
         err.message = "Unauthorized";
     }
 
@@ -90,17 +94,24 @@ io.on("connection", (peer) => {
         return;
     }
 
-    const context = idToContext.get(
-        peer.request.headers["connectionId"] as string
-    ) as DialogueContext;
+    const peerConnection = idToConnection.get(
+        peer.request.headers["connectionid"] as string
+    ) as ConnectionSetup;
 
-    const surveyResponseInProgress: SurveyResponse = new SurveyResponse(
-        context.surveyResponseId,
+    const context = dialogueContextFromConnectionSetup(peerConnection);
+
+    const questionResponseInProgress: questionResponse = new questionResponse(
+        context.questionResponseId,
         context.question
     );
 
-    handlePeer(peer, context, new LiteLLMModelImpl(), surveyResponseInProgress);
-    finalizePeer(peer, context, surveyResponseInProgress);
+    handlePeer(peer, context, new ModelTest(), questionResponseInProgress);
+    finalizePeer(peer, context, questionResponseInProgress, () => {
+        approvedPeerAddresses = approvedPeerAddresses.filter(
+            (addr) => addr != peerConnection.peerAddress
+        );
+        idToConnection.delete(peerConnection.connectionId);
+    });
 });
 
 server.listen(PORT, () => {

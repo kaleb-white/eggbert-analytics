@@ -22,7 +22,9 @@
         ],
         "paths": {
             "@/*": ["./*"],
-            "@cache_gateway/*": ["./persistent_storage/cache_gateway/*"]
+            "@cache_gateway/*": [
+                "./persistent_storage/cpp_cache/cache_gateway/*"
+            ]
         }
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

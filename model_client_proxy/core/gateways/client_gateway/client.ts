@@ -5,9 +5,14 @@ export class ClientGatewayImpl {
 
     start(
         proxyAddress: string,
+        connectionId: string,
         callbackOnModelChunk: (modelChunk: string) => void
     ) {
-        this.peer = io(proxyAddress);
+        this.peer = io(proxyAddress, {
+            extraHeaders: {
+                connectionId: "test-connect",
+            },
+        });
 
         this.peer.on("modelAnswerChunk", (modelChunk) => {
             callbackOnModelChunk(modelChunk);

@@ -1,8 +1,8 @@
-import { SurveyDataGateway } from "@/core/use_cases/surveys/interfaces/survey_data_gateway";
-import { SurveyCache } from "./interfaces/survey_cache";
-import { SurveyDatabase } from "./interfaces/survey_database";
+import { SurveyDataGateway } from "@/core/gateways/interfaces/internal/survey_data_gateway";
+import { SurveyCache } from "../interfaces/external/survey_cache";
+import { SurveyDatabase } from "../interfaces/external/survey_database";
 import { Survey } from "@/core/entities/surveys/survey";
-import { SurveyResponse } from "@/core/entities/surveys/survey_response";
+import { questionResponse } from "@/core/entities/surveys/question_response";
 import { isSurvey } from "@/stable_utilities/type_checks";
 
 export class SurveyDataGatewayImpl implements SurveyDataGateway {
@@ -51,7 +51,10 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         );
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad)) {
-            this.tryCacheSave(tryDatabaseLoad as Survey);
+            this.cache.saveSurvey(
+                (tryDatabaseLoad as Survey).uniqueid,
+                JSON.stringify(tryDatabaseLoad as Survey)
+            );
             return tryDatabaseLoad as Survey;
         }
         if (!(tryDatabaseLoad instanceof Error) && !isSurvey(tryDatabaseLoad))
@@ -70,7 +73,7 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         );
 
         if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad)) {
-            (tryCacheLoad as Survey).surveyResponses = [];
+            (tryCacheLoad as Survey).questionResponses = [];
             return tryCacheLoad as Survey;
         }
         if (!(tryCacheLoad instanceof Error) && !isSurvey(tryCacheLoad))
@@ -83,7 +86,10 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         );
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad)) {
-            this.tryCacheSave(tryDatabaseLoad as Survey);
+            this.cache.saveSurvey(
+                (tryDatabaseLoad as Survey).uniqueid,
+                JSON.stringify(tryDatabaseLoad as Survey)
+            );
             return tryDatabaseLoad as Survey;
         }
         if (!(tryDatabaseLoad instanceof Error) && !isSurvey(tryDatabaseLoad))
@@ -94,15 +100,15 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         return new Error("No record found");
     }
 
-    async loadSurveyResponses(
+    async loadquestionResponses(
         uniqueId: string
-    ): Promise<SurveyResponse[] | Error> {
+    ): Promise<questionResponse[] | Error> {
         const tryCacheLoad = JSON.parse(
             await this.cache.loadSurveyFromCache(uniqueId)
         );
 
         if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad))
-            return (tryCacheLoad as Survey).surveyResponses;
+            return (tryCacheLoad as Survey).questionResponses;
         if (!(tryCacheLoad instanceof Error) && !isSurvey(tryCacheLoad))
             return new Error(
                 "Cache returned something that wasn't a survey or an error!"
@@ -113,19 +119,12 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         );
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad))
-            return (tryDatabaseLoad as Survey).surveyResponses;
+            return (tryDatabaseLoad as Survey).questionResponses;
         if (!(tryDatabaseLoad instanceof Error) && !isSurvey(tryDatabaseLoad))
             return new Error(
                 "Database returned something that wasn't a survey or an error!"
             );
 
         return new Error("No record found");
-    }
-
-    private tryCacheSave(survey: Survey) {
-        this.cache.saveSurveyAsynchronously(
-            survey.uniqueid,
-            JSON.stringify(survey)
-        );
     }
 }

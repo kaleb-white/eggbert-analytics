@@ -1,6 +1,7 @@
 import { describe, test, expect } from "bun:test";
 import { io } from "socket.io-client";
 import { ConnectionSetup } from "../core/entities/connection_setup";
+import { ClientGatewayImpl } from "../core/gateways/client_gateway/client";
 
 const PORT = 1038;
 
@@ -38,58 +39,66 @@ describe("test model client proxy integration", () => {
         const setup: ConnectionSetup = new ConnectionSetup(
             "abc",
             "a",
-            serverToken,
+            "a",
             "a"
         );
 
+        const body = {
+            serverToken: serverToken,
+            connectionSetup: setup,
+        };
+
         test("create-connection rejects incorrect server token", async () => {
-            setup.serverToken = "peepee";
+            body.serverToken = "pee pee";
             const res = await call(
                 "create-connection",
                 "POST",
-                JSON.stringify(setup),
-                serverToken
+                JSON.stringify(body)
             );
             expect(res.status).toBe(401);
         });
 
         test("create-connection rejects missing server token", async () => {
-            const setupWithoutServerToken = {
-                connectionId: "abc",
-                context: "abc",
-                peerAddress: "abc",
+            const noServerToken = {
+                connectionSetup: {
+                    connectionId: "abc",
+                    context: "abc",
+                    peerAddress: "abc",
+                },
             };
             const res = await call(
                 "create-connection",
                 "POST",
-                JSON.stringify(setupWithoutServerToken),
+                JSON.stringify(noServerToken),
                 serverToken
             );
             expect(res.status).toBe(401);
         });
 
         test("create-connection rejects missing field", async () => {
-            const setupWithoutConnectionId = {
-                context: "abc",
+            const bodyMissingField = {
                 serverToken: serverToken,
-                peerAddress: "abc",
+                connectionSetup: {
+                    context: "abc",
+                    serverToken: serverToken,
+                    peerAddress: "abc",
+                },
             };
             const res = await call(
                 "create-connection",
                 "POST",
-                JSON.stringify(setupWithoutConnectionId),
+                JSON.stringify(bodyMissingField),
                 serverToken
             );
             expect(res.status).toBe(400);
         });
 
         test("create connection plus connection ids returns expected value after one call", async () => {
-            setup.serverToken = serverToken;
-
+            body.serverToken = serverToken;
             const res = await call(
                 "create-connection",
                 "POST",
-                JSON.stringify(setup),
+                JSON.stringify(body),
                 serverToken
             );
 
@@ -111,25 +120,25 @@ describe("test model client proxy integration", () => {
             await call(
                 "create-connection",
                 "POST",
-                JSON.stringify(setup),
+                JSON.stringify(body),
                 serverToken
             );
 
-            const server = io(`http://localhost:${PORT}`, {
-                extraHeaders: {
-                    connectionId: "test-connect",
-                },
-            });
+            const client = new ClientGatewayImpl();
 
             let expected_value = "";
-            server.on("connect", () => {
-                console.log("connected to server");
-                server.emit("input", "abc");
-            });
-            server.on("response", (msg) => {
-                console.log(msg);
-                expected_value = "msg";
-            });
+
+            client.start(
+                `http://localhost:${PORT}`,
+                "test-connect",
+                (modelChunk) => {
+                    expected_value = modelChunk;
+                    console.log(expected_value);
+                }
+            );
+            const sendResult = client.sendRespondentInput("my input");
+
+            expect(sendResult).toBe(null);
 
             await new Promise<void>((resolve) => {
                 function chooseToResolve() {

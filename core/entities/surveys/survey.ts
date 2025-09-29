@@ -1,11 +1,11 @@
 import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
 import { Question } from "./question";
-import { SurveyResponse } from "./survey_response";
+import { questionResponse } from "./question_response";
 import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
 
 export class Survey {
     questions: Question[];
-    surveyResponses: SurveyResponse[];
+    questionResponses: questionResponse[];
     createdAt: number;
     lastEdited: number;
     uniqueid: string;
@@ -13,22 +13,23 @@ export class Survey {
     constructor(
         questions: Question[],
         uniqueId: string | CryptographyUtilities,
-        surveyResponses: SurveyResponse[],
+        questionResponses: questionResponse[],
         createdAt: number = Date.now(),
         lastEdited: number = Date.now()
     ) {
         this.questions = questions;
         this.uniqueid = assignOrCreateUniqueId(uniqueId);
-        this.surveyResponses = surveyResponses;
+        this.questionResponses = questionResponses;
         this.createdAt = createdAt;
         this.lastEdited = lastEdited;
     }
 
     addResponse(
-        newSurveyResponse: SurveyResponse,
+        newquestionResponse: questionResponse,
         changeTimeLastEdited = true
     ) {
-        this.surveyResponses = this.surveyResponses.concat(newSurveyResponse);
+        this.questionResponses =
+            this.questionResponses.concat(newquestionResponse);
         if (changeTimeLastEdited) this.lastEdited = Date.now();
     }
 
@@ -45,8 +46,8 @@ export class Survey {
             return new Error("Question arrays did not match");
         }
 
-        this.surveyResponses = this.surveyResponses.concat(
-            withThisSurvey.surveyResponses
+        this.questionResponses = this.questionResponses.concat(
+            withThisSurvey.questionResponses
         );
         this.lastEdited = Date.now();
 

@@ -1,12 +1,13 @@
 import type { Socket } from "socket.io";
-import type { DialogueContext } from "../../entities/response_context";
-import type { SurveyResponse } from "../../../../core/entities/surveys/survey_response";
+import type { DialogueContext } from "../../entities/dialogue_context";
+import type { questionResponse } from "../../../../core/entities/surveys/question_response";
 import { FinishedConnection } from "../../entities/finished_connection";
 
 export function finalizePeer(
     peer: Socket,
     context: DialogueContext,
-    surveyResponseFinalized: SurveyResponse
+    questionResponseFinalized: questionResponse,
+    removeFromAllowedAddressesAndIds: () => void
 ) {
     peer.on("respondent finished", () => {
         if (!process.env.EXPECTED_SERVER_TOKEN)
@@ -15,9 +16,11 @@ export function finalizePeer(
             );
 
         const sendToServer: FinishedConnection = new FinishedConnection(
-            context.surveyResponseId,
-            surveyResponseFinalized,
+            context.questionResponseId,
+            questionResponseFinalized,
             process.env.EXPECTED_SERVER_TOKEN
         );
+
+        removeFromAllowedAddressesAndIds();
     });
 }

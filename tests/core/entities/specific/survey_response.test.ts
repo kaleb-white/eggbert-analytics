@@ -1,13 +1,13 @@
-import { ModelDialoguePrompt } from "@/core/entities/surveys/model_dialogue_prompt";
-import { SurveyResponse } from "@/core/entities/surveys/survey_response";
+import { Question } from "@/core/entities/surveys/question";
+import { questionResponse } from "@/core/entities/surveys/question_response";
 import { Turn } from "@/core/entities/surveys/turn";
 import { describe, expect, test } from "bun:test";
 
 describe("test survey response", () => {
     describe("method dialogueAsString", () => {
-        const testPrompt = new ModelDialoguePrompt("test");
+        const testPrompt = new Question("test");
         const turns = [new Turn(), new Turn()];
-        const t = new SurveyResponse([testPrompt], "ex", turns);
+        const t = new questionResponse("ex", testPrompt, turns);
 
         test("outputs nothing when turns are empty", () => {
             expect(t.dialogueAsString).toBe("");

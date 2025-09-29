@@ -3,7 +3,7 @@ import { Question } from "./question";
 import { Turn } from "./turn";
 import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
 
-export class SurveyResponse {
+export class questionResponse {
     summary?: string;
     transcript: Turn[];
     /** Indexed at 0 */
