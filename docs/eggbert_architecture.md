@@ -13,7 +13,10 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   surveys: survey-related entities, such as survey, transcript, turn, modelDialoguePrompt
 		-   users: user-related entities
 	-   gateways: contains the classes that translate between external frameworks and business rules
-		-   surveys: translations to and from surveys
+		-   external: folder has no description
+			-   external: folder has no description
+			-   internal: folder has no description
+		-   internal: folder has no description
 	-   use_cases: application business rules
 		-   auth: business rules related to authentication
 			-   cryptography: implements the cryptography utilities utilized by entities
@@ -31,15 +34,14 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 			-   server_gateway: folder has no description
 		-   use_cases: folder has no description
 			-   query_model: folder has no description
-	-   model: folder has no description
 	-   tests: folder has no description
 		-   run_test_server: folder has no description
 		-   use_cases: folder has no description
 -   persistent_storage: folder has no description
-	-   cache_gateway: folder has no description
-		-   ts: folder has no description
-			-   utilities: folder has no description
 	-   cpp_cache: folder has no description
+		-   cache_gateway: folder has no description
+			-   ts: folder has no description
+				-   utilities: folder has no description
 		-   comand_line_parser: folder has no description
 		-   headers: folder has no description
 			-   classes: folder has no description
@@ -57,14 +59,13 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 -   stable_utilities: simple, easily testable functions that will not change and can be depended on universally (such as type checks for interfaces)
 	-   git_hooks: folder has no description
 -   tests: the tests, current tightly coupled
-	-   entities: tests for entities
-		-   specific: tests that are very tightly coupled and tests that simple methods are doing what they should be
+	-   core: folder has no description
+		-   entities: folder has no description
+			-   specific: folder has no description
+		-   gateways: folder has no description
 	-   stable_utilities: tests for stable utilities
 	-   ui: tests for the ui
 		-   icons: tests for icon creation script
-	-   use_cases: tests for use cases
-		-   surveys:
-			-   model: test cases related to use cases survey interactions
 -   ui: contains the ui implementation
 	-   icons: svg icons for use in the ui
 
