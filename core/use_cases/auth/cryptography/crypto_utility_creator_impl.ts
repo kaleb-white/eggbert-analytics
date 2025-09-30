@@ -1,4 +1,4 @@
-import { CryptographyUtilities } from "@/core/entities/interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "@entities/interfaces/crypto_utility_creator";
 import { RandomGenerator } from "../interfaces/random_buffer_generator";
 
 export class CryptographyUtilitiesImpl implements CryptographyUtilities {

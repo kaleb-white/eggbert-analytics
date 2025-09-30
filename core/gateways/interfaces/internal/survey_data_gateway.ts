@@ -1,4 +1,4 @@
-import { Survey } from "@/core/entities/surveys/survey";
+import { Survey } from "@entities/surveys/survey";
 import { Response } from "@entities/surveys/response";
 
 export interface SurveyDataGateway {

@@ -1,6 +1,6 @@
-import { Question } from "@/core/entities/surveys/question";
-import { questionResponse } from "@/core/entities/surveys/question_response";
-import { Turn } from "@/core/entities/surveys/turn";
+import { Question } from "@entities/surveys/question";
+import { questionResponse } from "@entities/surveys/question_response";
+import { Turn } from "@entities/surveys/turn";
 import { describe, expect, test } from "bun:test";
 
 describe("test survey response", () => {

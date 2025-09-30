@@ -20,7 +20,6 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   use_cases: application business rules
 		-   auth: business rules related to authentication
 			-   cryptography: implements the cryptography utilities utilized by entities
-		-   surveys: application business rules related to surveys
 -   docs: documentation, including guides, conventions
 	-   pictures: pictures for documentation
 	-   user_stories: folder has no description

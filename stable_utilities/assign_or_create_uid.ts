@@ -1,4 +1,4 @@
-import { CryptographyUtilities } from "@/core/entities/interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "@entities/interfaces/crypto_utility_creator";
 import { isCryptographyUtilities } from "./type_checks";
 
 export function assignOrCreateUniqueId(

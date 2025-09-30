@@ -1,7 +1,7 @@
-import { CryptographyUtilities } from "@/core/entities/interfaces/crypto_utility_creator";
-import { ModelDialoguePrompt } from "@/core/entities/surveys/model_dialogue_prompt";
-import { Survey } from "@/core/entities/surveys/survey";
-import { questionResponse } from "@/core/entities/surveys/question_response";
+import { CryptographyUtilities } from "@entities/interfaces/crypto_utility_creator";
+import { Question } from "@entities/surveys/question";
+import { Survey } from "@entities/surveys/survey";
+import { Response } from "@entities/surveys/response";
 import {
     isCryptographyUtilities,
     isSurvey,
@@ -25,11 +25,9 @@ describe("test type checks", () => {
 
     describe("test survey type check", () => {
         const fakeSurvey = new Survey([], "", []);
-        const fakeSurvey2 = new Survey(
-            [new ModelDialoguePrompt("")],
-            "abcbca",
-            [new questionResponse([], "abcbca")]
-        );
+        const fakeSurvey2 = new Survey([new Question("")], "abcbca", [
+            new Response(),
+        ]);
 
         test("facade recognized as survey", () => {
             expect(isSurvey(fakeSurvey)).toBeTrue();

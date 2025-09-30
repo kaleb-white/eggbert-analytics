@@ -1,4 +1,4 @@
-import { Survey } from "@/core/entities/surveys/survey";
+import { Survey } from "@entities/surveys/survey";
 
 export function isCryptographyUtilities(obj: unknown): boolean {
     return (
