@@ -1,8 +1,8 @@
 import { SurveyDataGateway } from "@/core/gateways/interfaces/internal/survey_data_gateway";
 import { SurveyCache } from "../interfaces/external/survey_cache";
 import { SurveyDatabase } from "../interfaces/external/survey_database";
-import { Survey } from "@/core/entities/surveys/survey";
-import { questionResponse } from "@/core/entities/surveys/question_response";
+import { Survey } from "@entities/surveys/survey";
+import { Response } from "@entities/surveys/response";
 import { isSurvey } from "@/stable_utilities/type_checks";
 
 export class SurveyDataGatewayImpl implements SurveyDataGateway {
@@ -73,7 +73,7 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         );
 
         if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad)) {
-            (tryCacheLoad as Survey).questionResponses = [];
+            (tryCacheLoad as Survey).responses = [];
             return tryCacheLoad as Survey;
         }
         if (!(tryCacheLoad instanceof Error) && !isSurvey(tryCacheLoad))
@@ -100,15 +100,13 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         return new Error("No record found");
     }
 
-    async loadquestionResponses(
-        uniqueId: string
-    ): Promise<questionResponse[] | Error> {
+    async loadResponses(uniqueId: string): Promise<Response[] | Error> {
         const tryCacheLoad = JSON.parse(
             await this.cache.loadSurveyFromCache(uniqueId)
         );
 
         if (!(tryCacheLoad instanceof Error) && isSurvey(tryCacheLoad))
-            return (tryCacheLoad as Survey).questionResponses;
+            return (tryCacheLoad as Survey).responses;
         if (!(tryCacheLoad instanceof Error) && !isSurvey(tryCacheLoad))
             return new Error(
                 "Cache returned something that wasn't a survey or an error!"
@@ -119,7 +117,7 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
         );
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad))
-            return (tryDatabaseLoad as Survey).questionResponses;
+            return (tryDatabaseLoad as Survey).responses;
         if (!(tryDatabaseLoad instanceof Error) && !isSurvey(tryDatabaseLoad))
             return new Error(
                 "Database returned something that wasn't a survey or an error!"
