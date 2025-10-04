@@ -6,7 +6,7 @@ import { checkServerToken } from "./core/use_cases/auth";
 import type { AddressInfo } from "net";
 import { handlePeer } from "./core/use_cases/handle_peer";
 import { LiteLLMModelImpl } from "./core/use_cases/query_model/litellm_model_impl";
-import { questionResponse } from "../core/entities/surveys/question_response";
+import { QuestionResponse } from "../core/entities/surveys/question_response";
 import { finalizePeer } from "./core/gateways/server_gateway/finalize_peer";
 import type { ConnectionSetup } from "./core/entities/connection_setup";
 import { dialogueContextFromConnectionSetup } from "./core/entities/dialogue_context";
@@ -100,7 +100,7 @@ io.on("connection", (peer) => {
 
     const context = dialogueContextFromConnectionSetup(peerConnection);
 
-    const questionResponseInProgress: questionResponse = new questionResponse(
+    const questionResponseInProgress: QuestionResponse = new QuestionResponse(
         context.questionResponseId,
         context.question
     );

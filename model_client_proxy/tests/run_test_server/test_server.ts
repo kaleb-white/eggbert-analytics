@@ -5,7 +5,7 @@ import { handlePeer } from "../../core/use_cases/handle_peer";
 import { DialogueContext } from "../../core/entities/dialogue_context";
 import { ModelTest } from "../../core/use_cases/query_model/test_model";
 import { Question } from "../../../core/entities/surveys/question";
-import { questionResponse } from "../../../core/entities/surveys/question_response";
+import { QuestionResponse } from "../../../core/entities/surveys/question_response";
 
 function test_server() {
     // Server setup
@@ -21,8 +21,8 @@ function test_server() {
         new Question("prompt")
     );
     const testModelForPeerHandler: ModelTest = new ModelTest();
-    const questionResponseForPeerHandler: questionResponse =
-        new questionResponse("a", new Question("a"));
+    const questionResponseForPeerHandler: QuestionResponse =
+        new QuestionResponse("a", new Question("a"));
     io.on("connection", (peer) => {
         handlePeer(
             peer,

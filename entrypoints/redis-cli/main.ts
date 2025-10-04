@@ -1,4 +1,4 @@
-import { RedisBasedSurveyCacheImpl } from "@/persistent_storage/surveys/redis_survey_cache";
+import { RedisBasedSurveyCacheImpl } from "@/persistent_storage/redis/redis_survey_cache";
 import { RedisClientType } from "@redis/client";
 import { SyncSubprocess } from "bun";
 import { createClient } from "redis";

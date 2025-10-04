@@ -1,12 +1,12 @@
 import type { Socket } from "socket.io";
 import type { DialogueContext } from "../../entities/dialogue_context";
-import type { questionResponse } from "../../../../core/entities/surveys/question_response";
+import type { QuestionResponse } from "../../../../core/entities/surveys/question_response";
 import { FinishedConnection } from "../../entities/finished_connection";
 
 export function finalizePeer(
     peer: Socket,
     context: DialogueContext,
-    questionResponseFinalized: questionResponse,
+    questionResponseFinalized: QuestionResponse,
     removeFromAllowedAddressesAndIds: () => void
 ) {
     peer.on("respondent finished", () => {

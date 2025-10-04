@@ -78,6 +78,12 @@ Input that is meant to hijack the server.
 
 To be consistent, use 'model' when referring to chatGPT, deepseek, or other generative ai models.
 
+### DB (some just a reminder / definition)
+
+#### prepared statements
+
+A prepared statement is a method of preventing SQL injection by first sending a query to the db with the SQL statement with some variable representing successive parameters, i.e. `INSERT INTO myTable (column1, column2) VALUES ($1, $2)` in node-postgres.
+
 ### Locations
 
 #### directories

@@ -1,4 +1,5 @@
 import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
+import { Author } from "../users/author";
 import { Question } from "./question";
 import { Response } from "./response";
 import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
@@ -6,21 +7,24 @@ import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid"
 export class Survey {
     questions: Question[];
     responses: Response[];
-    createdAt: number;
+    timeCreated: number;
     lastEdited: number;
-    uniqueid: string;
+    uniqueId: string;
+    author: Author;
 
     constructor(
         questions: Question[],
         uniqueId: string | CryptographyUtilities,
         responses: Response[],
-        createdAt: number = Date.now(),
+        author: Author,
+        timeCreated: number = Date.now(),
         lastEdited: number = Date.now()
     ) {
         this.questions = questions;
-        this.uniqueid = assignOrCreateUniqueId(uniqueId);
+        this.uniqueId = assignOrCreateUniqueId(uniqueId);
         this.responses = responses;
-        this.createdAt = createdAt;
+        this.author = author;
+        this.timeCreated = timeCreated;
         this.lastEdited = lastEdited;
     }
 

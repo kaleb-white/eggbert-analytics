@@ -1,5 +1,5 @@
 import type { Socket } from "socket.io";
-import { questionResponse } from "../../../core/entities/surveys/question_response.ts";
+import { QuestionResponse } from "../../../core/entities/surveys/question_response.ts";
 import type { DialogueContext } from "../entities/dialogue_context.ts";
 import { isPeerInputMalicious } from "./auth.ts";
 import type { Model } from "./query_model/model.ts";
@@ -18,7 +18,7 @@ export function handlePeer(
     peer: Socket,
     context: DialogueContext,
     model: Model,
-    questionResponseInProgress: questionResponse
+    questionResponseInProgress: QuestionResponse
 ) {
     peer.on("respondent input", async (msg) => {
         // Parse user input for malicious messages
@@ -31,7 +31,7 @@ export function handlePeer(
         // Construct full context
         const fullContext = constructFullContext(
             context.promptContext,
-            questionResponseInProgress.fullTranscript
+            questionResponseInProgress.transcript
         );
 
         // Add a turn to our survey response

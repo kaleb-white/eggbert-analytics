@@ -1,5 +1,5 @@
 import { Question } from "@entities/surveys/question";
-import { questionResponse } from "@entities/surveys/question_response";
+import { QuestionResponse } from "@entities/surveys/question_response";
 import { Turn } from "@entities/surveys/turn";
 import { describe, expect, test } from "bun:test";
 
@@ -7,7 +7,7 @@ describe("test survey response", () => {
     describe("method dialogueAsString", () => {
         const testPrompt = new Question("test");
         const turns = [new Turn(), new Turn()];
-        const t = new questionResponse("ex", testPrompt, turns);
+        const t = new QuestionResponse("ex", testPrompt, turns);
 
         test("outputs nothing when turns are empty", () => {
             expect(t.dialogueAsString).toBe("");
