@@ -1,7 +1,10 @@
 import { Survey } from "@/core/entities/surveys/survey";
 import { Author } from "@/core/entities/users/author";
 import { describe, expect, test } from "bun:test";
-import { truncateAllAndStringify } from "../../testing_utilities";
+import {
+    repeatArrayNTimes,
+    truncateAllAndStringify,
+} from "../testing_utilities";
 import { surveySqlGenerator } from "@/persistent_storage/postgres_db/survey_sql_generator";
 import { Question } from "@/core/entities/surveys/question";
 import { Response } from "@/core/entities/surveys/response";
@@ -38,13 +41,15 @@ describe("test survey sql creation", () => {
         const expectedQuestionSql: PossibleStatementFormat = {
             isParameterizedStatement: true,
             sql: `
-        INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns)
-            VALUES ($1, $2, $3)
+        INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
+            VALUES ($1, $2, $3, $4, $5)
             ON CONFLICT (uniqueId) DO NOTHING;`,
             userInput: [
                 oneQuestion.uniqueId,
                 oneQuestion.modelPrompt,
                 String(oneQuestion.maxNumberOfTurns),
+                String(oneQuestion.timeCreated),
+                String(oneQuestion.lastEdited),
             ],
         };
 
@@ -125,42 +130,42 @@ describe("test survey sql creation", () => {
             [
                 {
                     isParameterizedStatement: true,
-                    sql: `INSERT INTO turns (uniqueId, modelAnswer, respondentInput)
-                        VALUES ($1, $2, $3) , ($4, $5, $6), ($7, $8, $9), ($10, $11, $12), ($13, $14, $15), ($16, $17, $18), ($19, $20, $21), ($22, $23, $24)
+                    sql: `INSERT INTO turns (uniqueId, modelAnswer, respondentInput, timeCreated, lastEdited)
+                        VALUES ($1, $2, $3, $4, $5) , ($6, $7, $8, $9, $10), ($11, $12, $13, $14, $15), ($16, $17, $18, $19, $20), ($21, $22, $23, $24, $25), ($26, $27, $28, $29, $30), ($31, $32, $33, $34, $35), ($36, $37, $38, $39, $40)
                         ON CONFLICT (uniqueId) DO SET modelAnswer=EXCLUDED.modelAnswer, respondentInput=EXCLUDED.respondentInput;`,
-                    userInput: [
-                        "t1",
-                        "model said",
-                        "user answered",
-                        "t2",
-                        "model said",
-                        "user answered",
-                        "t1",
-                        "model said",
-                        "user answered",
-                        "t2",
-                        "model said",
-                        "user answered",
-                        "t1",
-                        "model said",
-                        "user answered",
-                        "t2",
-                        "model said",
-                        "user answered",
-                        "t1",
-                        "model said",
-                        "user answered",
-                        "t2",
-                        "model said",
-                        "user answered",
-                    ],
+                    userInput: repeatArrayNTimes<string>(
+                        [
+                            "t1",
+                            "model said",
+                            "user answered",
+                            String(t1.timeCreated),
+                            String(t1.lastEdited),
+                            "t2",
+                            "model said",
+                            "user answered",
+                            String(t2.timeCreated),
+                            String(t2.lastEdited),
+                        ],
+                        4
+                    ),
                 },
                 {
                     isParameterizedStatement: true,
-                    sql: `INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns)
-                        VALUES ($1, $2, $3), ($4, $5, $6)
+                    sql: `INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
+                        VALUES ($1, $2, $3, $4, $5), ($6, $7, $8, $9, $10)
                         ON CONFLICT (uniqueId) DO NOTHING;`,
-                    userInput: ["q1", "", "0", "q2", "", "0"],
+                    userInput: [
+                        "q1",
+                        "",
+                        "0",
+                        String(q1.timeCreated),
+                        String(q1.lastEdited),
+                        "q2",
+                        "",
+                        "0",
+                        String(q1.timeCreated),
+                        String(q1.lastEdited),
+                    ],
                 },
                 `INSERTINTOquestionResponses(uniqueId, currentTurn, timeCreated, lastEdited, question) VALUES(qr1, 0, ${qr1.timeCreated}, ${qr1.lastEdited}, q1) , (qr2, 0, ${qr2.timeCreated}, ${qr2.lastEdited}, q2) , (qr1, 0, ${qr1.timeCreated}, ${qr1.lastEdited}, q1) , (qr2, 0, ${qr2.timeCreated}, ${qr2.lastEdited}, q2) ONCONFLICT(uniqueId) DOSETlastEdited=EXCLUDED.lastEdited;`,
                 `INSERTINTOresponses(uniqueId, timeCreated, lastEdited) VALUES(r1, ${r1.timeCreated}, ${r1.lastEdited}) , (r2, ${r1.timeCreated}, ${r1.lastEdited}) ONCONFLICT(uniqueId) DOSETlastEdited=EXCLUDED.lastEdited;`,

@@ -52,13 +52,18 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   main_tests: folder has no description
 		-   objects: folder has no description
 		-   use_cases: folder has no description
-	-   surveys: folder has no description
+	-   postgres_db: folder has no description
+		-   initialization: folder has no description
+		-   sql_generators_by_entity: folder has no description
+		-   sql_generators_by_table: folder has no description
+	-   redis: folder has no description
 -   public: public assets, statically hosted by next
 	-   svg_icons: project icons
 -   stable_utilities: simple, easily testable functions that will not change and can be depended on universally (such as type checks for interfaces)
 	-   git_hooks: folder has no description
 -   tests: the tests, current tightly coupled
 	-   core: folder has no description
+		-   db: folder has no description
 		-   entities: folder has no description
 			-   specific: folder has no description
 		-   gateways: folder has no description

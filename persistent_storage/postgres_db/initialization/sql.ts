@@ -15,7 +15,9 @@ export const statements = {
         CREATE TABLE turns( \
             uniqueId text PRIMARY KEY, \
             modelAnswer text, \
-            respondentInput text \
+            respondentInput text, \
+            timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
+            lastEdited timestamp NOT NULL, \
         ); \
         ",
 
@@ -24,6 +26,8 @@ export const statements = {
         CREATE TABLE questions( \
             uniqueId text PRIMARY KEY, \
             modelPrompt text NOT NULL, \
+            timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
+            lastEdited timestamp NOT NULL, \
             maxNumberOfTurns integer DEFAULT 0 \
         ); \
         ",

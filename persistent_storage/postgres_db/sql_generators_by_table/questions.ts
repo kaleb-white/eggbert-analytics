@@ -10,6 +10,8 @@ function getAllQuestionsValuesAsArray(questions: Question[]) {
         question.uniqueId,
         question.modelPrompt,
         String(question.maxNumberOfTurns),
+        String(question.timeCreated),
+        String(question.lastEdited),
     ]);
 }
 
@@ -21,9 +23,9 @@ export function insertOrUpdateQuestions(
     return {
         isParameterizedStatement: true,
         sql: `
-        INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns)
+        INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
             VALUES ${createParameterizedStatementWithInjectedValues(
-                3,
+                5,
                 allQuestionValues.length
             )}
             ON CONFLICT (uniqueId) DO NOTHING;`,

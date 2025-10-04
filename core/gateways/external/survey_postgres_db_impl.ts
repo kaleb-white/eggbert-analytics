@@ -1,11 +1,11 @@
 import { QueryResult } from "pg";
-import { SurveyDatabase } from "../../interfaces/external/survey_database";
-import { surveySqlGenerator } from "../../../../persistent_storage/postgres_db/survey_sql_generator";
+import { SurveyDatabase } from "../interfaces/external/survey_database";
+import { surveySqlGenerator } from "../../../persistent_storage/postgres_db/survey_sql_generator";
 import pool from "@pool";
 import {
     PossibleStatementFormat,
     ParameterizedStatement,
-} from "../../../../persistent_storage/postgres_db/generation_types_and_utilities";
+} from "../../../persistent_storage/postgres_db/generation_types_and_utilities";
 
 function createPromisesFromStatementSet(
     statementSet: PossibleStatementFormat[]

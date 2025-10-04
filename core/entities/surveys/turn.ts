@@ -5,15 +5,21 @@ export class Turn {
     uniqueId: string;
     modelAnswer: string;
     respondentInput: string;
+    timeCreated: number;
+    lastEdited: number;
 
     constructor(
         uniqueId: string | CryptographyUtilities = "",
         modelAnswer: string = "",
-        respondentInput: string = ""
+        respondentInput: string = "",
+        timeCreated: number = Date.now(),
+        lastEdited: number = Date.now()
     ) {
         this.uniqueId = assignOrCreateUniqueId(uniqueId);
         this.modelAnswer = modelAnswer;
         this.respondentInput = respondentInput;
+        this.timeCreated = timeCreated;
+        this.lastEdited = lastEdited;
     }
 
     /** Returns an empty string if the turn is not complete. */

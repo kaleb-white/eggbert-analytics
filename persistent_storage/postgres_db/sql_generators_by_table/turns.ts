@@ -12,6 +12,8 @@ function getAllTurnsValuesAsArray(turns: Turn[]) {
         turn.uniqueId,
         turn.modelAnswer,
         turn.respondentInput,
+        String(turn.timeCreated),
+        String(turn.lastEdited),
     ]);
 }
 
@@ -21,9 +23,9 @@ export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
     return {
         isParameterizedStatement: true,
         sql: `
-        INSERT INTO turns (uniqueId, modelAnswer, respondentInput)
+        INSERT INTO turns (uniqueId, modelAnswer, respondentInput, timeCreated, lastEdited)
             VALUES ${createParameterizedStatementWithInjectedValues(
-                3,
+                5,
                 allTurnFieldsArray.length
             )}
             ON CONFLICT (uniqueId) DO SET modelAnswer = EXCLUDED.modelAnswer, respondentInput = EXCLUDED.respondentInput;

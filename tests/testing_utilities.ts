@@ -56,3 +56,13 @@ export function logDiff(betweenThisString: string, andThisString: string) {
     }
     console.log(diff);
 }
+
+export function repeatArrayNTimes<T>(array: Array<T>, n: number): Array<T> {
+    let i = 0;
+    const unflattenedOutput: Array<Array<T>> = [];
+    while (i < n) {
+        unflattenedOutput.push(array);
+        i++;
+    }
+    return unflattenedOutput.flat();
+}
