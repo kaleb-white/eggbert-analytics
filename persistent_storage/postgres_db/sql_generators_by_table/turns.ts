@@ -2,6 +2,7 @@ import { Turn } from "@/core/entities/surveys/turn";
 import {
     createParameterizedStatementWithInjectedValues,
     PossibleStatementFormat,
+    argumentsToInStatementFromArray,
 } from "../generation_types_and_utilities";
 
 // NOTE: modelAnswer and respondentInput includes user input!
@@ -32,4 +33,18 @@ export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
         `,
         userInput: allTurnFieldsArray,
     };
+}
+
+export function createJsonbTurns(
+    as: string = "turnsAgg"
+): PossibleStatementFormat {
+    return `
+    jsonb_agg(jsonb_build_object(
+        'uniqueId', turns.uniqueId,
+        'modelAnswer', turns.modelAnswer,
+        'respondentInput', turns.respondentInput,
+        'timeCreated', turns.timeCreated,
+        'lastEdited', turns.lastEdited
+    )) AS ${as}
+    `;
 }

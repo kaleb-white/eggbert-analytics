@@ -16,11 +16,11 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
 
     async saveSurvey(survey: Survey): Promise<null | Error> {
         const tryCacheSave = this.cache.saveSurvey(
-            survey.uniqueid,
+            survey.uniqueId,
             JSON.stringify(survey)
         );
         const tryDbSave = this.database.saveSurvey(
-            survey.uniqueid,
+            survey.uniqueId,
             JSON.stringify(survey)
         );
 
@@ -52,7 +52,7 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad)) {
             this.cache.saveSurvey(
-                (tryDatabaseLoad as Survey).uniqueid,
+                (tryDatabaseLoad as Survey).uniqueId,
                 JSON.stringify(tryDatabaseLoad as Survey)
             );
             return tryDatabaseLoad as Survey;
@@ -87,7 +87,7 @@ export class SurveyDataGatewayImpl implements SurveyDataGateway {
 
         if (!(tryDatabaseLoad instanceof Error) && isSurvey(tryDatabaseLoad)) {
             this.cache.saveSurvey(
-                (tryDatabaseLoad as Survey).uniqueid,
+                (tryDatabaseLoad as Survey).uniqueId,
                 JSON.stringify(tryDatabaseLoad as Survey)
             );
             return tryDatabaseLoad as Survey;

@@ -23,3 +23,23 @@ export function insertOrUpdateQuestionResponses(
         ON CONFLICT (uniqueId) DO SET lastEdited = EXCLUDED.lastEdited;
     `;
 }
+
+export function createJsonbQuestionResponses(
+    tableContainingTurnsAgg: string = "turns",
+    turnsAggName: string = "turnsAgg",
+    tableContainingQuestions: string = "questions",
+    questionName: string = "question",
+    as: string = "questionResponsesAgg"
+): PossibleStatementFormat {
+    return `
+    jsonb_agg(jsonb_build_object(
+        'uniqueId', questionResponses.uniqueId,
+        'summary', questionsResponses.summary,
+        'currentTurn', questionsResponses.currentTurn,
+        'timeCreated', questionsResponses.timeCreated,
+        'lastEdited', questionsResponses.lastEdited,
+        'transcript': COALESCE(${tableContainingTurnsAgg}.${turnsAggName}, '[]'::jsonb),
+        'question': ${tableContainingQuestions}.${questionName}
+    )) AS ${as}
+    `;
+}

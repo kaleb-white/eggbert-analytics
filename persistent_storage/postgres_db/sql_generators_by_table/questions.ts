@@ -32,3 +32,31 @@ export function insertOrUpdateQuestions(
         userInput: allQuestionValues,
     };
 }
+
+export function createJsonbQuestions(
+    as: string = "questionsAgg"
+): PossibleStatementFormat {
+    return `
+    jsonb_agg(jsonb_build_object(
+        'uniqueId', questions.uniqueId,
+        'modelPrompt', questions.modelPrompt',
+        'maxNumberOfTurns', questions.maxNumberOfTurns,
+        'timeCreated', questions.timeCreated,
+        'lastEdited', questions.lastEdited
+    )) AS ${as}
+    `;
+}
+
+export function createJsonbQuestion(
+    as: string = "question"
+): PossibleStatementFormat {
+    return `
+    jsonb_build_object(
+        'uniqueId', questions.uniqueId,
+        'modelPrompt', questions.modelPrompt',
+        'maxNumberOfTurns', questions.maxNumberOfTurns,
+        'timeCreated', questions.timeCreated,
+        'lastEdited', questions.lastEdited
+    ) AS ${as}
+    `;
+}

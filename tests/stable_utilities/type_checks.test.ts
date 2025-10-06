@@ -7,6 +7,7 @@ import {
     isSurvey,
 } from "@/stable_utilities/type_checks";
 import { describe, expect, test } from "bun:test";
+import { Author } from "@/core/entities/users/author";
 
 describe("test type checks", () => {
     describe("test crypto utility creator type check", () => {
@@ -24,10 +25,13 @@ describe("test type checks", () => {
     });
 
     describe("test survey type check", () => {
-        const fakeSurvey = new Survey([], "", []);
-        const fakeSurvey2 = new Survey([new Question("")], "abcbca", [
-            new Response(),
-        ]);
+        const fakeSurvey = new Survey("", [], [], new Author("abc"));
+        const fakeSurvey2 = new Survey(
+            "abcbca",
+            [new Question("")],
+            [new Response("")],
+            new Author("abc")
+        );
 
         test("facade recognized as survey", () => {
             expect(isSurvey(fakeSurvey)).toBeTrue();

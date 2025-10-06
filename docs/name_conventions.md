@@ -80,9 +80,19 @@ To be consistent, use 'model' when referring to chatGPT, deepseek, or other gene
 
 ### DB (some just a reminder / definition)
 
-#### prepared statements
+#### parameterized statement
 
-A prepared statement is a method of preventing SQL injection by first sending a query to the db with the SQL statement with some variable representing successive parameters, i.e. `INSERT INTO myTable (column1, column2) VALUES ($1, $2)` in node-postgres.
+A parameterized statement is a method of preventing SQL injection by first sending a query to the db with the SQL statement with some variable representing successive parameters, i.e. `client.query('INSERT INTO myTable (column1, column2) VALUES ($1, $2)', ['value1', 'value2'])` in node-postgres.
+
+#### row
+
+Use row when referring to a class, type, interface or object member which is stored within a row in the database.
+
+#### aggregation
+
+Use aggregation to refer to a collection of jsonb objects.
+
+
 
 ### Locations
 

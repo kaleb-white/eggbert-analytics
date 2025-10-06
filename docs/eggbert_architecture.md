@@ -63,10 +63,10 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   git_hooks: folder has no description
 -   tests: the tests, current tightly coupled
 	-   core: folder has no description
-		-   db: folder has no description
 		-   entities: folder has no description
 			-   specific: folder has no description
 		-   gateways: folder has no description
+	-   db: folder has no description
 	-   stable_utilities: tests for stable utilities
 	-   ui: tests for the ui
 		-   icons: tests for icon creation script

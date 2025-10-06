@@ -36,6 +36,7 @@ export const statements = {
         "\
         CREATE TABLE questionResponses( \
             uniqueId text PRIMARY KEY, \
+            summary text, \
             currentTurn integer DEFAULT 0, \
             timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
             lastEdited timestamp NOT NULL, \

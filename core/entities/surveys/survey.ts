@@ -13,15 +13,15 @@ export class Survey {
     author: Author;
 
     constructor(
-        questions: Question[],
         uniqueId: string | CryptographyUtilities,
+        questions: Question[],
         responses: Response[],
         author: Author,
         timeCreated: number = Date.now(),
         lastEdited: number = Date.now()
     ) {
-        this.questions = questions;
         this.uniqueId = assignOrCreateUniqueId(uniqueId);
+        this.questions = questions;
         this.responses = responses;
         this.author = author;
         this.timeCreated = timeCreated;

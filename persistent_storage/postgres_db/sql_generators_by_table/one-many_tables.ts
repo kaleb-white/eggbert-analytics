@@ -1,8 +1,7 @@
-import { PossibleStatementFormat } from "../generation_types_and_utilities";
-
-export type RequiredUniqueId = {
-    uniqueId: string;
-};
+import {
+    PossibleStatementFormat,
+    RequiredUniqueId,
+} from "../generation_types_and_utilities";
 
 type OneManyMap = {
     one: string;

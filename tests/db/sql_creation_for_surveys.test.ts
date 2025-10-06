@@ -14,7 +14,7 @@ import { Turn } from "@/core/entities/surveys/turn";
 
 describe("test survey sql creation", () => {
     test("test survey with no data sql mapper spits out correct sql", () => {
-        const minimalSurvey = new Survey([], "survey", [], new Author(""));
+        const minimalSurvey = new Survey("survey", [], [], new Author(""));
 
         const minimalExpectedOutput = truncateAllAndStringify([
             [
@@ -62,8 +62,8 @@ describe("test survey sql creation", () => {
     `;
 
         const someData = new Survey(
-            [oneQuestion],
             "parent",
+            [oneQuestion],
             [oneResponse],
             new Author("")
         );
@@ -120,8 +120,8 @@ describe("test survey sql creation", () => {
         r2.questionResponses.push(qr2);
 
         const fullSurvey = new Survey(
-            [q1, q2],
             "parent",
+            [q1, q2],
             [r1, r2],
             new Author("")
         );

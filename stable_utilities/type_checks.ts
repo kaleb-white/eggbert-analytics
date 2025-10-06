@@ -9,7 +9,7 @@ export function isCryptographyUtilities(obj: unknown): boolean {
 }
 
 export function isSurvey(obj: unknown): boolean {
-    const surveyKeys = Object.keys(new Survey([], "", [], new Author("")));
+    const surveyKeys = Object.keys(new Survey("", [], [], new Author("")));
     return (
         typeof obj === "object" &&
         surveyKeys.every((key) => Object.keys(obj as object).includes(key))

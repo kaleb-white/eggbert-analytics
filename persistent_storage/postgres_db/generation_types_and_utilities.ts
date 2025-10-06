@@ -1,3 +1,7 @@
+export type RequiredUniqueId = {
+    uniqueId: string;
+};
+
 export type ParameterizedStatement = {
     isParameterizedStatement: boolean;
     sql: string;
@@ -30,4 +34,20 @@ export function createParameterizedStatementWithInjectedValues(
         }
     }
     return stringResult;
+}
+
+export function joinTablesWhereUniqueIdMatchesCol(
+    tableWithUniqueIdCol: string,
+    tableWithSpecificCol: string,
+    col: string
+): PossibleStatementFormat {
+    return `
+    JOIN ${tableWithUniqueIdCol} ON ${tableWithUniqueIdCol}.uniqueId = ${tableWithSpecificCol}.${col}
+    `;
+}
+
+export function argumentsToInStatementFromArray(tsArr: RequiredUniqueId[]) {
+    return "("
+        .concat(tsArr.map((obj) => `'${obj.uniqueId}'`).join(","))
+        .concat(")");
 }

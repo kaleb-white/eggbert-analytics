@@ -1,7 +1,7 @@
 export class User {
-    uniqueid: string;
+    uniqueId: string;
 
-    constructor(uniqueid: string) {
-        this.uniqueid = uniqueid;
+    constructor(uniqueId: string) {
+        this.uniqueId = uniqueId;
     }
 }
