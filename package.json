@@ -10,6 +10,7 @@
         "lint": "next lint",
         "test": "bun test",
         "compile-icons": "bun run ui/icons/create_icons.ts",
+        "update-directories-in-docs": "python ./stable_utilities/git_hooks/post_commit.py",
         "redis-cli": "bun run entrypoints/redis-cli/main.ts",
         "initialize-db": "bun run ./persistent_storage/postgres_db/initialization/initialize.ts"
     },
