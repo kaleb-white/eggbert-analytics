@@ -1,4 +1,4 @@
-import { statements } from "./sql";
+import { initializationStatements } from "./sql";
 import pool from "../pool";
 
 console.log(
@@ -12,10 +12,10 @@ process.stdin.on("data", async (data) => {
 });
 
 async function main() {
-    for (const statement of Object.keys(statements)) {
+    for (const statement of Object.keys(initializationStatements)) {
         console.log(`  Running ${statement} command...`);
         try {
-            await pool.query(statements[statement]);
+            await pool.query(initializationStatements[statement]);
         } catch (err) {
             if (statement.includes("create")) {
                 console.log("Error in", statement, ":", err);

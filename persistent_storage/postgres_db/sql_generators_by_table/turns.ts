@@ -1,43 +1,41 @@
 import { Turn } from "@/core/entities/surveys/turn";
 import {
-    createParameterizedStatementWithInjectedValues,
+    createParameterizedStatement,
+    getAllEntityValuesAsArray,
     PossibleStatementFormat,
-    argumentsToInStatementFromArray,
 } from "../generation_types_and_utilities";
 
-// NOTE: modelAnswer and respondentInput includes user input!
-
-function getAllTurnsValuesAsArray(turns: Turn[]) {
-    if (turns.length == 0) return null;
-    return turns.flatMap((turn) => [
-        turn.uniqueId,
-        turn.modelAnswer,
-        turn.respondentInput,
-        String(turn.timeCreated),
-        String(turn.lastEdited),
-    ]);
-}
-
 export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
-    const allTurnFieldsArray = getAllTurnsValuesAsArray(turns);
-    if (!allTurnFieldsArray) return "pass";
+    const orderedFields = [
+        "uniqueId",
+        "modelAnswer",
+        "respondentInput",
+        "timeCreated",
+        "lastEdited",
+    ];
+    const timestampFieldIndices = [3, 4];
+    const allTurnValues = getAllEntityValuesAsArray(
+        turns,
+        orderedFields,
+        timestampFieldIndices
+    );
+    if (!allTurnValues) return "pass";
+
     return {
-        isParameterizedStatement: true,
         sql: `
         INSERT INTO turns (uniqueId, modelAnswer, respondentInput, timeCreated, lastEdited)
-            VALUES ${createParameterizedStatementWithInjectedValues(
+            VALUES ${createParameterizedStatement(
                 5,
-                allTurnFieldsArray.length
+                allTurnValues.length,
+                timestampFieldIndices
             )}
-            ON CONFLICT (uniqueId) DO SET modelAnswer = EXCLUDED.modelAnswer, respondentInput = EXCLUDED.respondentInput;
+            ON CONFLICT (uniqueId) DO UPDATE SET modelAnswer = EXCLUDED.modelAnswer, respondentInput = EXCLUDED.respondentInput;
         `,
-        userInput: allTurnFieldsArray,
+        userInput: allTurnValues,
     };
 }
 
-export function createJsonbTurns(
-    as: string = "turnsAgg"
-): PossibleStatementFormat {
+export function createJsonbTurns(as: string = "turnsAgg") {
     return `
     jsonb_agg(jsonb_build_object(
         'uniqueId', turns.uniqueId,

@@ -1,15 +1,25 @@
 import { Survey } from "@/core/entities/surveys/survey";
-import { PossibleStatementFormat } from "../generation_types_and_utilities";
+import {
+    jsDateToSqlTimestamp,
+    PossibleStatementFormat,
+} from "../generation_types_and_utilities";
 
-export function insertOrUpdateSurvey(survey: Survey) {
-    return `INSERT INTO surveys (uniqueId, timeCreated, lastEdited)
+export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
+    return {
+        sql: `INSERT INTO surveys (uniqueId, timeCreated, lastEdited)
                 VALUES (
-                ${survey.uniqueId},
-                ${survey.timeCreated},
-                ${survey.lastEdited}
+                $1,
+                to_timestamp($2),
+                to_timestamp($3)
             )
             ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;
-            `;
+            `,
+        userInput: [
+            survey.uniqueId,
+            jsDateToSqlTimestamp(survey.timeCreated),
+            jsDateToSqlTimestamp(survey.lastEdited),
+        ],
+    };
 }
 
 export function createJsonbSurvey(
@@ -18,7 +28,7 @@ export function createJsonbSurvey(
     tableContainingQuestions: string = "questions",
     questionsAggName: string = "questionsAgg",
     as: string = "surveyAgg"
-): PossibleStatementFormat {
+) {
     return `
     jsonb_agg(jsonb_build_object(
         'uniqueId', surveys.uniqueId,

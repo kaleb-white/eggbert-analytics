@@ -1,4 +1,4 @@
-export const statements = {
+export const initializationStatements = {
     dropSurveysResponsesTable: "DROP TABLE surveysResponses;",
     dropSurveysQuestionsTable: "DROP TABLE surveysQuestions;",
     dropSurveysTable: "DROP TABLE surveys;",
@@ -8,18 +8,17 @@ export const statements = {
     dropQuestionResponsesTurnsTable: "DROP TABLE questionResponsesTurns;",
     dropQuestionResponsesTable: "DROP TABLE questionResponses;",
     dropQuestionsTable: "DROP TABLE questions;",
-    dropTurnsTable: "DROP TABLE TURNS;",
+    dropTurnsTable: "DROP TABLE turns;",
 
-    createTurnsTable:
-        " \
-        CREATE TABLE turns( \
-            uniqueId text PRIMARY KEY, \
-            modelAnswer text, \
-            respondentInput text, \
-            timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
-            lastEdited timestamp NOT NULL, \
-        ); \
-        ",
+    createTurnsTable: `
+        CREATE TABLE turns(
+            uniqueId text PRIMARY KEY,
+            modelAnswer text,
+            respondentInput text,
+            timeCreated timestamp NOT NULL DEFAULT current_timestamp,
+            lastEdited timestamp NOT NULL
+        );
+        `,
 
     createQuestionsTable:
         "\
@@ -40,15 +39,15 @@ export const statements = {
             currentTurn integer DEFAULT 0, \
             timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
             lastEdited timestamp NOT NULL, \
-            question text REFERENCES questions \
+            question text REFERENCES questions (uniqueId) \
         ); \
         ",
 
     createQuestionResponsesTurnsTable:
         " \
         CREATE TABLE questionResponsesTurns( \
-            turnId text REFERENCES turns, \
-            questionResponseId text REFERENCES questionResponses ON DELETE CASCADE, \
+            turnId text REFERENCES turns (uniqueId), \
+            questionResponseId text REFERENCES questionResponses (uniqueId) ON DELETE CASCADE, \
             UNIQUE(turnId, questionResponseId) \
         ); \
         ",
@@ -83,8 +82,8 @@ export const statements = {
     createSurveysQuestionsTable:
         " \
         CREATE TABLE surveysQuestions(\
-            questionId text REFERENCES questions, \
-            surveyId text REFERENCES surveys, \
+            questionId text REFERENCES questions (uniqueId), \
+            surveyId text REFERENCES surveys (uniqueId), \
             UNIQUE(questionId, surveyId) \
         ); \
         ",
@@ -92,8 +91,8 @@ export const statements = {
     createSurveysResponsesTable:
         " \
         CREATE TABLE surveysResponses(\
-            responseId text REFERENCES responses, \
-            surveyId text REFERENCES surveys ON DELETE CASCADE, \
+            responseId text REFERENCES responses (uniqueId), \
+            surveyId text REFERENCES surveys (uniqueId) ON DELETE CASCADE, \
             UNIQUE(responseId, surveyId) \
         ); \
         ",

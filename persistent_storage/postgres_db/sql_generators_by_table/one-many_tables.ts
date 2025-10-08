@@ -43,7 +43,9 @@ function oneManyMapsFromObjAndField(obj: RequiredUniqueId, fieldName: string) {
  * @param maps
  */
 function getAllValues(maps: OneManyMap[]) {
-    return maps.map((oneMany) => `(${oneMany.one}, ${oneMany.many})`).join(",");
+    return maps
+        .map((oneMany) => `('${oneMany.one}', '${oneMany.many}')`)
+        .join(",");
 }
 
 function objAndFieldToValues(obj: RequiredUniqueId, fieldName: string) {
@@ -61,9 +63,12 @@ export function insertOrUpdateOneManyRelation(
 ): PossibleStatementFormat {
     const values = objAndFieldToValues(oneObj, fieldName);
     if (values == null) return "pass";
-    return `
+    return {
+        sql: `
     INSERT INTO ${tableName} (${oneUniqueIdColumnName}, ${manyUniqueIdColumnName})
         VALUES ${values}
         ON CONFLICT (${oneUniqueIdColumnName}, ${manyUniqueIdColumnName}) DO NOTHING;
-    `;
+    `,
+        userInput: [],
+    };
 }

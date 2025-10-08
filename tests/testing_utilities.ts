@@ -1,5 +1,5 @@
 import {
-    OrderedParameterizedStatementsAndRawSQL,
+    ParameterizedStatementSets,
     ParameterizedStatement,
     PossibleStatementFormat,
 } from "@/persistent_storage/postgres_db/generation_types_and_utilities";
@@ -22,7 +22,7 @@ function truncateParameterizedStatementOrString(
 }
 
 export function truncateAll(
-    orderedParamterizedStatements: OrderedParameterizedStatementsAndRawSQL
+    orderedParamterizedStatements: ParameterizedStatementSets
 ) {
     return orderedParamterizedStatements.map((statements) => {
         if (Array.isArray(statements)) {
@@ -35,7 +35,7 @@ export function truncateAll(
 }
 
 export function truncateAllAndStringify(
-    orderedParamterizedStatements: OrderedParameterizedStatementsAndRawSQL
+    orderedParamterizedStatements: ParameterizedStatementSets
 ) {
     return JSON.stringify(truncateAll(orderedParamterizedStatements));
 }

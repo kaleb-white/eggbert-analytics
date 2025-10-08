@@ -1,0 +1,76 @@
+import { Pool, QueryResult } from "pg";
+import {
+    PossibleStatementFormat,
+    ParameterizedStatement,
+    ParameterizedStatementSets,
+} from "./generation_types_and_utilities";
+import { db_debug } from "@/stable_utilities/verbose_checks";
+
+export function createPromisesFromStatementSet(
+    statementSet: PossibleStatementFormat[],
+    pool: Pool
+): Promise<QueryResult>[] {
+    const promises: Promise<QueryResult>[] = [];
+    for (const statement of statementSet) {
+        if (statement == "pass") continue;
+        if (db_debug()) {
+            console.log(
+                "Executing sql:",
+                (statement as ParameterizedStatement).sql,
+                "with user input",
+                (statement as ParameterizedStatement).userInput
+            );
+        }
+        promises.push(
+            pool.query(
+                (statement as ParameterizedStatement).sql,
+                (statement as ParameterizedStatement).userInput
+            )
+        );
+    }
+    return promises;
+}
+
+/**
+ * Executes either sets of queries concurrently or individual queries in the order which it encounters them in the sqlStatements argument.
+ * Catches errors and returns them, or returns null on success.
+ * @param sqlStatements A set of 'Parameterized Statement Sets', which is an array of arrays or individual statements.
+ * @param pool A pool to use to query the database.
+ */
+export async function executeStatements(
+    sqlStatements: ParameterizedStatementSets,
+    pool: Pool
+): Promise<QueryResult[] | Error> {
+    const result: QueryResult[] = [];
+    for (const statementSet of sqlStatements) {
+        // If is array: execute all promises at same time
+        if (Array.isArray(statementSet)) {
+            const promises = createPromisesFromStatementSet(statementSet, pool);
+            try {
+                result.concat(await Promise.all(promises));
+            } catch (err) {
+                return err as Error;
+            }
+        } else {
+            if (db_debug()) {
+                console.log(
+                    "Executing sql:",
+                    (statementSet as ParameterizedStatement).sql,
+                    "with user input",
+                    (statementSet as ParameterizedStatement).userInput
+                );
+            }
+            try {
+                result.push(
+                    await pool.query(
+                        (statementSet as ParameterizedStatement).sql,
+                        (statementSet as ParameterizedStatement).userInput
+                    )
+                );
+            } catch (err) {
+                return err as Error;
+            }
+        }
+    }
+    return result;
+}

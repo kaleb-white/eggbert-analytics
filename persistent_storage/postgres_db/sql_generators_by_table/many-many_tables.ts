@@ -14,7 +14,7 @@ function getAllValues(
         );
 
     return valuesFirst
-        .map((val, i) => `(${val.uniqueId}, ${valuesSecond[i].uniqueId})`)
+        .map((val, i) => `('${val.uniqueId}', '${valuesSecond[i].uniqueId}')`)
         .join(",");
 }
 

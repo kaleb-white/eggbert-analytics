@@ -1,9 +1,7 @@
-import {
-    RequiredUniqueId,
-    insertOrUpdateOneManyRelation,
-} from "@/persistent_storage/postgres_db/sql_generators_by_table/one-many_tables";
+import { insertOrUpdateOneManyRelation } from "@/persistent_storage/postgres_db/sql_generators_by_table/one-many_tables";
 import { describe, expect, test } from "bun:test";
 import { truncateSql } from "../testing_utilities";
+import { RequiredUniqueId } from "@/persistent_storage/postgres_db/generation_types_and_utilities";
 
 describe("test one-many sql generation", () => {
     describe("test insertOrUpdateOneManyRelation", () => {

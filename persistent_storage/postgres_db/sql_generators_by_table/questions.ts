@@ -1,55 +1,52 @@
 import {
-    createParameterizedStatementWithInjectedValues,
+    createParameterizedStatement,
+    getAllEntityValuesAsArray,
     PossibleStatementFormat,
 } from "../generation_types_and_utilities";
 import { Question } from "@/core/entities/surveys/question";
 
-function getAllQuestionsValuesAsArray(questions: Question[]) {
-    if (questions.length == 0) return null;
-    return questions.flatMap((question) => [
-        question.uniqueId,
-        question.modelPrompt,
-        String(question.maxNumberOfTurns),
-        String(question.timeCreated),
-        String(question.lastEdited),
-    ]);
-}
-
 export function insertOrUpdateQuestions(
     questions: Question[]
 ): PossibleStatementFormat {
-    const allQuestionValues = getAllQuestionsValuesAsArray(questions);
+    const orderedFields = [
+        "uniqueId",
+        "modelPrompt",
+        "maxNumberOfTurns",
+        "timeCreated",
+        "lastEdited",
+    ];
+    const timestampFieldIndices = [3, 4];
+    const allQuestionValues = getAllEntityValuesAsArray(
+        questions,
+        orderedFields,
+        timestampFieldIndices
+    );
     if (!allQuestionValues) return "pass";
     return {
-        isParameterizedStatement: true,
         sql: `
         INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
-            VALUES ${createParameterizedStatementWithInjectedValues(
+            VALUES ${createParameterizedStatement(
                 5,
-                allQuestionValues.length
+                allQuestionValues.length,
+                timestampFieldIndices
             )}
             ON CONFLICT (uniqueId) DO NOTHING;`,
         userInput: allQuestionValues,
     };
 }
 
-export function createJsonbQuestions(
-    as: string = "questionsAgg"
-): PossibleStatementFormat {
+export function createJsonbQuestions(as: string = "questionsAgg") {
     return `
     jsonb_agg(jsonb_build_object(
         'uniqueId', questions.uniqueId,
-        'modelPrompt', questions.modelPrompt',
+        'modelPrompt', questions.modelPrompt,
         'maxNumberOfTurns', questions.maxNumberOfTurns,
         'timeCreated', questions.timeCreated,
         'lastEdited', questions.lastEdited
-    )) AS ${as}
-    `;
+    )) AS ${as}`;
 }
 
-export function createJsonbQuestion(
-    as: string = "question"
-): PossibleStatementFormat {
+export function createJsonbQuestion(as: string = "question") {
     return `
     jsonb_build_object(
         'uniqueId', questions.uniqueId,

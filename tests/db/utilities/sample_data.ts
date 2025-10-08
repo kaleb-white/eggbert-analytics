@@ -28,11 +28,38 @@ const q2t2: Turn = new Turn(
     "second model response",
     "second user answer"
 );
+const q3t1: Turn = new Turn(
+    "q3t1",
+    "first model response",
+    "first user answer"
+);
+const q3t2: Turn = new Turn(
+    "q3t2",
+    "second model response",
+    "second user answer"
+);
+const q4t1: Turn = new Turn(
+    "q4t1",
+    "first model response",
+    "first user answer"
+);
+const q4t2: Turn = new Turn(
+    "q4t2",
+    "second model response",
+    "second user answer"
+);
 
 const qr1: QuestionResponse = new QuestionResponse("qr1", q1, [q1t1, q1t2]);
 const qr2: QuestionResponse = new QuestionResponse("qr2", q2, [q2t1, q2t2]);
+const qr3: QuestionResponse = new QuestionResponse("qr3", q1, [q3t1, q3t2]);
+const qr4: QuestionResponse = new QuestionResponse("qr4", q2, [q4t1, q4t2]);
 
 const r1: Response = new Response("r1", [qr1, qr2]);
-const r2: Response = new Response("r2", [qr1, qr2]);
+const r2: Response = new Response("r2", [qr3, qr4]);
 
-export const s: Survey = new Survey("s", [q1, q2], [r1, r2], new Author(""));
+export const sampleSurvey: Survey = new Survey(
+    "sampleSurvey",
+    [q1, q2],
+    [r1, r2],
+    new Author("")
+);

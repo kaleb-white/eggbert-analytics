@@ -1,27 +1,39 @@
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
-import { PossibleStatementFormat } from "../generation_types_and_utilities";
-
-function getAllQuestionResponsesValues(questionResponses: QuestionResponse[]) {
-    if (questionResponses.length == 0) return null;
-    return questionResponses
-        .map(
-            (questionResponse) =>
-                `(${questionResponse.uniqueId}, ${questionResponse.currentTurn}, ${questionResponse.timeCreated}, ${questionResponse.lastEdited}, ${questionResponse.question.uniqueId})`
-        )
-        .join(",");
-}
+import {
+    PossibleStatementFormat,
+    getAllEntityValuesAsArray,
+    createParameterizedStatement,
+} from "../generation_types_and_utilities";
 
 export function insertOrUpdateQuestionResponses(
     questionResponses: QuestionResponse[]
 ): PossibleStatementFormat {
-    const questionResponseValues =
-        getAllQuestionResponsesValues(questionResponses);
-    if (questionResponseValues == null) return "pass";
-    return `
+    const orderedFields = [
+        "uniqueId",
+        "currentTurn",
+        "timeCreated",
+        "lastEdited",
+        ["question", "uniqueId"],
+    ];
+    const timestampFieldIndices = [2, 3];
+    const allQuestionResponseValues = getAllEntityValuesAsArray(
+        questionResponses,
+        orderedFields,
+        timestampFieldIndices
+    );
+    if (allQuestionResponseValues == null) return "pass";
+    return {
+        sql: `
     INSERT INTO questionResponses (uniqueId, currentTurn, timeCreated, lastEdited, question)
-        VALUES ${questionResponseValues}
-        ON CONFLICT (uniqueId) DO SET lastEdited = EXCLUDED.lastEdited;
-    `;
+        VALUES ${createParameterizedStatement(
+            5,
+            allQuestionResponseValues.length,
+            timestampFieldIndices
+        )}
+        ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;
+    `,
+        userInput: allQuestionResponseValues,
+    };
 }
 
 export function createJsonbQuestionResponses(
@@ -30,7 +42,7 @@ export function createJsonbQuestionResponses(
     tableContainingQuestions: string = "questions",
     questionName: string = "question",
     as: string = "questionResponsesAgg"
-): PossibleStatementFormat {
+) {
     return `
     jsonb_agg(jsonb_build_object(
         'uniqueId', questionResponses.uniqueId,
