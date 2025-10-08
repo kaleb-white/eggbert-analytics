@@ -6,6 +6,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 
 ### Project File Structure (DO NOT CHANGE THIS HEADER, GIT HOOK DEPENDS ON IT)
 
+-   .vscode: folder has no description
 -   app: routing
 -   core: core logic (entities, use cases, interactors, gateways, controllers)
 	-   entities: contains the project entities
@@ -13,6 +14,8 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   users: user-related entities
 	-   gateways: contains the classes that translate between external frameworks and business rules
 		-   external: gateways which interact with external components
+			-   external: folder has no description
+			-   internal: folder has no description
 		-   internal: gateways which implement interfaces that entities require
 	-   use_cases: application business rules
 		-   auth: business rules related to authentication
