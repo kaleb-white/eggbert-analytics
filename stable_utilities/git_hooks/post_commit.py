@@ -14,10 +14,16 @@ FOLDER_SEPERATOR = (
 )  # chr(92) = \
 DESCRIPTION_SEPERATOR = ":"
 
-EXCLUDED_DIRECTORIES = [".next", ".git", "node_modules", ".devcontainer", ".vscode"]
+EXCLUDED_DIRECTORIES = [
+    ".next",
+    ".git",
+    "node_modules",
+    ".devcontainer",
+    ".vscode",
+    "interfaces",
+]
 ABSOLUTE_DIRECTORY = re.compile(".*eggbert-analytics.{1}")
 
-OUTPUT_DIRS_TO_NOT_LIST = ["interfaces"]
 OUTPUT_LEFT_PADDING = "-   "
 OUTPUT_FOLDER_SPACING = "\t"
 
@@ -116,22 +122,10 @@ def file_structure_to_list():
 
 
 def dict_to_output(existing: dict[str, str], at_parse: list[str]) -> str:
-    dont_list_depth = inf
     res = ""
     for dir in at_parse:
         depth = dir.count(FOLDER_SEPERATOR)
         folder_name = dir.split(FOLDER_SEPERATOR)[-1]
-
-        # Avoid including any output dirs to not list or their children
-        if depth <= dont_list_depth:
-            dont_list_depth = inf
-
-        if folder_name in OUTPUT_DIRS_TO_NOT_LIST:
-            dont_list_depth = depth
-            continue
-
-        if depth > dont_list_depth:
-            continue
 
         description = (
             existing[dir]
