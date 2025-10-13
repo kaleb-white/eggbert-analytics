@@ -1,5 +1,6 @@
 import { Turn } from "@/core/entities/surveys/turn";
 import {
+    createLeftJoin,
     createParameterizedStatement,
     getAllEntityValuesAsArray,
     PossibleStatementFormat,
@@ -45,4 +46,22 @@ export function createJsonbTurns(as: string = "turnsAgg") {
         'lastEdited', turns.lastEdited
     )) AS ${as}
     `;
+}
+
+export function leftJoinTurns(
+    oneTableName: string,
+    oneManyTableName: string,
+    oneIdName: string,
+    manyIdName: string,
+    as: string
+) {
+    return createLeftJoin(
+        oneTableName,
+        "turns",
+        oneManyTableName,
+        oneIdName,
+        manyIdName,
+        createJsonbTurns,
+        as
+    );
 }

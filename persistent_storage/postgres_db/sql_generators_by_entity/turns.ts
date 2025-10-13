@@ -1,14 +1,18 @@
-import { Turn } from "@/core/entities/surveys/turn";
 import {
-    PossibleStatementFormat,
+    ParameterizedStatementSets,
     argumentsToInStatementFromArray,
 } from "../generation_types_and_utilities";
 import { createJsonbTurns } from "../sql_generators_by_table/turns";
 
-export function getTurns(turns: Turn[]): PossibleStatementFormat {
-    return `
+export function getTurns(ids: string[]): ParameterizedStatementSets {
+    return [
+        {
+            sql: `
     SELECT ${createJsonbTurns()}
         FROM turns
-        WHERE turns.uniqueId IN ${argumentsToInStatementFromArray(turns)}
-    `;
+        WHERE turns.uniqueId IN ${argumentsToInStatementFromArray(ids)}
+    `,
+            userInput: [],
+        },
+    ];
 }

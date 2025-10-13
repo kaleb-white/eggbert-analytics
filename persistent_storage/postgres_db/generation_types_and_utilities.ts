@@ -54,9 +54,9 @@ export function joinTablesWhereUniqueIdMatchesCol(
     `;
 }
 
-export function argumentsToInStatementFromArray(tsArr: RequiredUniqueId[]) {
+export function argumentsToInStatementFromArray(uniqueIds: string[]) {
     return "("
-        .concat(tsArr.map((obj) => `'${obj.uniqueId}'`).join(","))
+        .concat(uniqueIds.map((uniqueId) => `'${uniqueId}'`).join(","))
         .concat(")");
 }
 
@@ -87,18 +87,99 @@ export function getAllEntityValuesAsArray(
     );
 }
 
-export function jsonbObjToEntity<T>(jsonbObj: object): T | Error {
-    if (!Object.keys(jsonbObj).includes("jsonb_build_object"))
+/**
+ * Does not type check T, just casts the found entities to T.
+ * @param queryResult A single QueryResult object, from the pg module.
+ * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
+ * @returns An error or an array of type T.
+ */
+export function getAllEntitiesFromOneResult<T>(
+    queryResult: QueryResult,
+    expectedAggregationName: string = "jsonb_build_object"
+): T[] | Error {
+    if (queryResult.rows.length == 0)
+        return new Error("Query contained no results");
+    const columnNames = Object.keys(queryResult.rows[0]);
+    if (
+        expectedAggregationName != "jsonb_build_object" &&
+        !columnNames.includes(expectedAggregationName.toLowerCase())
+    ) {
         return new Error(
-            "While reconstructing entity from query, query did not contain a jsonb object"
+            `Query returned a column with column names ${columnNames.join(
+                ", "
+            )}, when the expected name was ${expectedAggregationName}`
         );
-    return jsonbObj["jsonb_build_object"] as T;
+    }
+
+    const entities = queryResult.rows[0][expectedAggregationName];
+    if (Array.isArray(entities)) return entities as T[];
+    else return [entities];
 }
 
-export function getFirstEntity<T>(queryResults: QueryResult[]): T | Error {
-    if (queryResults.length == 0 || queryResults[0].rows.length == 0)
-        return new Error("Query did not contain a result");
-    return jsonbObjToEntity<T>(queryResults[0].rows[0]);
+/**
+ * Does not type check T, just casts the found entities to T.
+ * @param queryResult A single QueryResult object, from the pg module.
+ * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
+ * @returns The first entity found.
+ */
+export function getFirstEntityFromOneResult<T>(
+    queryResult: QueryResult,
+    expectedAggregationName = "jsonb_build_object"
+): T | Error {
+    const allEntities = getAllEntitiesFromOneResult<T>(
+        queryResult,
+        expectedAggregationName
+    );
+    if (allEntities instanceof Error) return allEntities;
+    else return allEntities[0];
+}
+
+/**
+ * Does not type check T, just casts the found entities to T.
+ * @param queryResults Multiple QueryResult objects, from the pg module. Usually the result of a call to `executeStatements`.
+ * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
+ * @returns The first entity found or an error.
+ */
+export function getFirstEntity<T>(
+    queryResults: QueryResult[],
+    expectedAggregationName = "jsonb_build_object"
+): T | Error {
+    if (queryResults.length == 0)
+        return new Error("No query results passed when getting first entity");
+    return getFirstEntityFromOneResult<T>(
+        queryResults[0],
+        expectedAggregationName
+    );
+}
+
+/**
+ * Does not type check T, just casts the found entities to T.
+ * DO NOT include any column that is not the aggregation name in the select statement.
+ * @param queryResults Multiple QueryResult objects, from the pg module. Usually the result of a call to `executeStatements`.
+ * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
+ * @returns All entities found or an error.
+ */
+export function getAllEntities<T>(
+    queryResults: QueryResult[],
+    expectedAggregationName: string = "jsonb_build_object"
+): T[] | Error {
+    let entityFailed: Error | null = null;
+    let allEntities: T[] = [];
+
+    queryResults.forEach((queryResult) => {
+        const oneResultEntities = getAllEntitiesFromOneResult<T>(
+            queryResult,
+            expectedAggregationName
+        );
+        if (oneResultEntities instanceof Error) {
+            entityFailed = oneResultEntities;
+        } else {
+            allEntities = allEntities.concat(oneResultEntities);
+        }
+    });
+
+    if (entityFailed) return entityFailed;
+    return allEntities;
 }
 
 /**
@@ -120,16 +201,14 @@ export function createLeftJoin(
     oneIdName: string,
     manyIdName: string,
     jsonbFunction: (as?: string) => string,
-    additionalJoins: string,
-    whereStatement: string = `WHERE ${oneManyTableName}.${oneIdName} = $1`,
-    as: string = oneManyTableName
+    as: string = oneManyTableName,
+    additionalJoins: string = " "
 ) {
     return `LEFT JOIN (
                 SELECT ${oneManyTableName}.${oneIdName}, ${jsonbFunction()}
                     FROM ${oneManyTableName}
                     JOIN ${manyTableName} ON ${oneManyTableName}.${manyIdName} = ${manyTableName}.uniqueId
                     ${additionalJoins}
-                    ${whereStatement}
                     GROUP BY ${oneManyTableName}.${oneIdName}
-            ) ${as} ON ${oneTableName}.uniqueId = ${as}.surveyId`;
+            ) ${as} ON ${oneTableName}.uniqueId = ${as}.${oneIdName}`;
 }

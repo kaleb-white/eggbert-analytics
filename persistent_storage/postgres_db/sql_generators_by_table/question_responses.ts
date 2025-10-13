@@ -3,7 +3,10 @@ import {
     PossibleStatementFormat,
     getAllEntityValuesAsArray,
     createParameterizedStatement,
+    createLeftJoin,
 } from "../generation_types_and_utilities";
+import { leftJoinTurns } from "./turns";
+import { createJsonbQuestion } from "./questions";
 
 export function insertOrUpdateQuestionResponses(
     questionResponses: QuestionResponse[]
@@ -46,12 +49,41 @@ export function createJsonbQuestionResponses(
     return `
     jsonb_agg(jsonb_build_object(
         'uniqueId', questionResponses.uniqueId,
-        'summary', questionsResponses.summary,
-        'currentTurn', questionsResponses.currentTurn,
-        'timeCreated', questionsResponses.timeCreated,
-        'lastEdited', questionsResponses.lastEdited,
-        'transcript': COALESCE(${tableContainingTurnsAgg}.${turnsAggName}, '[]'::jsonb),
-        'question': ${tableContainingQuestions}.${questionName}
+        'summary', questionResponses.summary,
+        'currentTurn', questionResponses.currentTurn,
+        'timeCreated', questionResponses.timeCreated,
+        'lastEdited', questionResponses.lastEdited,
+        'transcript', COALESCE(${tableContainingTurnsAgg}.${turnsAggName}, '[]'::jsonb),
+        'question', ${tableContainingQuestions}.${questionName}
     )) AS ${as}
     `;
+}
+
+export function leftJoinQuestionResponses(
+    oneTableName: string,
+    oneManyTableName: string,
+    oneIdName: string,
+    manyIdName: string,
+    as: string
+) {
+    return createLeftJoin(
+        oneTableName,
+        "questionResponses",
+        oneManyTableName,
+        oneIdName,
+        manyIdName,
+        createJsonbQuestionResponses,
+        as,
+        leftJoinTurns(
+            "questionResponses",
+            "questionResponsesTurns",
+            "questionResponseId",
+            "turnId",
+            "turns"
+        ).concat(
+            `\nJOIN ( SELECT questions.uniqueId, ${createJsonbQuestion(
+                "question"
+            )} FROM questions ) questions ON questions.uniqueId = questionResponses.question`
+        )
+    );
 }

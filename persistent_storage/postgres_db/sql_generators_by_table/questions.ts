@@ -1,4 +1,5 @@
 import {
+    createLeftJoin,
     createParameterizedStatement,
     getAllEntityValuesAsArray,
     PossibleStatementFormat,
@@ -50,10 +51,27 @@ export function createJsonbQuestion(as: string = "question") {
     return `
     jsonb_build_object(
         'uniqueId', questions.uniqueId,
-        'modelPrompt', questions.modelPrompt',
+        'modelPrompt', questions.modelPrompt,
         'maxNumberOfTurns', questions.maxNumberOfTurns,
         'timeCreated', questions.timeCreated,
         'lastEdited', questions.lastEdited
     ) AS ${as}
     `;
+}
+
+export function leftJoinQuestions(
+    oneTableName: string,
+    oneManyTableName: string,
+    oneIdName: string,
+    as: string = "questions"
+) {
+    return createLeftJoin(
+        oneTableName,
+        "questions",
+        oneManyTableName,
+        oneIdName,
+        "questionId",
+        createJsonbQuestions,
+        as
+    );
 }

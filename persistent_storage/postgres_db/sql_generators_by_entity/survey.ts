@@ -4,11 +4,21 @@ import { insertOrUpdateTurns } from "../sql_generators_by_table/turns";
 import {
     createJsonbQuestions,
     insertOrUpdateQuestions,
+    leftJoinQuestions,
 } from "../sql_generators_by_table/questions";
 import { insertOrUpdateQuestionResponses } from "../sql_generators_by_table/question_responses";
-import { insertOrUpdateResponses } from "../sql_generators_by_table/responses";
-import { insertOrUpdateSurvey } from "../sql_generators_by_table/surveys";
-import { ParameterizedStatementSets } from "../generation_types_and_utilities";
+import {
+    insertOrUpdateResponses,
+    leftJoinResponses,
+} from "../sql_generators_by_table/responses";
+import {
+    createJsonbSurvey,
+    insertOrUpdateSurvey,
+} from "../sql_generators_by_table/surveys";
+import {
+    createLeftJoin,
+    ParameterizedStatementSets,
+} from "../generation_types_and_utilities";
 
 export function insertOrUpdateOneManyRelationsOfSurvey(survey: Survey) {
     const uncheckedResult = [
@@ -105,15 +115,40 @@ export function getSurveyWithoutResponses(
         'questions', COALESCE(sq.questionsAgg, '[]'::jsonb)
     )
         FROM surveys
-        LEFT JOIN (
-            SELECT surveysQuestions.surveyId, ${createJsonbQuestions()}
-                FROM surveysQuestions
-                JOIN questions ON surveysQuestions.questionId = questions.uniqueId
-                WHERE surveysQuestions.surveyId = $1
-                GROUP BY surveysQuestions.surveyId
-        ) sq ON surveys.uniqueId = sq.surveyId
+        ${createLeftJoin(
+            "surveys",
+            "questions",
+            "surveysQuestions",
+            "surveyId",
+            "questionId",
+            createJsonbQuestions,
+            "sq"
+        )}
         WHERE surveys.uniqueId = $1;
     `,
+            userInput: [uniqueId],
+        },
+    ];
+}
+
+export function getSurveyWithResponses(
+    uniqueId: string
+): ParameterizedStatementSets {
+    return [
+        {
+            sql: `
+        SELECT ${createJsonbSurvey()}
+        FROM surveys
+        ${leftJoinResponses(
+            "surveys",
+            "surveysResponses",
+            "surveyId",
+            "responseId",
+            "responses"
+        )}
+        ${leftJoinQuestions("surveys", "surveysQuestions", "surveyId")}
+        WHERE surveys.uniqueId = $1;
+        `,
             userInput: [uniqueId],
         },
     ];

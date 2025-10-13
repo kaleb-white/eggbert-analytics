@@ -1,9 +1,11 @@
 import { Response } from "@/core/entities/surveys/response";
 import {
+    createLeftJoin,
     createParameterizedStatement,
     getAllEntityValuesAsArray,
     PossibleStatementFormat,
 } from "../generation_types_and_utilities";
+import { leftJoinQuestionResponses } from "./question_responses";
 
 export function insertOrUpdateResponses(
     responses: Response[]
@@ -37,10 +39,35 @@ export function createJsonbResponses(
 ) {
     return `
     jsonb_agg(jsonb_build_object(
-        'uniqueId', questionResponses.uniqueId,
-        'timeCreated', questionResponses.timeCreated,
-        'lastEdited', questionResponses.lastEdited,
-        'questionResponses': COALESCE(${tableContainingQuestionResponses}.${questionResponsesAggName}, '[]'::jsonb),
+        'uniqueId', responses.uniqueId,
+        'timeCreated', responses.timeCreated,
+        'lastEdited', responses.lastEdited,
+        'questionResponses', COALESCE(${tableContainingQuestionResponses}.${questionResponsesAggName}, '[]'::jsonb)
     )) AS ${as}
     `;
+}
+
+export function leftJoinResponses(
+    oneTableName: string,
+    oneManyTableName: string,
+    oneIdName: string,
+    manyIdName: string,
+    as: string
+) {
+    return createLeftJoin(
+        oneTableName,
+        "responses",
+        oneManyTableName,
+        oneIdName,
+        manyIdName,
+        createJsonbResponses,
+        as,
+        leftJoinQuestionResponses(
+            "responses",
+            "responsesQuestionResponses",
+            "responseId",
+            "questionResponseId",
+            "questionResponses"
+        )
+    );
 }
