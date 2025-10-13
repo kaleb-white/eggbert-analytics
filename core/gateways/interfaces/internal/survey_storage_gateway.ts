@@ -1,7 +1,7 @@
 import { Survey } from "@entities/surveys/survey";
 import { Response } from "@entities/surveys/response";
 
-export interface SurveyDataGateway {
+export interface SurveyStorageGateway {
     saveSurvey(survey: Survey): Promise<null | Error>;
     loadSurveyWithResponses(uniqueId: string): Promise<Survey | Error>;
     loadSurveyWithoutResponses(uniqueId: string): Promise<Survey | Error>;

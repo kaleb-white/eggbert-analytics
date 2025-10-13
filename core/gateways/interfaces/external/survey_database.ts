@@ -1,5 +1,7 @@
+import { Survey } from "@/core/entities/surveys/survey";
+
 export interface SurveyDatabase {
-    saveSurvey(uniqueId: string, survey: string): Promise<null | Error>;
-    loadSurveyWithResponsesFromDb(uniqueId: string): Promise<string>;
-    loadSurveyWithoutResponsesFromDb(uniqueId: string): Promise<string>;
+    saveSurvey(survey: Survey): Promise<null | Error>;
+    loadSurveyWithResponsesFromDb(uniqueId: string): Promise<Survey | Error>;
+    loadSurveyWithoutResponsesFromDb(uniqueId: string): Promise<Survey | Error>;
 }

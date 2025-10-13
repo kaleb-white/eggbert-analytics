@@ -195,7 +195,7 @@ async function main() {
         "Redis is running and a user is connected. Instantiating objects..."
     );
 
-    const redisSurveyDataGateway = new RedisBasedSurveyCacheImpl(
+    const redisSurveyStorageGateway = new RedisBasedSurveyCacheImpl(
         tryStartRedis.username,
         tryStartRedis.password
     );

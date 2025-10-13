@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { CacheGatewayImpl } from "./cache_gateway_impl";
-import { CacheGateway } from "./cache_gateway";
+import type { CacheGateway } from "./cache_gateway";
 
 describe("test cache_gateway", () => {
     const cache: CacheGateway = new CacheGatewayImpl();

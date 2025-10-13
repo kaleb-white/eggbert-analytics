@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import testPool from "./utilities/test_pool";
-import { initializationStatements } from "@/persistent_storage/postgres_db/initialization/sql";
 
 import { sampleSurvey } from "./utilities/sample_data";
 import { executeStatements } from "@/persistent_storage/postgres_db/execution_utilities";
@@ -13,30 +12,13 @@ import { QueryResult } from "pg";
 import {
     getAllEntities,
     getFirstEntity,
-    ParameterizedStatement,
 } from "@/persistent_storage/postgres_db/generation_types_and_utilities";
 import { Survey } from "@/core/entities/surveys/survey";
 import { getTurns } from "@/persistent_storage/postgres_db/sql_generators_by_entity/turns";
 import { Turn } from "@/core/entities/surveys/turn";
 import { getResponses } from "@/persistent_storage/postgres_db/sql_generators_by_entity/responses";
 import { Response } from "@/core/entities/surveys/response";
-import { formatSql } from "./utilities/sql_formatter";
-
-async function initialize() {
-    for (const statement of Object.keys(initializationStatements)) {
-        if (statement.includes("create")) {
-            try {
-                await testPool.query(initializationStatements[statement]);
-            } catch (err) {
-                console.log(err);
-            }
-        } else {
-            try {
-                await testPool.query(initializationStatements[statement]);
-            } catch (e) {}
-        }
-    }
-}
+import { initialize } from "./utilities/reset_and_initialize";
 
 describe("test that survey is saved to database", async () => {
     // Initialize database

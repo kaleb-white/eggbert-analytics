@@ -9,6 +9,7 @@
         "start": "next start",
         "lint": "next lint",
         "test": "bun test",
+        "start-cache": "cd ./persistent_storage/cpp_cache && bun run socket-cache-verbose",
         "compile-icons": "bun run ui/icons/create_icons.ts",
         "update-directories-in-docs": "python ./stable_utilities/git_hooks/post_commit.py",
         "redis-cli": "bun run entrypoints/redis-cli/main.ts",

@@ -72,6 +72,7 @@ export class CacheGatewayImpl implements CacheGateway {
     async read(id: string): Promise<string | Error> {
         const message = message_to_protocol_format("read ".concat(id));
         const send_result = await this.send(message);
+
         if (send_result instanceof Error) {
             return send_result;
         }
