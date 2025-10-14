@@ -34,5 +34,26 @@ describe("test survey storage gateway", async () => {
         expect(storedToDb).not.toBeInstanceOf(Error);
         expect((storedToDb as Survey).uniqueId).toBe(sampleSurvey.uniqueId);
     });
-    describe("test retrieve survey", () => {});
+
+    test("test retrieve survey without responses", async () => {
+        const retrievedSurveyOrError =
+            await surveyStorage.loadSurveyWithoutResponses(
+                sampleSurvey.uniqueId
+            );
+        expect(retrievedSurveyOrError).not.toBeInstanceOf(Error);
+
+        const retrievedSurvey = retrievedSurveyOrError as Survey;
+        expect(retrievedSurvey.uniqueId).toBe(retrievedSurvey.uniqueId);
+        expect(retrievedSurvey.responses.length).toBe(0);
+    });
+
+    test("test retrieve survey with responses", async () => {
+        const retrievedSurveyOrError =
+            await surveyStorage.loadSurveyWithResponses(sampleSurvey.uniqueId);
+        expect(retrievedSurveyOrError).not.toBeInstanceOf(Error);
+
+        const retrievedSurvey = retrievedSurveyOrError as Survey;
+        expect(retrievedSurvey.uniqueId).toBe(retrievedSurvey.uniqueId);
+        expect(retrievedSurvey.responses.length).toBe(2);
+    });
 });
