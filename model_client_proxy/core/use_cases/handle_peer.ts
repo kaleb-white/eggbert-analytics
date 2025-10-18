@@ -2,7 +2,7 @@ import type { Socket } from "socket.io";
 import { QuestionResponse } from "../../../core/entities/surveys/question_response.ts";
 import type { DialogueContext } from "../entities/dialogue_context.ts";
 import { isPeerInputMalicious } from "./auth.ts";
-import type { Model } from "./query_model/model.ts";
+import type { Model } from "../gateways/interfaces/external/model.ts";
 import { Turn } from "../../../core/entities/surveys/turn.ts";
 
 function constructFullContext(
@@ -10,7 +10,7 @@ function constructFullContext(
     additionalResponses: Turn[]
 ): string {
     return `So far, in responding to this survey, the user has said ${promptContext}. Additionally, these questions from the model and answers from the users were added: ${additionalResponses
-        .map((turn) => turn.respondentInputAndUserAnswerAsString)
+        .map((turn) => turn.respondentMessageAndUserAnswerAsString)
         .join(" ")}`;
 }
 
@@ -38,16 +38,19 @@ export function handlePeer(
         const thisTurn = new Turn(undefined, msg);
         questionResponseInProgress.addTurn(thisTurn);
 
-        let modelAnswer: string = "";
-        for await (const modelAnswerChunk of model.requestModelAnswerAsync(
+        let modelMessage: string = "";
+        for await (const modelMessageChunk of model.requestModelAnswerAsync(
             fullContext,
             msg
         )) {
-            peer.emit("modelAnswerChunk", modelAnswerChunk);
+            peer.emit("modelMessageChunk", modelMessageChunk);
 
-            modelAnswer += modelAnswerChunk as string;
+            modelMessage += modelMessageChunk as string;
         }
 
-        thisTurn.modelAnswer = modelAnswer;
+        // Tell peer model is finished
+        peer.emit("modelMessageFinished");
+
+        thisTurn.modelMessage = modelMessage;
     });
 }

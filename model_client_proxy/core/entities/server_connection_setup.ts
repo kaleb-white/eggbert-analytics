@@ -1,6 +1,6 @@
 import { Question } from "../../../core/entities/surveys/question";
 
-export class ConnectionSetup {
+export class ServerConnectionSetup {
     connectionId: string;
     questionResponseId: string;
     peerAddress: string;

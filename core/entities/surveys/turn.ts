@@ -3,40 +3,40 @@ import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
 
 export class Turn {
     uniqueId: string;
-    modelAnswer: string;
-    respondentInput: string;
+    modelMessage: string;
+    respondentMessage: string;
     timeCreated: number;
     lastEdited: number;
 
     constructor(
         uniqueId: string | CryptographyUtilities = "",
-        modelAnswer: string = "",
-        respondentInput: string = "",
+        modelMessage: string = "",
+        respondentMessage: string = "",
         timeCreated: number = Date.now(),
         lastEdited: number = Date.now()
     ) {
         this.uniqueId = assignOrCreateUniqueId(uniqueId);
-        this.modelAnswer = modelAnswer;
-        this.respondentInput = respondentInput;
+        this.modelMessage = modelMessage;
+        this.respondentMessage = respondentMessage;
         this.timeCreated = timeCreated;
         this.lastEdited = lastEdited;
     }
 
     /** Returns an empty string if the turn is not complete. */
-    get respondentInputAndUserAnswerAsString(): string {
+    get respondentMessageAndUserAnswerAsString(): string {
         if (!this.turnWasTaken) return "";
-        return `\nthe model asked: ${this.modelAnswer} \nthe user responded: ${this.respondentInput}`;
+        return `\nthe model asked: ${this.modelMessage} \nthe user responded: ${this.respondentMessage}`;
     }
 
-    get modelAnswerExists() {
-        return this.modelAnswer ? true : false;
+    get modelMessageExists() {
+        return this.modelMessage ? true : false;
     }
 
-    get respondentInputExists() {
-        return this.respondentInput ? true : false;
+    get respondentMessageExists() {
+        return this.respondentMessage ? true : false;
     }
 
     get turnWasTaken() {
-        return this.modelAnswerExists || this.respondentInputExists;
+        return this.modelMessageExists || this.respondentMessageExists;
     }
 }

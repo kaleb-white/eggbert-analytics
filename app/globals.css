@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/*
+    When adding new colors also add their name and hex values to ./ui/types_enums.ts
+*/
+
 @theme {
   --color-success: oklch(0.7346 0.084 162);
   --color-success-bold: oklch(0.7346 0.1608 162);
@@ -26,7 +30,7 @@
   --color-secondary-subtle: oklch(0.9016 0.0035 219.54 / 75%);
 
   --color-tertiary: oklch(0.8096 0.0699 219.71);
-  --color-tertiary: oklch(0.8096 0.1407 219.71);
+  --color-tertiary-bold: oklch(0.8096 0.1407 219.71);
   --color-tertiary-subtle: oklch(0.8096 0.0699 219.71 / 75%);
 
   --color-disabled: oklch(0.6458 0.0233 331.64);

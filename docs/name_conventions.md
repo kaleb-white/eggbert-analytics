@@ -46,11 +46,11 @@ Includes a question and survey respondent answer. Transcripts consist of turns.
 
 A model's question or a user's answer. Not an entity, a description.
 
-#### respondent input
+#### respondent message
 
 A respondent's message.
 
-#### model answer
+#### model message
 
 A model's message.
 

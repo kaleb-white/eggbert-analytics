@@ -1,5 +1,5 @@
 import { Question } from "../../../core/entities/surveys/question";
-import type { ConnectionSetup } from "./connection_setup";
+import type { ServerConnectionSetup } from "./server_connection_setup";
 
 export class DialogueContext {
     questionResponseId: string;
@@ -17,8 +17,8 @@ export class DialogueContext {
     }
 }
 
-export function dialogueContextFromConnectionSetup(
-    connectionSetup: ConnectionSetup
+export function dialogueContextFromServerConnectionSetup(
+    connectionSetup: ServerConnectionSetup
 ): DialogueContext {
     return new DialogueContext(
         connectionSetup.promptContext,

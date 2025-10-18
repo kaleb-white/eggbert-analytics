@@ -1,13 +1,14 @@
 import type { Request, Response } from "express";
-import { ConnectionSetup } from "../entities/connection_setup";
+import { ServerConnectionSetup } from "../entities/server_connection_setup";
 import { checkRawServerToken } from "./auth";
 
 const space4 = "    ";
 const space6 = "      ";
+const space8 = "        ";
 
 function checkRequestFields(foundRequestFields: string[]): string[] {
     const expectedRequestFields = Object.getOwnPropertyNames(
-        new ConnectionSetup()
+        new ServerConnectionSetup()
     );
 
     const fieldsMissingFromRequest: string[] = [];
@@ -22,7 +23,7 @@ export function extractSetupArgumentsFromRequestBody(
     req: Request,
     res: Response,
     DEV: boolean = false
-): ConnectionSetup | null {
+): ServerConnectionSetup | null {
     // Check that a body was sent, it includes a "serverToken" field, and that the serverToken is correct
     if (
         !Object.keys(req).includes("body") ||
@@ -37,11 +38,31 @@ export function extractSetupArgumentsFromRequestBody(
                 res.statusMessage
             );
         }
+
+        if (DEV) {
+            if (!Object.keys(req).includes("body"))
+                console.log(space8, "Reason: Request missing body");
+            else if (!Object.keys(req.body).includes("serverToken"))
+                console.log(space8, "Reason: Request body missing serverToken");
+            else if (!checkRawServerToken(req.body.serverToken))
+                console.log(
+                    space8,
+                    "Reason: Incorrect server token:",
+                    req.body.serverToken
+                );
+        }
+
         return null;
     }
 
     // Check conection setup field
-    console.log(space6, req.body);
+    if (DEV) {
+        console.log(
+            space6,
+            "Request body found and includes correct server token:",
+            req.body
+        );
+    }
     if (!Object.keys(req.body).includes("connectionSetup")) {
         res.status(400).statusMessage = "Missing connectionSetup object";
         if (DEV) {
@@ -71,8 +92,8 @@ export function extractSetupArgumentsFromRequestBody(
         return null;
     }
 
-    const setupArguments: ConnectionSetup = req.body
-        .connectionSetup as ConnectionSetup;
+    const setupArguments: ServerConnectionSetup = req.body
+        .connectionSetup as ServerConnectionSetup;
 
     return setupArguments;
 }
@@ -80,7 +101,7 @@ export function extractSetupArgumentsFromRequestBody(
 export function setupProxy(
     req: Request,
     res: Response,
-    idToConnection: Map<string, ConnectionSetup>,
+    idToConnection: Map<string, ServerConnectionSetup>,
     approvedPeerAddresses: string[],
     DEV: boolean = false
 ) {

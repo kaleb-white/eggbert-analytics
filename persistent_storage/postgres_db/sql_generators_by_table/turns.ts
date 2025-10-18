@@ -9,8 +9,8 @@ import {
 export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
     const orderedFields = [
         "uniqueId",
-        "modelAnswer",
-        "respondentInput",
+        "modelMessage",
+        "respondentMessage",
         "timeCreated",
         "lastEdited",
     ];
@@ -24,13 +24,13 @@ export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
 
     return {
         sql: `
-        INSERT INTO turns (uniqueId, modelAnswer, respondentInput, timeCreated, lastEdited)
+        INSERT INTO turns (uniqueId, modelMessage, respondentMessage, timeCreated, lastEdited)
             VALUES ${createParameterizedStatement(
                 5,
                 allTurnValues.length,
                 timestampFieldIndices
             )}
-            ON CONFLICT (uniqueId) DO UPDATE SET modelAnswer = EXCLUDED.modelAnswer, respondentInput = EXCLUDED.respondentInput;
+            ON CONFLICT (uniqueId) DO UPDATE SET modelMessage = EXCLUDED.modelMessage, respondentMessage = EXCLUDED.respondentMessage;
         `,
         userInput: allTurnValues,
     };
@@ -40,8 +40,8 @@ export function createJsonbTurns(as: string = "turnsAgg") {
     return `
     jsonb_agg(jsonb_build_object(
         'uniqueId', turns.uniqueId,
-        'modelAnswer', turns.modelAnswer,
-        'respondentInput', turns.respondentInput,
+        'modelMessage', turns.modelMessage,
+        'respondentMessage', turns.respondentMessage,
         'timeCreated', turns.timeCreated,
         'lastEdited', turns.lastEdited
     )) AS ${as}

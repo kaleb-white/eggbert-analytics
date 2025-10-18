@@ -5,12 +5,12 @@ import { Server } from "socket.io";
 import { checkServerToken } from "./core/use_cases/auth";
 import type { AddressInfo } from "net";
 import { handlePeer } from "./core/use_cases/handle_peer";
-import { LiteLLMModelImpl } from "./core/use_cases/query_model/litellm_model_impl";
+import { LiteLLMModelImpl } from "./core/gateways/external/query_model/litellm_model_impl";
 import { QuestionResponse } from "../core/entities/surveys/question_response";
-import { finalizePeer } from "./core/gateways/server_gateway/finalize_peer";
-import type { ConnectionSetup } from "./core/entities/connection_setup";
-import { dialogueContextFromConnectionSetup } from "./core/entities/dialogue_context";
-import { ModelTest } from "./core/use_cases/query_model/test_model";
+import { finalizePeer } from "./core/gateways/internal/finalize_peer";
+import type { ServerConnectionSetup } from "./core/entities/server_connection_setup";
+import { dialogueContextFromServerConnectionSetup } from "./core/entities/dialogue_context";
+import { ModelTest } from "./core/gateways/external/query_model/test_model";
 
 // CONSTANTS
 export const PORT = 1038;
@@ -27,9 +27,9 @@ const io = new Server(server);
 
 // Storage (just on the stack for now)
 let approvedPeerAddresses: string[] = [];
-const idToConnection: Map<string, ConnectionSetup> = new Map<
+const idToConnection: Map<string, ServerConnectionSetup> = new Map<
     string,
-    ConnectionSetup
+    ServerConnectionSetup
 >();
 
 // Routes
@@ -96,9 +96,9 @@ io.on("connection", (peer) => {
 
     const peerConnection = idToConnection.get(
         peer.request.headers["connectionid"] as string
-    ) as ConnectionSetup;
+    ) as ServerConnectionSetup;
 
-    const context = dialogueContextFromConnectionSetup(peerConnection);
+    const context = dialogueContextFromServerConnectionSetup(peerConnection);
 
     const questionResponseInProgress: QuestionResponse = new QuestionResponse(
         context.questionResponseId,

@@ -13,8 +13,8 @@ export const initializationStatements = {
     createTurnsTable: `
         CREATE TABLE turns(
             uniqueId text PRIMARY KEY,
-            modelAnswer text,
-            respondentInput text,
+            modelMessage text,
+            respondentMessage text,
             timeCreated timestamp NOT NULL DEFAULT current_timestamp,
             lastEdited timestamp NOT NULL
         );
