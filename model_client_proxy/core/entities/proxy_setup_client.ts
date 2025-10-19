@@ -1,4 +1,4 @@
-export class ClientConnectionSetup {
+export class ProxySetupClient {
     proxyAddress: string;
     connectionId: string;
 

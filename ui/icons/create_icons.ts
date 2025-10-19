@@ -61,10 +61,6 @@ export function uppercaseFirstLetter(word: string) {
     return word.replace(/^[\s\S]{1}/, word[0].toUpperCase());
 }
 
-function isNotLogo(iconName: string) {
-    return iconName.toUpperCase() != "Logo".toUpperCase();
-}
-
 export function createReactComponentAsString(iconName: string): string | Error {
     if (!Object.keys(svgFileLocations).includes(iconName))
         return new Error(`Icon ${iconName} not found among svgs`);
@@ -78,12 +74,12 @@ export function createReactComponentAsString(iconName: string): string | Error {
     const svgWithFixedProperties = convertXMLPropertiesToSvg(svgAsString);
 
     let svgSizingRemoved = svgWithFixedProperties;
-    if (removeDefaultWidthHeight && isNotLogo(iconName)) {
+    if (removeDefaultWidthHeight) {
         svgSizingRemoved = removeSizing(svgSizingRemoved);
     }
 
     let svgFillRemoved = svgSizingRemoved;
-    if (removeDefaultFill && isNotLogo(iconName)) {
+    if (removeDefaultFill) {
         svgFillRemoved = removeFill(svgFillRemoved);
     }
 
@@ -91,17 +87,14 @@ export function createReactComponentAsString(iconName: string): string | Error {
 
     return `export function ${uppercaseFirstLetter(
         iconName
-    )}${additionalNamingForAllSvgs}(${
-        isNotLogo(iconName)
-            ? `${removeDefaultWidthHeight ? `${sizeParamName}: number` : ""}
-            ,
-            ${
-                removeDefaultFill
-                    ? `${fillParamName}: string = ${fillFallbackOnNoDefault}`
-                    : ""
-            }`
-            : ""
-    }) {\n\treturn (${svgFinal})\n}`;
+    )}${additionalNamingForAllSvgs}(${`${
+        removeDefaultWidthHeight ? `${sizeParamName}: number` : ""
+    },
+        ${
+            removeDefaultFill
+                ? `${fillParamName}: string = ${fillFallbackOnNoDefault}`
+                : ""
+        }`}) {\n\treturn (${svgFinal})\n}`;
 }
 
 export function createIconsAsString(icons: {

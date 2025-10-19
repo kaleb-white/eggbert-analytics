@@ -8,8 +8,8 @@ import { handlePeer } from "./core/use_cases/handle_peer";
 import { LiteLLMModelImpl } from "./core/gateways/external/query_model/litellm_model_impl";
 import { QuestionResponse } from "../core/entities/surveys/question_response";
 import { finalizePeer } from "./core/gateways/internal/finalize_peer";
-import type { ServerConnectionSetup } from "./core/entities/server_connection_setup";
-import { dialogueContextFromServerConnectionSetup } from "./core/entities/dialogue_context";
+import type { ProxySetupServer } from "./core/entities/proxy_setup_server";
+import { dialogueContextFromProxySetupServer } from "./core/entities/dialogue_context";
 import { ModelTest } from "./core/gateways/external/query_model/test_model";
 
 // CONSTANTS
@@ -27,9 +27,9 @@ const io = new Server(server);
 
 // Storage (just on the stack for now)
 let approvedPeerAddresses: string[] = [];
-const idToConnection: Map<string, ServerConnectionSetup> = new Map<
+const idToConnection: Map<string, ProxySetupServer> = new Map<
     string,
-    ServerConnectionSetup
+    ProxySetupServer
 >();
 
 // Routes
@@ -96,9 +96,9 @@ io.on("connection", (peer) => {
 
     const peerConnection = idToConnection.get(
         peer.request.headers["connectionid"] as string
-    ) as ServerConnectionSetup;
+    ) as ProxySetupServer;
 
-    const context = dialogueContextFromServerConnectionSetup(peerConnection);
+    const context = dialogueContextFromProxySetupServer(peerConnection);
 
     const questionResponseInProgress: QuestionResponse = new QuestionResponse(
         context.questionResponseId,

@@ -1,5 +1,5 @@
 import { JSX, MouseEventHandler } from "react";
-import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, ErrorRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, LockedRaw, LogoRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, RedoRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
+import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, ErrorRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, LockedRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, RedoRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
 
 export type onClickFuncType = (() => MouseEventHandler<HTMLDivElement> | undefined | void) | undefined
 
@@ -92,10 +92,6 @@ export function Upload({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLength
 
 export function Window({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
 	return wrapIcon(WindowRaw(edgeLengthPx, fillHex), onClick)
-}
-
-export function Logo() {
-    return LogoRaw
 }
 
 export function New({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {

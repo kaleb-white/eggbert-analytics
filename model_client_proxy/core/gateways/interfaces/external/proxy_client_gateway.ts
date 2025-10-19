@@ -1,14 +1,16 @@
-import type { ClientConnectionSetup } from "../../../entities/client_connection_setup";
+import type { ProxySetupClient } from "../../../entities/proxy_setup_client";
+
+export type Start = (
+    clientConnectionSetup: ProxySetupClient,
+    callbackOnModelChunk: (modelChunk: string) => void,
+    callbackOnError?: (err: string) => void,
+    callbackOnModelMessageFinished?: () => void
+) => Error | null;
+export type SendRespondentInput = (input: string) => Error | null;
+export type Close = () => Error | null;
 
 export interface ProxyClientGateway {
-    start(
-        clientConnectionSetup: ClientConnectionSetup,
-        callbackOnModelChunk: (modelChunk: string) => void,
-        callbackOnError?: (err: string) => void,
-        callbackOnModelMessageFinished?: () => void
-    ): Error | null;
-
-    sendRespondentInput(input: string): Error | null;
-
-    close(): Error | null;
+    start: Start;
+    sendRespondentInput: SendRespondentInput;
+    close: Close;
 }

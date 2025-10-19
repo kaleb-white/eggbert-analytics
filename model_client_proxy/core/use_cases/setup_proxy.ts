@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { ServerConnectionSetup } from "../entities/server_connection_setup";
+import { ProxySetupServer } from "../entities/proxy_setup_server";
 import { checkRawServerToken } from "./auth";
 
 const space4 = "    ";
@@ -8,7 +8,7 @@ const space8 = "        ";
 
 function checkRequestFields(foundRequestFields: string[]): string[] {
     const expectedRequestFields = Object.getOwnPropertyNames(
-        new ServerConnectionSetup()
+        new ProxySetupServer()
     );
 
     const fieldsMissingFromRequest: string[] = [];
@@ -23,7 +23,7 @@ export function extractSetupArgumentsFromRequestBody(
     req: Request,
     res: Response,
     DEV: boolean = false
-): ServerConnectionSetup | null {
+): ProxySetupServer | null {
     // Check that a body was sent, it includes a "serverToken" field, and that the serverToken is correct
     if (
         !Object.keys(req).includes("body") ||
@@ -92,8 +92,8 @@ export function extractSetupArgumentsFromRequestBody(
         return null;
     }
 
-    const setupArguments: ServerConnectionSetup = req.body
-        .connectionSetup as ServerConnectionSetup;
+    const setupArguments: ProxySetupServer = req.body
+        .connectionSetup as ProxySetupServer;
 
     return setupArguments;
 }
@@ -101,7 +101,7 @@ export function extractSetupArgumentsFromRequestBody(
 export function setupProxy(
     req: Request,
     res: Response,
-    idToConnection: Map<string, ServerConnectionSetup>,
+    idToConnection: Map<string, ProxySetupServer>,
     approvedPeerAddresses: string[],
     DEV: boolean = false
 ) {
