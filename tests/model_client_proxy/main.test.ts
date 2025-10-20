@@ -36,12 +36,7 @@ async function call(
 describe("test model client proxy integration", () => {
     describe("test create-connection", () => {
         const serverToken = process.env.EXPECTED_SERVER_TOKEN as string;
-        const setup: ProxySetupServer = new ProxySetupServer(
-            "abc",
-            "a",
-            "a",
-            "a"
-        );
+        const setup: ProxySetupServer = new ProxySetupServer("abc", "a", "a");
 
         const body = {
             serverToken: serverToken,

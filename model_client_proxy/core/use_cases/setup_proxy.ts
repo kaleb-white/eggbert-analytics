@@ -59,8 +59,7 @@ export function extractSetupArgumentsFromRequestBody(
     if (DEV) {
         console.log(
             space6,
-            "Request body found and includes correct server token:",
-            req.body
+            "Request body found and includes correct server token"
         );
     }
     if (!Object.keys(req.body).includes("connectionSetup")) {
@@ -75,7 +74,11 @@ export function extractSetupArgumentsFromRequestBody(
         return null;
     }
 
-    const foundRequestFields = Object.keys(req.body.connectionSetup);
+    const connectionSetup =
+        req.body.connectionSetup && typeof req.body.connectionSetup == "object"
+            ? req.body.connectionSetup
+            : JSON.parse(req.body.connectionSetup);
+    const foundRequestFields = Object.keys(connectionSetup);
     const fieldsMissingFromRequest = checkRequestFields(foundRequestFields);
 
     if (fieldsMissingFromRequest.length > 0) {
@@ -92,17 +95,13 @@ export function extractSetupArgumentsFromRequestBody(
         return null;
     }
 
-    const setupArguments: ProxySetupServer = req.body
-        .connectionSetup as ProxySetupServer;
-
-    return setupArguments;
+    return connectionSetup;
 }
 
 export function setupProxy(
     req: Request,
     res: Response,
     idToConnection: Map<string, ProxySetupServer>,
-    approvedPeerAddresses: string[],
     DEV: boolean = false
 ) {
     if (DEV) {
@@ -118,9 +117,9 @@ export function setupProxy(
             space4,
             "Success! Saving connection information and returning 200..."
         );
+        console.log(space4, "Saving connectionId", setupArguments.connectionId);
     }
     idToConnection.set(setupArguments.connectionId, setupArguments);
-    approvedPeerAddresses.push(setupArguments.peerAddress);
     res.status(200);
     res.send("OK");
 }

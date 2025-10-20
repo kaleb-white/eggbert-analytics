@@ -64,6 +64,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   svg_icons: project icons
 -   stable_utilities: simple, easily testable functions that will not change and can be depended on universally (such as type checks for interfaces)
 	-   git_hooks: self explanatory
+	-   reconstruct_obj: folder has no description
 -   tests: the tests, current tightly coupled
 	-   core: tests of the core logic
 		-   entities: folder has no description
@@ -82,6 +83,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   hooks: folder has no description
 	-   icons: svg icons for use in the ui
 	-   messages: folder has no description
+	-   navbar: folder has no description
 	-   response_input: folder has no description
 	-   sidebar: folder has no description
 

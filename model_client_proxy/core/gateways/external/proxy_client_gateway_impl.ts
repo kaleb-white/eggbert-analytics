@@ -20,7 +20,7 @@ export class ProxyClientGatewayImpl implements ProxyClientGateway {
     ) => {
         // Connect with required 'connectionId' header
         this.peer = io(clientConnectionSetup.proxyAddress, {
-            extraHeaders: {
+            auth: {
                 connectionId: clientConnectionSetup.connectionId,
             },
         });
@@ -45,6 +45,7 @@ export class ProxyClientGatewayImpl implements ProxyClientGateway {
             if (callbackOnModelMessageFinished)
                 callbackOnModelMessageFinished();
         });
+
         return null;
     };
 

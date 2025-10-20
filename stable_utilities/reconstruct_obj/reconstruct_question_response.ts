@@ -10,8 +10,6 @@ export function reconstructQuestionResponse(
             ? (JSON.parse(questionResponse as string) as QuestionResponse)
             : (questionResponse as QuestionResponse);
 
-    console.log(asQuestionResponse);
-    console.log(asQuestionResponse["question"]);
     return new QuestionResponse(
         asQuestionResponse.uniqueId,
         reconstructQuestion(asQuestionResponse.question),

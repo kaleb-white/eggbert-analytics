@@ -6,14 +6,14 @@ import { ModelMessage } from "../messages/model_message.tsx";
 import { RespondentMessage } from "../messages/respondent_message";
 import { useEffect, useRef, useState } from "react";
 import { ProxySetupClient } from "@/model_client_proxy/core/entities/proxy_setup_client.ts";
-import { P } from "@/model_client_proxy/core/gateways/external/proxy_client_gateway_test.ts";
 import { reconstructQuestionResponse } from "@/stable_utilities/reconstruct_obj/reconstruct_question_response.ts";
+import { ProxyClientGatewayImpl } from "@/model_client_proxy/core/gateways/external/proxy_client_gateway_impl.ts";
 
 export function ChatBox({questionResponseStringified, connectionSetupStringified}: {questionResponseStringified: string, connectionSetupStringified: string}) {
     // Parsed objects
     const questionResponse = useRef(reconstructQuestionResponse(questionResponseStringified))
     const connectionSetup = useRef(JSON.parse(connectionSetupStringified) as ProxySetupClient)
-    const proxyGateway = useRef(new P())
+    const proxyGateway = useRef(new ProxyClientGatewayImpl())
 
     // Setup
     const [awaitingProxyConnection, setAwaitingProxyConnection] = useState(true)
@@ -24,17 +24,19 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
     const [errors, setErrors] = useState<Error[] | null>(null)
 
     // Incoming model messages related
-    const [currentModelMessage, setCurrentModelMessage] = useState("")
-    const currentModelFinal = useRef(currentModelMessage)
+    const [modelMessageRendering, setModelMessageRendering] = useState("")
+    const modelMessageInternal = useRef("")
     const [modelMessageOngoing, setModelMessageOngoing] = useState(false)
 
+
     useEffect(() => {
-        currentModelFinal.current = currentModelMessage
-    }, [currentModelMessage])
+        console.log(transcript)
+    }, [transcript])
 
     useEffect(() => {
         function handleMessageChunk(modelChunk: string) {
-            setCurrentModelMessage(currentModelMessage => currentModelMessage.concat(modelChunk))
+            setModelMessageRendering(modelMessageRendering => modelMessageRendering.concat(modelChunk))
+            modelMessageInternal.current += modelChunk
         }
 
         function handleMessageErr(err: string) {
@@ -48,8 +50,15 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
         }
 
         function handleMessageFinished() {
-            setTranscript(transcript => transcript.concat(new Turn("", currentModelFinal.current)))
-            setCurrentModelMessage("")
+            /*  For some reason, creating a new Turn object within the setTranscript callback
+                sets modelMessage to be "". Creating a new turn within the handleMessageFinished callback works.
+                When the callback to setTransript is called modelMessageInternal.current IS "", so good to remember those
+                callbacks execute with the initial useState / Ref values.
+            */
+            const newTurn = new Turn("", modelMessageInternal.current)
+            setTranscript(transcript => transcript.concat(newTurn))
+            setModelMessageRendering("")
+            modelMessageInternal.current = ""
             setModelMessageOngoing(false)
         }
 
@@ -91,12 +100,11 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
     }
 
     return (
-        <div className="flex flex-col items-start justify-end border-l-2 border-r-2 border-primary pr-2 pl-2 pb-2 w-1/2 h-auto">
-            <div className="overflow-y-auto flex flex-col items-start justify-baseline pl-1 pr-1 gap-2 w-full h-full flex-1">
+        <div className="flex flex-col items-start justify-end pr-2 pl-2 pb-2 w-full h-full">
+            <div className="overflow-y-auto flex flex-col items-start justify-baseline pl-1 pr-1 pt-1 gap-2 w-full flex-1 h-full">
                 {transcript.map((turn, i) => {
-                    console.log(turn.modelMessageExists)
                     return (
-                        <div className="contents w-full max-h-full" key={i}>
+                        <div className="contents w-full" key={i}>
                             {turn.modelMessageExists?
                                 <div className="w-full flex flex-row justify-start">
                                     <div className="w-11/12">
@@ -114,10 +122,10 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
                         </div>
                     )
                 })}
-                {currentModelMessage != ""?
+                {modelMessageRendering != ""?
                     <div className="w-full flex flex-row justify-start">
                         <div className="w-11/12">
-                            <ModelMessage text={currentModelMessage}/>
+                            <ModelMessage text={modelMessageRendering}/>
                         </div>
                     </div> :
                     <></>
