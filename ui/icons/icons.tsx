@@ -1,5 +1,5 @@
 import { JSX, MouseEventHandler } from "react";
-import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, ErrorRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, LockedRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, RedoRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
+import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, ErrorRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, InfoRaw, LockedRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, QuestionRaw, RedoRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
 
 export type onClickFuncType = (() => MouseEventHandler<HTMLDivElement> | undefined | void) | undefined
 
@@ -58,6 +58,10 @@ export function Globe({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthP
 	return wrapIcon(GlobeRaw(edgeLengthPx, fillHex), onClick)
 }
 
+export function Info({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
+	return wrapIcon(InfoRaw(edgeLengthPx, fillHex), onClick)
+}
+
 export function Locked({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
 	return wrapIcon(LockedRaw(edgeLengthPx, fillHex), onClick)
 }
@@ -72,6 +76,10 @@ export function Minimize({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLeng
 
 export function Pin({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
 	return wrapIcon(PinRaw(edgeLengthPx, fillHex), onClick)
+}
+
+export function Question({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
+	return wrapIcon(QuestionRaw(edgeLengthPx, fillHex), onClick)
 }
 
 export function Redo({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {

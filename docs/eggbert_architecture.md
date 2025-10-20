@@ -10,7 +10,8 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 -   app: routing
 	-   (landing): folder has no description
 	-   api: folder has no description
-	-   [...response]: folder has no description
+	-   response: folder has no description
+		-   [...response]: folder has no description
 -   core: core logic (entities, use cases, interactors, gateways, controllers)
 	-   entities: contains the project entities
 		-   surveys: survey-related entities, such as survey, response, question response, question, turn
@@ -80,6 +81,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   icons: tests for icon creation script
 -   ui: contains the ui implementation
 	-   chat_box: folder has no description
+	-   error: folder has no description
 	-   hooks: folder has no description
 	-   icons: svg icons for use in the ui
 	-   messages: folder has no description

@@ -8,6 +8,20 @@ import { useEffect, useRef, useState } from "react";
 import { ProxySetupClient } from "@/model_client_proxy/core/entities/proxy_setup_client.ts";
 import { reconstructQuestionResponse } from "@/stable_utilities/reconstruct_obj/reconstruct_question_response.ts";
 import { ProxyClientGatewayImpl } from "@/model_client_proxy/core/gateways/external/proxy_client_gateway_impl.ts";
+import { Down, Question } from "../icons/icons.tsx";
+import { ThemeColorHex } from "../types_enums.ts";
+import { chatboxQuestionInfoSize, chatboxScrollDownSize } from "../magic_constants.ts";
+
+function QuestionBanner({ questionText }:{ questionText: string }) {
+    return (
+        <div className="flex flex-row gap-2 justify-start items-center w-full bg-primary-subtle text-tertiary font-bold p-1">
+            <div>
+            <Question edgeLengthPx={chatboxQuestionInfoSize} fillHex={ThemeColorHex["tertiary"]} />
+            </div>
+            <div>{questionText}</div>
+        </div>
+    )
+}
 
 export function ChatBox({questionResponseStringified, connectionSetupStringified}: {questionResponseStringified: string, connectionSetupStringified: string}) {
     // Parsed objects
@@ -28,10 +42,8 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
     const modelMessageInternal = useRef("")
     const [modelMessageOngoing, setModelMessageOngoing] = useState(false)
 
-
-    useEffect(() => {
-        console.log(transcript)
-    }, [transcript])
+    // Element refs
+    const chatboxBottomRef = useRef<null | HTMLDivElement>(null)
 
     useEffect(() => {
         function handleMessageChunk(modelChunk: string) {
@@ -100,8 +112,11 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
     }
 
     return (
-        <div className="flex flex-col items-start justify-end pr-2 pl-2 pb-2 w-full h-full">
-            <div className="overflow-y-auto flex flex-col items-start justify-baseline pl-1 pr-1 pt-1 gap-2 w-full flex-1 h-full">
+        <div className="flex flex-col items-start justify-end  pb-2 w-full h-full">
+            {/* Question banner */}
+            <QuestionBanner questionText={questionResponse.current.question.modelPrompt} />
+            {/* Chats container */}
+            <div className="overflow-y-auto flex flex-col items-start justify-baseline pl-3 pr-3 pt-1 gap-2 w-full flex-1 h-full">
                 {transcript.map((turn, i) => {
                     return (
                         <div className="contents w-full" key={i}>
@@ -130,8 +145,14 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
                     </div> :
                     <></>
                 }
+                <div ref={chatboxBottomRef}></div>
             </div>
-            <div className="w-full">
+            {/* Input */}
+            <div className="relative w-full pl-1 pr-1">
+                {/* Scroll to bottom control TODO: magic positions arent great */}
+                <div className="absolute -top-8 right-5 border-2 border-secondary-bold rounded-lg cursor-pointer" onClick={() => {if (chatboxBottomRef.current) chatboxBottomRef.current.scrollIntoView({block: "end", inline: "nearest", "behavior": "smooth"})}}>
+                    <Down edgeLengthPx={chatboxScrollDownSize} fillHex={ThemeColorHex["secondary-bold"]} />
+                </div>
                 <ResponseInput onSubmit={onSubmit} enabled={!modelMessageOngoing} />
             </div>
         </div>
