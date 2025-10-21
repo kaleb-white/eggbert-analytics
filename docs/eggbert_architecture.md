@@ -29,6 +29,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   user_stories: user stories for eggbert (not sure if this will be used yet)
 -   entrypoints: 'main' function
 	-   redis-cli: 'main' function which uses redis as a cache (not working)
+	-   test-single-response: folder has no description
 -   model_client_proxy: a websocket server that bounces traffic to and from the model
 	-   core: includes entities, gateways, etc
 		-   entities: folder has no description
@@ -60,7 +61,6 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   initialization: contains sql for resetting the database and a script to run it
 		-   sql_generators_by_entity: functions to generate sql for CRUD operations
 		-   sql_generators_by_table: functions that provide helper methods for specific tables
-	-   redis: redis cache implementations
 -   public: public assets, statically hosted by next
 	-   svg_icons: project icons
 -   stable_utilities: simple, easily testable functions that will not change and can be depended on universally (such as type checks for interfaces)
