@@ -1,5 +1,5 @@
 const INDENT_ON = /(LEFT JOIN)|(SELECT)|(jsonb_build_object)/g;
-const DEINDENT_ON = /(FROM)|(WHERE)|(AS)/g;
+const DEINDENT_ON = /(FROM)|(WHERE)|(AS)|(^(\s*?)\) )/g;
 const CAPITALIZED_WORDS = /([A-Z]* )/g;
 
 function redString(str: string) {

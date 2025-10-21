@@ -11,7 +11,7 @@ export class Response {
     lastEdited: number;
 
     constructor(
-        uniqueId: string | CryptographyUtilities,
+        uniqueId: string | CryptographyUtilities = "",
         questionResponses: QuestionResponse[] = [],
         respondent: Respondent = new Respondent(""),
         timeCreated: number = Date.now(),

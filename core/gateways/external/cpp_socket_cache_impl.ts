@@ -1,30 +1,26 @@
-import { Survey } from "@/core/entities/surveys/survey";
-import { SurveyCache } from "../interfaces/external/survey_cache";
+import { Cache } from "../interfaces/external/cache";
 import { CacheGateway } from "@cache_gateway/ts/cache_gateway";
 
-export class SurveyCacheImpl implements SurveyCache {
+export class CacheImpl implements Cache {
     private cacheGateway: CacheGateway;
 
     constructor(cacheGateway: CacheGateway) {
         this.cacheGateway = cacheGateway;
     }
 
-    async saveSurvey(survey: Survey): Promise<null | Error> {
+    async save(uniqueId: string, obj: object): Promise<null | Error> {
         const didCacheConnect = await this.cacheGateway.connect();
         if (didCacheConnect instanceof Error) return didCacheConnect;
 
-        return await this.cacheGateway.create(
-            survey.uniqueId,
-            JSON.stringify(survey)
-        );
+        return await this.cacheGateway.create(uniqueId, JSON.stringify(obj));
     }
 
-    async loadSurveyFromCache(uniqueId: string): Promise<Survey | Error> {
+    async get<T>(uniqueId: string): Promise<T | Error> {
         const didCacheConnect = await this.cacheGateway.connect();
         if (didCacheConnect instanceof Error) return didCacheConnect;
 
         const didCacheRead = await this.cacheGateway.read(uniqueId);
         if (didCacheRead instanceof Error) return didCacheRead;
-        return JSON.parse(didCacheRead) as Survey;
+        return JSON.parse(didCacheRead) as T;
     }
 }

@@ -13,10 +13,10 @@ export class Survey {
     author: Author;
 
     constructor(
-        uniqueId: string | CryptographyUtilities,
-        questions: Question[],
-        responses: Response[],
-        author: Author,
+        uniqueId: string | CryptographyUtilities = "",
+        questions: Question[] = [new Question()],
+        responses: Response[] = [new Response()],
+        author: Author = new Author(""),
         timeCreated: number = Date.now(),
         lastEdited: number = Date.now()
     ) {

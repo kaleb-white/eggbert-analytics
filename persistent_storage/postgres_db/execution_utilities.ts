@@ -5,6 +5,7 @@ import {
     ParameterizedStatementSets,
 } from "./generation_types_and_utilities";
 import { db_debug } from "@/stable_utilities/verbose_checks";
+import { formatSql } from "@/tests/db/utilities/sql_formatter";
 
 export function createPromisesFromStatementSet(
     statementSet: PossibleStatementFormat[],
@@ -16,7 +17,7 @@ export function createPromisesFromStatementSet(
         if (db_debug()) {
             console.log(
                 "Executing sql:",
-                (statement as ParameterizedStatement).sql,
+                formatSql((statement as ParameterizedStatement).sql),
                 "with user input",
                 (statement as ParameterizedStatement).userInput
             );
@@ -47,7 +48,8 @@ export async function executeStatements(
         if (Array.isArray(statementSet)) {
             const promises = createPromisesFromStatementSet(statementSet, pool);
             try {
-                result.concat(await Promise.all(promises));
+                const res = await Promise.all(promises);
+                result.concat(res);
             } catch (err) {
                 return err as Error;
             }
@@ -55,7 +57,7 @@ export async function executeStatements(
             if (db_debug()) {
                 console.log(
                     "Executing sql:",
-                    (statementSet as ParameterizedStatement).sql,
+                    formatSql((statementSet as ParameterizedStatement).sql),
                     "with user input",
                     (statementSet as ParameterizedStatement).userInput
                 );
@@ -72,5 +74,6 @@ export async function executeStatements(
             }
         }
     }
+    console.log("execution results: ", result);
     return result;
 }

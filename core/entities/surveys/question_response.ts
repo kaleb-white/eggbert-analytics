@@ -14,8 +14,8 @@ export class QuestionResponse {
     question: Question;
 
     constructor(
-        uniqueId: string | CryptographyUtilities,
-        question: Question,
+        uniqueId: string | CryptographyUtilities = "",
+        question: Question = new Question(),
         completedTurns: Turn[] = [],
         timeCreated: number = Date.now(),
         lastEdited: number = Date.now()

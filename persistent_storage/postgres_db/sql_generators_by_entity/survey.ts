@@ -16,6 +16,7 @@ import {
     insertOrUpdateSurvey,
 } from "../sql_generators_by_table/surveys";
 import {
+    argumentsToInStatementFromArray,
     createLeftJoin,
     ParameterizedStatementSets,
 } from "../generation_types_and_utilities";
@@ -88,22 +89,24 @@ export function insertOrUpdateResponsesBySurvey(survey: Survey) {
     return insertOrUpdateResponses(survey.responses);
 }
 
-export function saveOrUpdateSurvey(survey: Survey): ParameterizedStatementSets {
+export function saveSurveys(surveys: Survey[]): ParameterizedStatementSets {
     return [
-        [
-            insertOrUpdateTurnsBySurvey(survey),
-            insertOrUpdateQuestionsBySurvey(survey),
-            insertOrUpdateQuestionResponsesBySurvey(survey),
-            insertOrUpdateResponsesBySurvey(survey),
-            insertOrUpdateSurvey(survey),
-        ],
-        insertOrUpdateOneManyRelationsOfSurvey(survey),
+        surveys.flatMap((survey) => {
+            return [
+                insertOrUpdateTurnsBySurvey(survey),
+                insertOrUpdateQuestionsBySurvey(survey),
+                insertOrUpdateQuestionResponsesBySurvey(survey),
+                insertOrUpdateResponsesBySurvey(survey),
+                insertOrUpdateSurvey(survey),
+            ];
+        }),
+        surveys.flatMap((survey) =>
+            insertOrUpdateOneManyRelationsOfSurvey(survey)
+        ),
     ];
 }
 
-export function getSurveyWithoutResponses(
-    uniqueId: string
-): ParameterizedStatementSets {
+export function getSurveys(ids: string[]): ParameterizedStatementSets {
     return [
         {
             sql: `
@@ -115,6 +118,13 @@ export function getSurveyWithoutResponses(
         'questions', COALESCE(sq.questionsAgg, '[]'::jsonb)
     )
         FROM surveys
+        ${leftJoinResponses(
+            "surveys",
+            "surveysResponses",
+            "surveyId",
+            "responseId",
+            "responses"
+        )}
         ${createLeftJoin(
             "surveys",
             "questions",
@@ -124,14 +134,14 @@ export function getSurveyWithoutResponses(
             createJsonbQuestions,
             "sq"
         )}
-        WHERE surveys.uniqueId = $1;
+        WHERE surveys.uniqueId IN ${argumentsToInStatementFromArray(ids)};
     `,
-            userInput: [uniqueId],
+            userInput: [],
         },
     ];
 }
 
-export function getSurveyWithResponses(
+export function getSurveyWithoutResponses(
     uniqueId: string
 ): ParameterizedStatementSets {
     return [
@@ -139,13 +149,6 @@ export function getSurveyWithResponses(
             sql: `
         SELECT ${createJsonbSurvey()}
         FROM surveys
-        ${leftJoinResponses(
-            "surveys",
-            "surveysResponses",
-            "surveyId",
-            "responseId",
-            "responses"
-        )}
         ${leftJoinQuestions("surveys", "surveysQuestions", "surveyId")}
         WHERE surveys.uniqueId = $1;
         `,
