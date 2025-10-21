@@ -1,7 +1,7 @@
-import type { ProxySetupServer } from "../../entities/proxy_setup_server";
+import type { ProxySetupForServer } from "../../entities/proxy_setup_for_server";
 import { createConnectionRouteName, PORT } from "../../../config";
 
-export async function addNewAllowedConnection(proxySetup: ProxySetupServer) {
+export async function addNewAllowedConnection(proxySetup: ProxySetupForServer) {
     if (!process.env.EXPECTED_SERVER_TOKEN)
         throw new Error(
             "No server token found. There must be a matching server token shared between the proxy and the server."

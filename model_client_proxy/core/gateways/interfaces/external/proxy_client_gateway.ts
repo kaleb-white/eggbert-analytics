@@ -1,7 +1,7 @@
-import type { ProxySetupClient } from "../../../entities/proxy_setup_client";
+import type { ProxySetupForClient } from "../../../entities/proxy_setup_for_client";
 
 export type Start = (
-    clientConnectionSetup: ProxySetupClient,
+    clientConnectionSetup: ProxySetupForClient,
     callbackOnModelChunk: (modelChunk: string) => void,
     callbackOnError?: (err: string) => void,
     callbackOnModelMessageFinished?: () => void

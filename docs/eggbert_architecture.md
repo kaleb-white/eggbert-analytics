@@ -28,7 +28,6 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   pictures: pictures for documentation
 	-   user_stories: user stories for eggbert (not sure if this will be used yet)
 -   entrypoints: 'main' function
-	-   redis-cli: 'main' function which uses redis as a cache (not working)
 	-   test-single-response: folder has no description
 -   model_client_proxy: a websocket server that bounces traffic to and from the model
 	-   core: includes entities, gateways, etc

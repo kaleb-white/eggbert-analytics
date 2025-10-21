@@ -1,14 +1,8 @@
+import { magentaString, redString } from "@/stable_utilities/logging";
+
 const INDENT_ON = /(LEFT JOIN)|(SELECT)|(jsonb_build_object)/g;
 const DEINDENT_ON = /(FROM)|(WHERE)|(AS)|(^(\s*?)\) )/g;
 const CAPITALIZED_WORDS = /([A-Z]* )/g;
-
-function redString(str: string) {
-    return `\x1b[31m${str}\x1b[0m`;
-}
-
-function magentaString(str: string) {
-    return `\x1b[35m${str}\x1b[0m`;
-}
 
 export function formatSql(sql: string) {
     const lines = sql.split("\n");

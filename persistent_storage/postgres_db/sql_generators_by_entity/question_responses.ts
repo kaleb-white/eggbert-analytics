@@ -66,11 +66,8 @@ export function saveQuestionResponses(
         )
     );
     return [
-        [
-            insertQuestionResponseCommand,
-            insertTurnsCommand,
-            insertQuestionsCommand,
-        ],
+        [insertQuestionsCommand],
+        [insertQuestionResponseCommand, insertTurnsCommand],
         insertQRTs,
     ];
 }

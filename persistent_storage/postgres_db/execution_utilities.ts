@@ -56,7 +56,7 @@ export async function executeStatements(
         } else {
             if (db_debug()) {
                 console.log(
-                    "Executing sql:",
+                    "Executing sql:\n",
                     formatSql((statementSet as ParameterizedStatement).sql),
                     "with user input",
                     (statementSet as ParameterizedStatement).userInput
@@ -74,6 +74,5 @@ export async function executeStatements(
             }
         }
     }
-    console.log("execution results: ", result);
     return result;
 }

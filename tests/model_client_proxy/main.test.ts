@@ -1,7 +1,7 @@
 import { describe, test, expect } from "bun:test";
-import { ProxySetupServer } from "../../model_client_proxy/core/entities/proxy_setup_server";
+import { ProxySetupForServer } from "../../model_client_proxy/core/entities/proxy_setup_for_server";
 import { ProxyClientGatewayImpl } from "../../model_client_proxy/core/gateways/external/proxy_client_gateway_impl";
-import { ProxySetupClient } from "@/model_client_proxy/core/entities/proxy_setup_client";
+import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client";
 
 const PORT = 1038;
 
@@ -36,7 +36,11 @@ async function call(
 describe("test model client proxy integration", () => {
     describe("test create-connection", () => {
         const serverToken = process.env.EXPECTED_SERVER_TOKEN as string;
-        const setup: ProxySetupServer = new ProxySetupServer("abc", "a", "a");
+        const setup: ProxySetupForServer = new ProxySetupForServer(
+            "abc",
+            "a",
+            "a"
+        );
 
         const body = {
             serverToken: serverToken,
@@ -125,7 +129,7 @@ describe("test model client proxy integration", () => {
             let expected_value = "";
 
             client.start(
-                new ProxySetupClient(
+                new ProxySetupForClient(
                     `http://localhost:${PORT}`,
                     "test-connect"
                 ),

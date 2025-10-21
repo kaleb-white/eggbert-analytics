@@ -5,7 +5,7 @@ import { Turn } from "@/core/entities/surveys/turn";
 import { ModelMessage } from "../messages/model_message.tsx";
 import { RespondentMessage } from "../messages/respondent_message";
 import { useEffect, useRef, useState } from "react";
-import { ProxySetupClient } from "@/model_client_proxy/core/entities/proxy_setup_client.ts";
+import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client.ts";
 import { reconstructQuestionResponse } from "@/stable_utilities/reconstruct_obj/reconstruct_question_response.ts";
 import { ProxyClientGatewayImpl } from "@/model_client_proxy/core/gateways/external/proxy_client_gateway_impl.ts";
 import { Down, Question } from "../icons/icons.tsx";
@@ -26,7 +26,7 @@ function QuestionBanner({ questionText }:{ questionText: string }) {
 export function ChatBox({questionResponseStringified, connectionSetupStringified}: {questionResponseStringified: string, connectionSetupStringified: string}) {
     // Parsed objects
     const questionResponse = useRef(reconstructQuestionResponse(questionResponseStringified))
-    const connectionSetup = useRef(JSON.parse(connectionSetupStringified) as ProxySetupClient)
+    const connectionSetup = useRef(JSON.parse(connectionSetupStringified) as ProxySetupForClient)
     const proxyGateway = useRef(new ProxyClientGatewayImpl())
 
     // Setup

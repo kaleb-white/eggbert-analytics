@@ -8,8 +8,8 @@ import { handlePeer } from "./core/use_cases/handle_peer";
 import { LiteLLMModelImpl } from "./core/gateways/external/query_model/litellm_model_impl";
 import { QuestionResponse } from "../core/entities/surveys/question_response";
 import { finalizePeer } from "./core/gateways/internal/finalize_peer";
-import type { ProxySetupServer } from "./core/entities/proxy_setup_server";
-import { dialogueContextFromProxySetupServer } from "./core/entities/dialogue_context";
+import type { ProxySetupForServer } from "./core/entities/proxy_setup_for_server";
+import { dialogueContextFromProxySetupForServer } from "./core/entities/dialogue_context";
 import { ModelTest } from "./core/gateways/external/query_model/test_model";
 import {
     connectionIdsRouteName,
@@ -34,9 +34,9 @@ const server = createServer(app);
 const io = new Server(server);
 
 // Storage (just on the stack for now)
-const idToConnection: Map<string, ProxySetupServer> = new Map<
+const idToConnection: Map<string, ProxySetupForServer> = new Map<
     string,
-    ProxySetupServer
+    ProxySetupForServer
 >();
 
 // Routes
@@ -113,10 +113,12 @@ io.on("connection", (peer) => {
     // Extract connection information
     // Existence already checked in middleware
     const connectionId = peer.handshake.auth.connectionId as string;
-    const peerConnection = idToConnection.get(connectionId) as ProxySetupServer;
+    const peerConnection = idToConnection.get(
+        connectionId
+    ) as ProxySetupForServer;
 
     // Find existing information
-    const context = dialogueContextFromProxySetupServer(peerConnection);
+    const context = dialogueContextFromProxySetupForServer(peerConnection);
     const questionResponseInProgress: QuestionResponse = new QuestionResponse(
         context.questionResponseId,
         context.question

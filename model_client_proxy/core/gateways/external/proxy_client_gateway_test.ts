@@ -1,4 +1,4 @@
-import type { ProxySetupClient } from "../../entities/proxy_setup_client";
+import type { ProxySetupForClient } from "../../entities/proxy_setup_for_client";
 import type {
     Close,
     ProxyClientGateway,
@@ -11,7 +11,7 @@ export class P implements ProxyClientGateway {
     mmf?: () => void;
 
     start: Start = (
-        clientConnectionSetup: ProxySetupClient,
+        clientConnectionSetup: ProxySetupForClient,
         callbackOnModelChunk: (modelChunk: string) => void,
         callbackOnError?: (err: string) => void,
         callbackOnModelMessageFinished?: () => void

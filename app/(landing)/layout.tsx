@@ -2,7 +2,7 @@
 import { Question } from "@/core/entities/surveys/question";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Turn } from "@/core/entities/surveys/turn";
-import { ProxySetupClient } from "@/model_client_proxy/core/entities/proxy_setup_client";
+import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client";
 import { P } from "@/model_client_proxy/core/gateways/external/proxy_client_gateway_test";
 import { ProxyClientGateway } from "@/model_client_proxy/core/gateways/interfaces/external/proxy_client_gateway";
 import { ChatBox } from "@/ui/chat_box/chat_box";

@@ -1,5 +1,5 @@
 import { Question } from "../../../core/entities/surveys/question";
-import type { ProxySetupServer } from "./proxy_setup_server";
+import type { ProxySetupForServer } from "./proxy_setup_for_server";
 
 export class DialogueContext {
     questionResponseId: string;
@@ -17,8 +17,8 @@ export class DialogueContext {
     }
 }
 
-export function dialogueContextFromProxySetupServer(
-    connectionSetup: ProxySetupServer
+export function dialogueContextFromProxySetupForServer(
+    connectionSetup: ProxySetupForServer
 ): DialogueContext {
     return new DialogueContext(
         connectionSetup.promptContext,

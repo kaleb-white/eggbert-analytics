@@ -1,13 +1,10 @@
 "use server"
 
-import { Question } from "@/core/entities/surveys/question"
 import { QuestionResponse } from "@/core/entities/surveys/question_response"
-import { Turn } from "@/core/entities/surveys/turn"
-import { CryptographyUtilitiesImpl } from "@/core/use_cases/auth/cryptography/crypto_utility_creator_impl"
-import { RandomGeneratorImpl } from "@/core/use_cases/auth/cryptography/random_buffer_generator_impl"
+import { storage, uniqueIdGen } from "@/core/injections"
 import { PORT } from "@/model_client_proxy/config"
-import { ProxySetupClient } from "@/model_client_proxy/core/entities/proxy_setup_client"
-import { ProxySetupServer } from "@/model_client_proxy/core/entities/proxy_setup_server"
+import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client"
+import { ProxySetupForServer } from "@/model_client_proxy/core/entities/proxy_setup_for_server"
 import { addNewAllowedConnection } from "@/model_client_proxy/core/gateways/external/add_new_allowed_server"
 import { ChatBox } from "@/ui/chat_box/chat_box"
 import { CustomError } from "@/ui/error/custom_error"
@@ -15,15 +12,18 @@ import { CustomError } from "@/ui/error/custom_error"
 export default async function ResponsesPage({ params }:{ params: Promise<{response: string}>}) {
     const {response} = await params
 
-    // TODO: replace with db query!
-    const question = new Question("", "This is a model prompt!")
-    const qr = new QuestionResponse("", question, [new Turn("", "model msg 1", "resp msg 1"), new Turn("", "model msg 2")])
+    // Retrieve question response from db
+    const qr = await storage.get<QuestionResponse>(response[0], new QuestionResponse())
+    if (!qr || qr instanceof Error) {
+        return (
+            <CustomError errorMsg={
+                qr? qr.message : "Not found"
+            } />
+        )
+    }
 
-    // Is there a way to inject these dependencies thats not super inconvenient?
-    // Create setup to send to proxy
-    const idGen = new CryptographyUtilitiesImpl(new RandomGeneratorImpl())
-    const connectionId = idGen.createUniqueId()
-    const proxySetup: ProxySetupServer = new ProxySetupServer(connectionId, qr.dialogueAsString, qr.uniqueId, question)
+    const connectionId = uniqueIdGen.createUniqueId()
+    const proxySetup: ProxySetupForServer = new ProxySetupForServer(connectionId, qr.dialogueAsString, qr.uniqueId, qr.question)
 
     // Send to proxy
     const proxySetupResult = await addNewAllowedConnection(proxySetup)
@@ -39,7 +39,7 @@ export default async function ResponsesPage({ params }:{ params: Promise<{respon
 
     // Create setup to send to client
     // TODO: need to know addr server is running on here? Bc proxy should be running on same server?
-    const setup = new ProxySetupClient(`localhost:${PORT}`, connectionId)
+    const setup = new ProxySetupForClient(`localhost:${PORT}`, connectionId)
 
     return (
         <div className="flex place-content-center w-1/2 h-full border-l-2 border-r-2 border-primary">

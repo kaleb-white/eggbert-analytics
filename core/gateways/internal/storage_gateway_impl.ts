@@ -2,7 +2,7 @@
 import { isT } from "@/stable_utilities/global_type_check";
 import { Cache } from "../interfaces/external/cache";
 import { Database } from "../interfaces/external/database";
-import { StorageGateway } from "../interfaces/internal/survey_storage_gateway";
+import { StorageGateway } from "../interfaces/internal/storage_gateway";
 
 export class StorageGatewayImpl implements StorageGateway {
     private cache: Cache;
@@ -33,6 +33,7 @@ export class StorageGatewayImpl implements StorageGateway {
 
     async get<T>(id: string, objOfTypeT: T): Promise<T | null | Error> {
         const tryCacheLoad = await this.cache.get(id);
+        console.log(tryCacheLoad);
         if (
             !(tryCacheLoad instanceof Error) &&
             isT<T>(tryCacheLoad, objOfTypeT)
@@ -44,11 +45,12 @@ export class StorageGatewayImpl implements StorageGateway {
             !isT<T>(tryCacheLoad, objOfTypeT)
         )
             return new Error(
-                "Cache returned something that wasn't of type T or an error!"
+                `Cache returned something that wasn't of type T or an error: ${JSON.stringify(
+                    tryCacheLoad
+                )}`
             );
 
         const tryDatabaseLoad = await this.database.get<T>(id, objOfTypeT);
-
         if (
             !(tryDatabaseLoad instanceof Error) &&
             isT<T>(tryDatabaseLoad, objOfTypeT)
@@ -61,7 +63,9 @@ export class StorageGatewayImpl implements StorageGateway {
             !isT<T>(tryDatabaseLoad, objOfTypeT)
         )
             return new Error(
-                "Database returned something that wasn't of type T or an error!"
+                `Database returned something that wasn't of type T or an error: ${JSON.stringify(
+                    tryCacheLoad
+                )}`
             );
 
         return null;

@@ -4,7 +4,7 @@ import { Turn } from "./turn";
 import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
 
 export class QuestionResponse {
-    summary?: string;
+    summary: string;
     transcript: Turn[];
     /** Indexed at 0 */
     currentTurn: number;
@@ -18,7 +18,8 @@ export class QuestionResponse {
         question: Question = new Question(),
         completedTurns: Turn[] = [],
         timeCreated: number = Date.now(),
-        lastEdited: number = Date.now()
+        lastEdited: number = Date.now(),
+        summary: string = ""
     ) {
         // Use given id or generate new one
         this.uniqueId = assignOrCreateUniqueId(uniqueId);
@@ -32,6 +33,7 @@ export class QuestionResponse {
         this.currentTurn = this.numOfTurnsTaken;
         this.timeCreated = timeCreated;
         this.lastEdited = lastEdited;
+        this.summary = summary;
     }
 
     get numOfTurnsTaken() {

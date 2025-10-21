@@ -30,31 +30,34 @@ export class CacheGatewayImpl implements CacheGateway {
             }
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let socket_error: Error | null = null;
 
-            this.client?.on("error", (err: Error) => {
+            this.client!.once("error", (err: Error) => {
                 socket_error = err;
-                reject(socket_error);
+                resolve(socket_error);
             });
 
-            this.client?.on("timeout", () => {
+            this.client!.once("timeout", () => {
                 socket_error = new Error("Socket timed out");
-                reject(socket_error);
+                resolve(socket_error);
             });
 
-            this.client?.on("data", (buffer) => {
+            this.client!.once("data", (buffer) => {
                 const data = buffer.toString();
                 resolve(protocol_format_to_message(data));
             });
 
-            this.client?.write(message);
+            this.client!.write(message, (err) => {
+                if (err) resolve(new Error(`Write failed with message ${err}`));
+            });
         });
     }
 
     async create(id: string, value: string): Promise<null | Error> {
         const message = message_to_protocol_format(
-            "create ".concat(id).concat(" ").concat(value)
+            "create ".concat(id).concat(" ").concat(value),
+            false
         );
         const send_result = await this.send(message);
         if (send_result instanceof Error) {
@@ -70,7 +73,7 @@ export class CacheGatewayImpl implements CacheGateway {
     }
 
     async read(id: string): Promise<string | Error> {
-        const message = message_to_protocol_format("read ".concat(id));
+        const message = message_to_protocol_format("read ".concat(id), false);
         const send_result = await this.send(message);
 
         if (send_result instanceof Error) {
