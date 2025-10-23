@@ -12,6 +12,7 @@ import {
     redString,
     yellowString,
 } from "@/stable_utilities/logging";
+import { isProcessRunningOnPort } from "@/stable_utilities/process_running";
 import { initialize } from "@/tests/db/utilities/reset_and_initialize";
 import testPool from "@/tests/db/utilities/test_pool";
 
@@ -29,6 +30,8 @@ function createStreamEchoingToStdout() {
 const space2 = "  ";
 const space4 = "    ";
 const space6 = "      ";
+const CACHEPORT = 1037;
+const PROXYPORT = 1038;
 
 function printOp(str: string) {
     console.log(space2 + blueString(str));
@@ -43,18 +46,24 @@ async function main() {
 
     // Spawn subprocesses
     printOp("Spawning proxy and cache...");
-    const cacheProc = Bun.spawn(["bun", "run", "cache"]);
-    console.log(space4 + redString("Spawned cache..."));
-    console.log(space4 + redString("Spawned proxy..."));
-    const proxyProc = Bun.spawn(["bun", "run", "proxy-dev"]);
-    printOpDone();
-
-    printOp("Waiting ten seconds to allow processes to spin up...");
-    await new Promise<void>((res) =>
-        setTimeout(() => {
-            res();
-        }, 5000)
-    );
+    if (!isProcessRunningOnPort(CACHEPORT)) {
+        console.log(
+            space4 +
+                yellowString(
+                    `Cache is not running on port ${CACHEPORT}! Either start the cache or change the port to the expected port.`
+                )
+        );
+        process.exit();
+    }
+    if (!isProcessRunningOnPort(PROXYPORT)) {
+        console.log(
+            space4 +
+                yellowString(
+                    `Proxy is not running on port ${PROXYPORT}! Either start the proxy or change the port to the expected port.`
+                )
+        );
+        process.exit();
+    }
     printOpDone();
 
     // Reset db
@@ -85,10 +94,6 @@ async function main() {
                 yellowString("Error while saving question response: ") +
                 storeResult.message
         );
-        console.log(redString("Killing cache..."));
-        cacheProc.kill(1);
-        console.log(redString("Killing proxy..."));
-        proxyProc.kill(1);
         console.log(yellowString("Exiting..."));
         process.exit();
     }
@@ -99,14 +104,8 @@ async function main() {
     const nextDevProcess = Bun.spawn(["next", "dev", "--turbopack"]);
 
     process.on("SIGINT", () => {
-        console.log(redString("Killing next..."));
-        nextDevProcess.kill(0);
-        console.log(redString("Killing cache..."));
-        cacheProc.kill(0);
-        console.log(redString("Killing proxy..."));
-        proxyProc.kill(0);
         console.log(greenString("Bye!"));
-        process.exit(0);
+        process.exit();
     });
 
     nextDevProcess.stdout.pipeTo(createStreamEchoingToStdout());

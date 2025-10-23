@@ -10,7 +10,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 -   app: routing
 	-   (landing): folder has no description
 	-   api: folder has no description
-	-   response: folder has no description
+	-   responses: folder has no description
 		-   [...response]: folder has no description
 -   core: core logic (entities, use cases, interactors, gateways, controllers)
 	-   entities: contains the project entities
@@ -28,7 +28,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   pictures: pictures for documentation
 	-   user_stories: user stories for eggbert (not sure if this will be used yet)
 -   entrypoints: 'main' function
-	-   test-single-response: folder has no description
+	-   test_solo_qr: folder has no description
 -   model_client_proxy: a websocket server that bounces traffic to and from the model
 	-   core: includes entities, gateways, etc
 		-   entities: folder has no description
@@ -60,6 +60,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   initialization: contains sql for resetting the database and a script to run it
 		-   sql_generators_by_entity: functions to generate sql for CRUD operations
 		-   sql_generators_by_table: functions that provide helper methods for specific tables
+	-   redis: folder has no description
 -   public: public assets, statically hosted by next
 	-   svg_icons: project icons
 -   stable_utilities: simple, easily testable functions that will not change and can be depended on universally (such as type checks for interfaces)

@@ -16,7 +16,7 @@ export function createPromisesFromStatementSet(
         if (statement == "pass") continue;
         if (db_debug()) {
             console.log(
-                "Executing sql:",
+                "Executing sql:\n",
                 formatSql((statement as ParameterizedStatement).sql),
                 "with user input",
                 (statement as ParameterizedStatement).userInput
@@ -48,8 +48,14 @@ export async function executeStatements(
         if (Array.isArray(statementSet)) {
             const promises = createPromisesFromStatementSet(statementSet, pool);
             try {
-                const res = await Promise.all(promises);
-                result.concat(res);
+                const results = await Promise.all(promises);
+                if (db_debug()) {
+                    console.log(
+                        "First three rows in result: \n",
+                        results.flatMap((res) => res.rows).slice(0, 3)
+                    );
+                }
+                result.concat(results);
             } catch (err) {
                 return err as Error;
             }
@@ -63,12 +69,17 @@ export async function executeStatements(
                 );
             }
             try {
-                result.push(
-                    await pool.query(
-                        (statementSet as ParameterizedStatement).sql,
-                        (statementSet as ParameterizedStatement).userInput
-                    )
+                const queryResult = await pool.query(
+                    (statementSet as ParameterizedStatement).sql,
+                    (statementSet as ParameterizedStatement).userInput
                 );
+                if (db_debug()) {
+                    console.log(
+                        "First three rows in result: \n",
+                        queryResult.rows.slice(0, 3)
+                    );
+                }
+                result.push(queryResult);
             } catch (err) {
                 return err as Error;
             }
