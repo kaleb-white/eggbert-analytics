@@ -4,8 +4,8 @@ import {
     insertOrUpdateQuestionResponses,
 } from "../sql_generators_by_table/question_responses";
 import {
-    createJsonbTurns,
     insertOrUpdateTurns,
+    leftJoinTurns,
 } from "../sql_generators_by_table/turns";
 import {
     createJsonbQuestion,
@@ -25,17 +25,17 @@ export function getQuestionResponses(
             sql: `
     SELECT ${createJsonbQuestionResponses()}
     FROM questionResponses
-    LEFT JOIN (
-        SELECT questionResponseId, ${createJsonbTurns()}
-        FROM questionResponsesTurns
-        JOIN turns ON turns.uniqueId = questionResponsesTurns.turnsId
-        GROUP BY questionResponseId
-    )
-    LEFT JOIN (
-        SELECT questionId, ${createJsonbQuestion()}
+    ${leftJoinTurns(
+        "questionResponses",
+        "questionResponsesTurns",
+        "questionResponseId",
+        "turnId",
+        "turns"
+    )}
+    JOIN (
+        SELECT questions.uniqueId, ${createJsonbQuestion("question")}
         FROM questions
-        GROUP BY questionId
-    )
+    ) questions ON questions.uniqueId = questionResponses.question
     WHERE questionResponses.uniqueId IN ${argumentsToInStatementFromArray(ids)};
     `,
             userInput: [],

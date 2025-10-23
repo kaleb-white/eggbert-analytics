@@ -3,11 +3,7 @@ import testPool from "./utilities/test_pool";
 
 import { sampleSurvey } from "./utilities/sample_data";
 import { executeStatements } from "@/persistent_storage/postgres_db/execution_utilities";
-import {
-    getSurveyWithoutResponses,
-    getSurveyWithResponses,
-    saveOrUpdateSurvey,
-} from "@/persistent_storage/postgres_db/sql_generators_by_entity/survey";
+import { getSurveyWithoutResponses } from "@/persistent_storage/postgres_db/sql_generators_by_entity/survey";
 import { QueryResult } from "pg";
 import {
     getAllEntities,

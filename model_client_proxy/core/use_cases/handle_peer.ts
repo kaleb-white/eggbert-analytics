@@ -9,13 +9,25 @@ import { DEV } from "../../main.ts";
 const space6 = "      ";
 const space8 = "        ";
 
-function constructFullContext(
-    promptContext: string,
-    additionalResponses: Turn[]
-): string {
-    return `So far, in responding to this survey, the user has said ${promptContext}. Additionally, these questions from the model and answers from the users were added: ${additionalResponses
-        .map((turn) => turn.respondentMessageAndUserAnswerAsString)
-        .join(" ")}`;
+function turnsToContext(turns: Turn[]) {
+    const preamble =
+        "Additionally, these questions from the model and answers from the users were added: ";
+    let context = preamble;
+    turns.map((t) => {
+        context = context.concat(
+            "Model said: ",
+            t.modelMessage,
+            " Respondent said: ",
+            t.respondentMessage
+        );
+    });
+    return context;
+}
+
+function constructFullContext(promptContext: string, turns: Turn[]): string {
+    return `So far, in responding to this survey, the user has said ${promptContext}. ${turnsToContext(
+        turns
+    )}`;
 }
 
 export function handlePeer(

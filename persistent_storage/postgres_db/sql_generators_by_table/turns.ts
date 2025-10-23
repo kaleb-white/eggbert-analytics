@@ -53,7 +53,7 @@ export function leftJoinTurns(
     oneManyTableName: string,
     oneIdName: string,
     manyIdName: string,
-    as: string
+    as: string = "turnsAgg"
 ) {
     return createLeftJoin(
         oneTableName,

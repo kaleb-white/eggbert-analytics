@@ -114,7 +114,7 @@ export class PostgresDbImpl implements Database {
                     getSurveys,
                     [id],
                     this.pool,
-                    "survey"
+                    "surveys"
                 );
                 break;
             case "response":
@@ -122,7 +122,7 @@ export class PostgresDbImpl implements Database {
                     getResponses,
                     [id],
                     this.pool,
-                    "response"
+                    "responses"
                 );
                 break;
             case "questionresponse":
@@ -130,7 +130,7 @@ export class PostgresDbImpl implements Database {
                     getQuestionResponses,
                     [id],
                     this.pool,
-                    "questionResponse"
+                    "questionResponses"
                 );
                 break;
             case "question":
@@ -138,7 +138,7 @@ export class PostgresDbImpl implements Database {
                     getQuestions,
                     [id],
                     this.pool,
-                    "question"
+                    "questions"
                 );
                 break;
             case "turn":
@@ -146,7 +146,7 @@ export class PostgresDbImpl implements Database {
                     getTurns,
                     [id],
                     this.pool,
-                    "turn"
+                    "turns"
                 );
                 break;
             default:

@@ -91,7 +91,7 @@ export function getAllEntityValuesAsArray(
  * Does not type check T, just casts the found entities to T.
  * @param queryResult A single QueryResult object, from the pg module.
  * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Tries jsonb_build_object if not found as col name in result. If neither are found, errors. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
- * @returns An error or an array of type T.
+ * @param expectArray Whether or not the aggregation is an array or an object
  */
 export function getAllEntitiesFromOneResult<T>(
     queryResult: QueryResult,
@@ -111,7 +111,7 @@ export function getAllEntitiesFromOneResult<T>(
         );
     }
 
-    let entities = queryResult.rows[0][expectedAggregationName];
+    let entities = queryResult.rows[0][expectedAggregationName.toLowerCase()];
     if (!entities) entities = queryResult.rows[0]["jsonb_build_object"];
     if (Array.isArray(entities)) return entities as T[];
     else return [entities];

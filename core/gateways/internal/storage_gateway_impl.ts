@@ -32,8 +32,8 @@ export class StorageGatewayImpl implements StorageGateway {
     }
 
     async get<T>(id: string, objOfTypeT: T): Promise<T | null | Error> {
+        // Try and get from cache
         const tryCacheLoad = await this.cache.get(id);
-        console.log(tryCacheLoad);
         if (
             !(tryCacheLoad instanceof Error) &&
             isT<T>(tryCacheLoad, objOfTypeT)
@@ -50,23 +50,30 @@ export class StorageGatewayImpl implements StorageGateway {
                 )}`
             );
 
+        // Try and get from database
         const tryDatabaseLoad = await this.database.get<T>(id, objOfTypeT);
         if (
             !(tryDatabaseLoad instanceof Error) &&
             isT<T>(tryDatabaseLoad, objOfTypeT)
         ) {
-            this.cache.save(id, tryDatabaseLoad as object);
+            await this.cache.save(id, tryDatabaseLoad as object);
             return tryDatabaseLoad as T;
         }
         if (
             !(tryDatabaseLoad instanceof Error) &&
             !isT<T>(tryDatabaseLoad, objOfTypeT)
-        )
+        ) {
             return new Error(
                 `Database returned something that wasn't of type T or an error: ${JSON.stringify(
-                    tryCacheLoad
+                    tryDatabaseLoad
                 )}`
             );
+        }
+
+        // Both failed, but cache fail could be 'innocent'
+        if (tryDatabaseLoad instanceof Error) {
+            return tryDatabaseLoad;
+        }
 
         return null;
     }

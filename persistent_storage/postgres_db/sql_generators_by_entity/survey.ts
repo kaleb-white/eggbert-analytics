@@ -110,13 +110,13 @@ export function getSurveys(ids: string[]): ParameterizedStatementSets {
     return [
         {
             sql: `
-    SELECT jsonb_build_object(
+    SELECT jsonb_agg(jsonb_build_object(
         'uniqueId', surveys.uniqueId,
         'timeCreated', surveys.timeCreated,
         'lastEdited', surveys.lastEdited,
         'responses', '[]'::jsonb,
         'questions', COALESCE(sq.questionsAgg, '[]'::jsonb)
-    )
+    ) AS surveysAgg
         FROM surveys
         ${leftJoinResponses(
             "surveys",

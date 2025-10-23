@@ -51,8 +51,11 @@ export async function executeStatements(
                 const results = await Promise.all(promises);
                 if (db_debug()) {
                     console.log(
-                        "First three rows in result: \n",
-                        results.flatMap((res) => res.rows).slice(0, 3)
+                        "First row in result: \n",
+                        result
+                            .flatMap((res) => res.rows)
+                            .slice(0, 1)
+                            .map((row) => JSON.stringify(row))
                     );
                 }
                 result.concat(results);
@@ -75,8 +78,10 @@ export async function executeStatements(
                 );
                 if (db_debug()) {
                     console.log(
-                        "First three rows in result: \n",
-                        queryResult.rows.slice(0, 3)
+                        "First row in result: \n",
+                        queryResult.rows
+                            .slice(0, 1)
+                            .map((row) => JSON.stringify(row))
                     );
                 }
                 result.push(queryResult);

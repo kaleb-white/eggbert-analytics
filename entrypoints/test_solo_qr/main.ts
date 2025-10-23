@@ -42,29 +42,44 @@ function printOpDone() {
 }
 
 async function main() {
-    console.log(greenString("Starting..."));
+    console.log(
+        greenString(
+            `Starting with args: ${process.argv.slice(2).join(", ")}...`
+        )
+    );
+    console.log(
+        space2 +
+            yellowString(
+                `Available options: no-cache (don't check if cache running), no-proxy (don't check if proxy running)`
+            )
+    );
 
     // Spawn subprocesses
-    printOp("Spawning proxy and cache...");
-    if (!isProcessRunningOnPort(CACHEPORT)) {
-        console.log(
-            space4 +
-                yellowString(
-                    `Cache is not running on port ${CACHEPORT}! Either start the cache or change the port to the expected port.`
-                )
-        );
-        process.exit();
+    const noCache = process.argv.includes("no-cache");
+    const noProxy = process.argv.includes("no-proxy");
+
+    if (!noCache || !noProxy) {
+        printOp(`Checking if required processes exist...`);
+        if (!noCache && !isProcessRunningOnPort(CACHEPORT)) {
+            console.log(
+                space4 +
+                    yellowString(
+                        `Cache is not running on port ${CACHEPORT}! Either start the cache or change the port to the expected port.`
+                    )
+            );
+            process.exit();
+        }
+        if (!noProxy && !isProcessRunningOnPort(PROXYPORT)) {
+            console.log(
+                space4 +
+                    yellowString(
+                        `Proxy is not running on port ${PROXYPORT}! Either start the proxy or change the port to the expected port.`
+                    )
+            );
+            process.exit();
+        }
+        printOpDone();
     }
-    if (!isProcessRunningOnPort(PROXYPORT)) {
-        console.log(
-            space4 +
-                yellowString(
-                    `Proxy is not running on port ${PROXYPORT}! Either start the proxy or change the port to the expected port.`
-                )
-        );
-        process.exit();
-    }
-    printOpDone();
 
     // Reset db
     printOp("Resetting test database...");

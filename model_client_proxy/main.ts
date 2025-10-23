@@ -121,7 +121,8 @@ io.on("connection", (peer) => {
     const context = dialogueContextFromProxySetupForServer(peerConnection);
     const questionResponseInProgress: QuestionResponse = new QuestionResponse(
         context.questionResponseId,
-        context.question
+        context.question,
+        context.turns
     );
 
     // Setup handlers
