@@ -50,13 +50,14 @@ export class ProxyClientGatewayImpl implements ProxyClientGateway {
     };
 
     sendRespondentInput: SendRespondentInput = (
-        input: string
+        input: string,
+        questionResponseId: string
     ): Error | null => {
         if (!this.peer)
             return new Error(
                 "Tried to send input while gateway is not started"
             );
-        this.peer.emit("respondent input", input);
+        this.peer.emit("respondent input", input, questionResponseId);
         return null;
     };
 

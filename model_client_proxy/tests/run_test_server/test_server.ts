@@ -4,8 +4,7 @@ import { Server } from "socket.io";
 import { handlePeer } from "../../core/use_cases/handle_peer";
 import { DialogueContext } from "../../core/entities/dialogue_context";
 import { ModelTest } from "../../core/gateways/external/query_model/test_model";
-import { Question } from "../../../core/entities/surveys/question";
-import { QuestionResponse } from "../../../core/entities/surveys/question_response";
+import { Response } from "../../../core/entities/surveys/response";
 
 function test_server() {
     // Server setup
@@ -17,18 +16,16 @@ function test_server() {
     // Add additional callbacks here
     const contextForPeerHandler: DialogueContext = new DialogueContext(
         "abc",
-        "",
-        new Question("prompt")
+        new Response()
     );
     const testModelForPeerHandler: ModelTest = new ModelTest();
-    const questionResponseForPeerHandler: QuestionResponse =
-        new QuestionResponse("a", new Question("a"));
+    const responseForPeerHandler: Response = new Response("a");
     io.on("connection", (peer) => {
         handlePeer(
             peer,
             contextForPeerHandler,
             testModelForPeerHandler,
-            questionResponseForPeerHandler
+            responseForPeerHandler
         );
     });
 

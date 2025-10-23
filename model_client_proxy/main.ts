@@ -6,7 +6,7 @@ import { checkServerToken } from "./core/use_cases/auth";
 import type { AddressInfo } from "net";
 import { handlePeer } from "./core/use_cases/handle_peer";
 import { LiteLLMModelImpl } from "./core/gateways/external/query_model/litellm_model_impl";
-import { QuestionResponse } from "../core/entities/surveys/question_response";
+import { Response } from "../core/entities/surveys/response";
 import { finalizePeer } from "./core/gateways/internal/finalize_peer";
 import type { ProxySetupForServer } from "./core/entities/proxy_setup_for_server";
 import { dialogueContextFromProxySetupForServer } from "./core/entities/dialogue_context";
@@ -119,15 +119,17 @@ io.on("connection", (peer) => {
 
     // Find existing information
     const context = dialogueContextFromProxySetupForServer(peerConnection);
-    const questionResponseInProgress: QuestionResponse = new QuestionResponse(
-        context.questionResponseId,
-        context.question,
-        context.turns
+    const responseInProgress = new Response(
+        context.response.uniqueId,
+        context.response.questionResponses,
+        context.response.respondent,
+        context.response.timeCreated,
+        context.response.lastEdited
     );
 
     // Setup handlers
-    handlePeer(peer, context, new Model(), questionResponseInProgress);
-    finalizePeer(peer, context, questionResponseInProgress, () => {
+    handlePeer(peer, context, new Model(), responseInProgress);
+    finalizePeer(peer, context, responseInProgress, () => {
         idToConnection.delete(peerConnection.connectionId);
     });
 });

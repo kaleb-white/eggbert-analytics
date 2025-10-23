@@ -43,13 +43,6 @@ export class QuestionResponse {
         return res;
     }
 
-    get dialogueAsString() {
-        return this.transcript
-            .map((turn) => turn.respondentMessageAndUserAnswerAsString)
-            .join("")
-            .replace(/^\n/, "");
-    }
-
     addTurn(turn: Turn) {
         this.transcript.push(turn);
     }

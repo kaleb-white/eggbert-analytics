@@ -1,24 +1,17 @@
-import { Question } from "../../../core/entities/surveys/question";
-import type { Turn } from "../../../core/entities/surveys/turn";
+import { Response } from "../../../core/entities/surveys/response";
 
 export class ProxySetupForServer {
     connectionId: string;
-    questionResponseId: string;
     promptContext: string;
-    turns: Turn[];
-    question: Question;
+    response: Response;
 
     constructor(
         connectionId: string = "",
         promptContext: string = "",
-        questionResponseId: string = "",
-        turns: Turn[],
-        question: Question = new Question()
+        response: Response = new Response()
     ) {
-        this.questionResponseId = questionResponseId;
         this.connectionId = connectionId;
         this.promptContext = promptContext;
-        this.turns = turns;
-        this.question = question;
+        this.response = response;
     }
 }

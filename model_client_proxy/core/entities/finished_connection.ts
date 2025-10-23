@@ -1,16 +1,16 @@
-import type { QuestionResponse } from "../../../core/entities/surveys/question_response";
+import type { Response } from "../../../core/entities/surveys/response";
 
 export class FinishedConnection {
-    questionResponseId: string;
-    newRespondentResponse: QuestionResponse;
+    responseId: string;
+    newRespondentResponse: Response;
     serverToken: string;
 
     constructor(
-        questionResponseId: string,
-        newRespondentResponse: QuestionResponse,
+        responseId: string,
+        newRespondentResponse: Response,
         serverToken: string
     ) {
-        this.questionResponseId = questionResponseId;
+        this.responseId = responseId;
         this.newRespondentResponse = newRespondentResponse;
         this.serverToken = serverToken;
     }

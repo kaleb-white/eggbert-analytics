@@ -1,10 +1,11 @@
 import type { Socket } from "socket.io";
-import { QuestionResponse } from "../../../core/entities/surveys/question_response.ts";
+import { Response } from "../../../core/entities/surveys/response.ts";
 import type { DialogueContext } from "../entities/dialogue_context.ts";
 import { isPeerInputMalicious } from "./auth.ts";
 import type { Model } from "../gateways/interfaces/external/model.ts";
 import { Turn } from "../../../core/entities/surveys/turn.ts";
 import { DEV } from "../../main.ts";
+import type { QuestionResponse } from "../../../core/entities/surveys/question_response.ts";
 
 const space6 = "      ";
 const space8 = "        ";
@@ -34,16 +35,18 @@ export function handlePeer(
     peer: Socket,
     context: DialogueContext,
     model: Model,
-    questionResponseInProgress: QuestionResponse
+    responseInProgress: Response
 ) {
-    peer.on("respondent input", async (msg) => {
+    peer.on("respondent input", async (msg, questionResponseId) => {
         if (DEV) {
             console.log(
                 space6,
                 "ConnectionId",
                 peer.handshake.auth.connectionId,
                 "sent message:",
-                msg
+                msg,
+                "to questionResponse with id:",
+                questionResponseId
             );
         }
 
@@ -56,6 +59,22 @@ export function handlePeer(
         if (DEV) {
             console.log(space8, "Input validated");
         }
+
+        // Check that questionResponseId is valid
+        const matchingQrs = responseInProgress.questionResponses.filter(
+            (qr) => qr.uniqueId == questionResponseId
+        );
+        if (matchingQrs.length != 1) {
+            peer.emit(
+                "error",
+                `Question response with id ${questionResponseId} not found!`
+            );
+            return;
+        }
+        if (DEV) {
+            console.log(space8, "Question response identified");
+        }
+        const questionResponseInProgress = matchingQrs[0] as QuestionResponse;
 
         // Construct full context
         const fullContext = constructFullContext(

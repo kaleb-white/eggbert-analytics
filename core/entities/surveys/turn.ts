@@ -23,11 +23,6 @@ export class Turn {
     }
 
     /** Returns an empty string if the turn is not complete. */
-    get respondentMessageAndUserAnswerAsString(): string {
-        if (!this.turnWasTaken) return "";
-        return `\nthe model asked: ${this.modelMessage} \nthe user responded: ${this.respondentMessage}`;
-    }
-
     get modelMessageExists() {
         return this.modelMessage ? true : false;
     }

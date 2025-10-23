@@ -23,7 +23,7 @@ export default async function ResponsesPage({ params }:{ params: Promise<{respon
     }
 
     const connectionId = uniqueIdGen.createUniqueId()
-    const proxySetup: ProxySetupForServer = new ProxySetupForServer(connectionId, qr.dialogueAsString, qr.uniqueId, qr.transcript, qr.question)
+    const proxySetup: ProxySetupForServer = new ProxySetupForServer(connectionId, "", qr.uniqueId, qr.transcript, qr.question)
 
     // Send to proxy
     const proxySetupResult = await addNewAllowedConnection(proxySetup)

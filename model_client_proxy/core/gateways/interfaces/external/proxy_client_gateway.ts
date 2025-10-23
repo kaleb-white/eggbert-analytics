@@ -6,7 +6,10 @@ export type Start = (
     callbackOnError?: (err: string) => void,
     callbackOnModelMessageFinished?: () => void
 ) => Error | null;
-export type SendRespondentInput = (input: string) => Error | null;
+export type SendRespondentInput = (
+    input: string,
+    questionResponseId: string
+) => Error | null;
 export type Close = () => Error | null;
 
 export interface ProxyClientGateway {

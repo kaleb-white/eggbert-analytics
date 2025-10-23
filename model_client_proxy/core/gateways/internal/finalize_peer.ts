@@ -1,12 +1,12 @@
 import type { Socket } from "socket.io";
 import type { DialogueContext } from "../../entities/dialogue_context";
-import type { QuestionResponse } from "../../../../core/entities/surveys/question_response";
+import type { Response } from "../../../../core/entities/surveys/response";
 import { FinishedConnection } from "../../entities/finished_connection";
 
 export function finalizePeer(
     peer: Socket,
     context: DialogueContext,
-    questionResponseFinalized: QuestionResponse,
+    responseFinalized: Response,
     removeFromAllowedAddressesAndIds: () => void
 ) {
     peer.on("respondent finished", () => {
@@ -16,10 +16,12 @@ export function finalizePeer(
             );
 
         const sendToServer: FinishedConnection = new FinishedConnection(
-            context.questionResponseId,
-            questionResponseFinalized,
+            responseFinalized.uniqueId,
+            responseFinalized,
             process.env.EXPECTED_SERVER_TOKEN
         );
+
+        // TODO: send
 
         removeFromAllowedAddressesAndIds();
     });
