@@ -7,3 +7,6 @@ export const textInputTextAreaLineHeight = 24;
 // ChatBox
 export const chatboxScrollDownSize = 24;
 export const chatboxQuestionInfoSize = 30;
+
+// QuestionResponseScroll
+export const qrScrollFaviconSize = 24;

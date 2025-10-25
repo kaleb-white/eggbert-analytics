@@ -1,8 +1,8 @@
 "use client"
 
 import {  useState } from "react";
-import {  Chart, Delete, Maximize, Minimize, New, onClickFuncType, Switch } from "../icons/icons";
-import { ThemeColorHex } from "../types_enums";
+import {  Chart, Delete, Maximize, Minimize, New, onClickFuncType, Switch } from "../../icons/icons";
+import { ThemeColorHex } from "../../types_enums";
 
 
 function IconContainer({children, onClick, tooltip}: {children, onClick?:onClickFuncType, tooltip: string}) {
@@ -43,7 +43,7 @@ export function ResponseSidebar() {
     ]
 
     return (
-    <div className="flex flex-col items-end gap-1 p-1 m-1 ml-0 w-fit h-fit rounded-lg rounded-l-none border-secondary border-3 border-l-0 font-light text-lg">
+    <div className="flex flex-col items-end gap-2.5 p-1 m-1 ml-0 w-fit h-fit rounded-lg rounded-l-none border-secondary border-3 border-l-0 font-light text-lg">
         <IconContainer onClick={() => {setSidebarOpen(openOrClosed => !openOrClosed)}} tooltip={sidebarOpen? "Minimize sidebar": "Maximize sidebar"}>
                 {sidebarOpen?
                     <div className="m-1">Minimize</div> : <></>

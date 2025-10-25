@@ -1,7 +1,7 @@
 "use server"
 
-import { Navbar } from "@/ui/navbar/navbar";
-import { ResponseSidebar } from "@/ui/sidebar/sidebar";
+import { Navbar } from "@/ui/navigation/navbar/navbar";
+import { ResponseSidebar } from "@/ui/navigation/sidebar/sidebar";
 
 export default async function ResponseLayout({children}: Readonly<{children: React.ReactNode}>) {
     return (

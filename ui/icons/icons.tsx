@@ -1,115 +1,143 @@
-import { JSX, MouseEventHandler } from "react";
-import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, ErrorRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, InfoRaw, LockedRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, QuestionRaw, RedoRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
+"use client"
+import { JSX, MouseEventHandler, useEffect, useRef, useState } from "react";
+import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, ErrorRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, InfoRaw, LeftRaw, LockedRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, QuestionRaw, RedoRaw, RightRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
 
 export type onClickFuncType = (() => MouseEventHandler<HTMLDivElement> | undefined | void) | undefined
+export type IconType = (edgeLengthPx: number, fillHex?: string) => JSX.Element
+export type FaviconProps = {
+    edgeLengthPx: number,
+    onClick?: onClickFuncType,
+    fillHex?: string,
+    fillHexHover?: string
+}
+type WrapProps = FaviconProps & { icon: IconType }
 
-function wrapIcon(icon: JSX.Element, onClick?: onClickFuncType) {
-    return ( <div  className="mx-auto" onClick={() => {if (onClick) onClick(); return undefined}}>
-        {icon}
+function WrapIcon(props: WrapProps) {
+    const fillHex = useRef(props.fillHex ? props.fillHex : "#000000")
+    const fillHexHover = useRef(props.fillHexHover ? props.fillHexHover : fillHex.current)
+    const [fill, setFill] = useState(fillHex.current)
+
+
+
+    return (
+        <div
+            className="mx-auto"
+            onClick={() => {if (props.onClick) props.onClick(); return undefined}}
+            onMouseEnter={() => {setFill(fillHexHover.current)}}
+            onMouseLeave={() => {setFill(fillHex.current)}}>
+            {props.icon(props.edgeLengthPx, fill)}
         </div>
     )
 }
 
-export function Attach({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(AttachRaw(edgeLengthPx, fillHex), onClick)
+export function Attach(props: FaviconProps) {
+	return <WrapIcon icon={AttachRaw} {...props} />
 }
 
-export function Back({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(BackRaw(edgeLengthPx, fillHex), onClick)
+export function Back(props: FaviconProps) {
+	return <WrapIcon icon={BackRaw} {...props} />
 }
 
-export function Chart({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(ChartRaw(edgeLengthPx, fillHex), onClick)
+export function Chart(props: FaviconProps) {
+	return <WrapIcon icon={ChartRaw} {...props} />
 }
 
-export function Check({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(CheckRaw(edgeLengthPx, fillHex), onClick)
+export function Check(props: FaviconProps) {
+	return <WrapIcon icon={CheckRaw} {...props} />
 }
 
-export function Danger({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(DangerRaw(edgeLengthPx, fillHex), onClick)
+export function Danger(props: FaviconProps) {
+	return <WrapIcon icon={DangerRaw} {...props} />
 }
 
-export function Delete({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(DeleteRaw(edgeLengthPx, fillHex), onClick)
+export function Delete(props: FaviconProps) {
+	return <WrapIcon icon={DeleteRaw} {...props} />
 }
 
-export function Down({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(DownRaw(edgeLengthPx, fillHex), onClick)
+export function Down(props: FaviconProps) {
+	return <WrapIcon icon={DownRaw} {...props} />
 }
 
-export function Error({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(ErrorRaw(edgeLengthPx, fillHex), onClick)
+export function Error(props: FaviconProps) {
+	return <WrapIcon icon={ErrorRaw} {...props} />
 }
 
-export function File({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(FileRaw(edgeLengthPx, fillHex), onClick)
+export function File(props: FaviconProps) {
+	return <WrapIcon icon={FileRaw} {...props} />
 }
 
-export function Filter({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(FilterRaw(edgeLengthPx, fillHex), onClick)
+export function Filter(props: FaviconProps) {
+	return <WrapIcon icon={FilterRaw} {...props} />
 }
 
-export function Forward({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(ForwardRaw(edgeLengthPx, fillHex), onClick)
+export function Forward(props: FaviconProps) {
+	return <WrapIcon icon={ForwardRaw} {...props} />
 }
 
-export function Globe({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(GlobeRaw(edgeLengthPx, fillHex), onClick)
+export function Globe(props: FaviconProps) {
+	return <WrapIcon icon={GlobeRaw} {...props} />
 }
 
-export function Info({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(InfoRaw(edgeLengthPx, fillHex), onClick)
+export function Info(props: FaviconProps) {
+	return <WrapIcon icon={InfoRaw} {...props} />
 }
 
-export function Locked({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(LockedRaw(edgeLengthPx, fillHex), onClick)
+export function Left(props: FaviconProps) {
+	return <WrapIcon icon={LeftRaw} {...props} />
 }
 
-export function Maximize({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(MaximizeRaw(edgeLengthPx, fillHex), onClick)
+export function Locked(props: FaviconProps) {
+	return <WrapIcon icon={LockedRaw} {...props} />
 }
 
-export function Minimize({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(MinimizeRaw(edgeLengthPx, fillHex), onClick)
+export function Maximize(props: FaviconProps) {
+	return <WrapIcon icon={MaximizeRaw} {...props} />
 }
 
-export function Pin({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(PinRaw(edgeLengthPx, fillHex), onClick)
+export function Minimize(props: FaviconProps) {
+	return <WrapIcon icon={MinimizeRaw} {...props} />
 }
 
-export function Question({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(QuestionRaw(edgeLengthPx, fillHex), onClick)
+export function Pin(props: FaviconProps) {
+	return <WrapIcon icon={PinRaw} {...props} />
 }
 
-export function Redo({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(RedoRaw(edgeLengthPx, fillHex), onClick)
+export function Question(props: FaviconProps) {
+	return <WrapIcon icon={QuestionRaw} {...props} />
 }
 
-export function Undo({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(UndoRaw(edgeLengthPx, fillHex), onClick)
+export function Redo(props: FaviconProps) {
+	return <WrapIcon icon={RedoRaw} {...props} />
 }
 
-export function Up({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(UpRaw(edgeLengthPx, fillHex), onClick)
+export function Right(props: FaviconProps) {
+	return <WrapIcon icon={RightRaw} {...props} />
 }
 
-export function Upload({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(UploadRaw(edgeLengthPx, fillHex), onClick)
+export function Undo(props: FaviconProps) {
+	return <WrapIcon icon={UndoRaw} {...props} />
 }
 
-export function Window({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(WindowRaw(edgeLengthPx, fillHex), onClick)
+export function Up(props: FaviconProps) {
+	return <WrapIcon icon={UpRaw} {...props} />
 }
 
-export function New({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(NewRaw(edgeLengthPx, fillHex), onClick)
+export function Upload(props: FaviconProps) {
+	return <WrapIcon icon={UploadRaw} {...props} />
 }
 
-export function Switch({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(SwitchRaw(edgeLengthPx, fillHex), onClick)
+export function Window(props: FaviconProps) {
+	return <WrapIcon icon={WindowRaw} {...props} />
 }
 
-export function Feed({edgeLengthPx, onClick, fillHex = "#000000"}: {edgeLengthPx: number, onClick?: onClickFuncType, fillHex?: string}) {
-	return wrapIcon(FeedRaw(edgeLengthPx, fillHex), onClick)
+export function New(props: FaviconProps) {
+	return <WrapIcon icon={NewRaw} {...props} />
+}
+
+export function Switch(props: FaviconProps) {
+	return <WrapIcon icon={SwitchRaw} {...props} />
+}
+
+export function Feed(props: FaviconProps) {
+	return <WrapIcon icon={FeedRaw} {...props} />
 }

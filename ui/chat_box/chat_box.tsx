@@ -14,7 +14,7 @@ import { chatboxQuestionInfoSize, chatboxScrollDownSize } from "../magic_constan
 
 function QuestionBanner({ questionText }:{ questionText: string }) {
     return (
-        <div className="flex flex-row gap-2 justify-start items-center w-full bg-primary-subtle text-tertiary font-bold p-1">
+        <div className="flex flex-row gap-2.5 justify-start items-center w-full bg-primary-subtle text-tertiary font-bold p-1">
             <div>
             <Question edgeLengthPx={chatboxQuestionInfoSize} fillHex={ThemeColorHex["tertiary"]} />
             </div>
@@ -97,7 +97,7 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
             }
             return t
         }))
-        const checkForError = proxyGateway.current.sendRespondentInput(respondentMessage)
+        const checkForError = proxyGateway.current.sendRespondentInput(respondentMessage, questionResponse.current.uniqueId)
         if (checkForError instanceof Error) {
             setErrors([checkForError])
         }
@@ -116,7 +116,7 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
             {/* Question banner */}
             <QuestionBanner questionText={questionResponse.current.question.modelPrompt} />
             {/* Chats container */}
-            <div className="overflow-y-auto flex flex-col items-start justify-baseline pl-3 pr-3 pt-1 gap-2 w-full flex-1 h-full">
+            <div className="overflow-y-auto flex flex-col items-start justify-baseline pl-3 pr-3 pt-1 gap-2.5 w-full flex-1 h-full">
                 {transcript.map((turn, i) => {
                     return (
                         <div className="contents w-full" key={i}>
