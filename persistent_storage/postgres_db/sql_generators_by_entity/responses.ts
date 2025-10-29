@@ -79,10 +79,10 @@ export function saveResponses(
     );
 
     return [
+        [insertQuestionsCommand],
         [
             insertResponsesCommand,
             insertQuestionResponsesCommand,
-            insertQuestionsCommand,
             insertTurnsCommand,
         ],
         insertRQRs.concat(insertQRTs),

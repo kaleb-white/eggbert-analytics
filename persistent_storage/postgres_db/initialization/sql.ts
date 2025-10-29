@@ -24,6 +24,7 @@ export const initializationStatements = {
         "\
         CREATE TABLE questions( \
             uniqueId text PRIMARY KEY, \
+            question text NOT NULL, \
             modelPrompt text NOT NULL, \
             timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
             lastEdited timestamp NOT NULL, \

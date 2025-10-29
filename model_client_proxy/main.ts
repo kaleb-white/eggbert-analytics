@@ -5,8 +5,7 @@ import { Server } from "socket.io";
 import { checkServerToken } from "./core/use_cases/auth";
 import type { AddressInfo } from "net";
 import { handlePeer } from "./core/use_cases/handle_peer";
-import { LiteLLMModelImpl } from "./core/gateways/external/query_model/litellm_model_impl";
-import { Response } from "../core/entities/surveys/response";
+import { reconstructResponse } from "../stable_utilities/reconstruct_obj/reconstruct_response";
 import { finalizePeer } from "./core/gateways/internal/finalize_peer";
 import type { ProxySetupForServer } from "./core/entities/proxy_setup_for_server";
 import { dialogueContextFromProxySetupForServer } from "./core/entities/dialogue_context";
@@ -119,14 +118,7 @@ io.on("connection", (peer) => {
 
     // Find existing information
     const context = dialogueContextFromProxySetupForServer(peerConnection);
-    const responseInProgress = new Response(
-        context.response.uniqueId,
-        context.response.questionResponses,
-        context.response.respondent,
-        context.response.timeCreated,
-        context.response.lastEdited
-    );
-
+    const responseInProgress = reconstructResponse(context.response);
     // Setup handlers
     handlePeer(peer, context, new Model(), responseInProgress);
     finalizePeer(peer, context, responseInProgress, () => {

@@ -42,6 +42,7 @@ export function createJsonbResponses(
         'uniqueId', responses.uniqueId,
         'timeCreated', responses.timeCreated,
         'lastEdited', responses.lastEdited,
+        'respondent', '{}'::jsonb,
         'questionResponses', COALESCE(${tableContainingQuestionResponses}.${questionResponsesAggName}, '[]'::jsonb)
     )) AS ${as}
     `;

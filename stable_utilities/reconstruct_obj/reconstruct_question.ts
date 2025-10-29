@@ -7,6 +7,7 @@ export function reconstructQuestion(question: string | Question): Question {
             : (question as Question);
     return new Question(
         asQuestion.uniqueId,
+        asQuestion.question,
         asQuestion.modelPrompt,
         asQuestion.maxNumberOfTurns,
         asQuestion.timeCreated,

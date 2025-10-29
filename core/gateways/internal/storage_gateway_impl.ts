@@ -34,12 +34,14 @@ export class StorageGatewayImpl implements StorageGateway {
     async get<T>(id: string, objOfTypeT: T): Promise<T | null | Error> {
         // Try and get from cache
         const tryCacheLoad = await this.cache.get(id);
+        // Success
         if (
             !(tryCacheLoad instanceof Error) &&
             isT<T>(tryCacheLoad, objOfTypeT)
         ) {
             return tryCacheLoad as T;
         }
+        // Unexpected fail
         if (
             !(tryCacheLoad instanceof Error) &&
             !isT<T>(tryCacheLoad, objOfTypeT)
@@ -52,13 +54,20 @@ export class StorageGatewayImpl implements StorageGateway {
 
         // Try and get from database
         const tryDatabaseLoad = await this.database.get<T>(id, objOfTypeT);
+        // Success
         if (
             !(tryDatabaseLoad instanceof Error) &&
             isT<T>(tryDatabaseLoad, objOfTypeT)
         ) {
+            // Save to cache
             await this.cache.save(id, tryDatabaseLoad as object);
             return tryDatabaseLoad as T;
         }
+        // No result means no data
+        if (!tryDatabaseLoad) {
+            return null;
+        }
+        // Unexpected failure
         if (
             !(tryDatabaseLoad instanceof Error) &&
             !isT<T>(tryDatabaseLoad, objOfTypeT)

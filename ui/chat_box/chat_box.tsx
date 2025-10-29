@@ -6,11 +6,11 @@ import { ModelMessage } from "../messages/model_message.tsx";
 import { RespondentMessage } from "../messages/respondent_message";
 import { useEffect, useRef, useState } from "react";
 import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client.ts";
-import { reconstructQuestionResponse } from "@/stable_utilities/reconstruct_obj/reconstruct_question_response.ts";
 import { ProxyClientGatewayImpl } from "@/model_client_proxy/core/gateways/external/proxy_client_gateway_impl.ts";
 import { Down, Question } from "../icons/icons.tsx";
 import { ThemeColorHex } from "../types_enums.ts";
 import { chatboxQuestionInfoSize, chatboxScrollDownSize } from "../magic_constants.ts";
+import { QuestionResponse } from "@/core/entities/surveys/question_response.ts";
 
 function QuestionBanner({ questionText }:{ questionText: string }) {
     return (
@@ -23,10 +23,8 @@ function QuestionBanner({ questionText }:{ questionText: string }) {
     )
 }
 
-export function ChatBox({questionResponseStringified, connectionSetupStringified}: {questionResponseStringified: string, connectionSetupStringified: string}) {
+export function ChatBox({questionResponse, connectionSetup, onQrChanged}: {questionResponse: QuestionResponse, connectionSetup: ProxySetupForClient, onQrChanged: (qrId: string, newTranscript: Turn[]) => void}) {
     // Parsed objects
-    const questionResponse = useRef(reconstructQuestionResponse(questionResponseStringified))
-    const connectionSetup = useRef(JSON.parse(connectionSetupStringified) as ProxySetupForClient)
     const proxyGateway = useRef(new ProxyClientGatewayImpl())
 
     // Setup
@@ -34,13 +32,21 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
     const [errorsOnStart, setErrorsOnStart] = useState<Error | null>(null)
 
     // General
-    const [transcript, setTranscript] = useState(questionResponse.current.transcript)
+    const [transcript, setTranscript] = useState(questionResponse.transcript)
+    useEffect(() => {
+        setTranscript(questionResponse.transcript)
+    }, [questionResponse])
     const [errors, setErrors] = useState<Error[] | null>(null)
 
     // Incoming model messages related
     const [modelMessageRendering, setModelMessageRendering] = useState("")
     const modelMessageInternal = useRef("")
     const [modelMessageOngoing, setModelMessageOngoing] = useState(false)
+
+    // Change qr transcript in parent on transcript change
+    useEffect(() => {
+        onQrChanged(questionResponse.uniqueId, transcript)
+    }, [onQrChanged, questionResponse.uniqueId, transcript])
 
     // Element refs
     const chatboxBottomRef = useRef<null | HTMLDivElement>(null)
@@ -67,14 +73,17 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
                 When the callback to setTransript is called modelMessageInternal.current IS "", so good to remember those
                 callbacks execute with the initial useState / Ref values.
             */
+           console.log('here1')
             const newTurn = new Turn("", modelMessageInternal.current)
-            setTranscript(transcript => transcript.concat(newTurn))
+            setTranscript(transcript =>
+                transcript.concat(newTurn)
+            )
             setModelMessageRendering("")
             modelMessageInternal.current = ""
             setModelMessageOngoing(false)
         }
 
-        const start = proxyGateway.current.start(connectionSetup.current,
+        const start = proxyGateway.current.start(connectionSetup,
             handleMessageChunk,
             handleMessageErr,
             handleMessageFinished
@@ -90,14 +99,21 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
 
     async function onSubmit(respondentMessage: string) {
         setModelMessageOngoing(true)
-        setTranscript(transcript => transcript.map((t, i) => {
+
+        // Change stored text
+        setTranscript(transcript =>
+            transcript.map((t, i) => {
             if (i == transcript.length - 1) {
                 t.respondentMessage = respondentMessage
                 return t
             }
             return t
-        }))
-        const checkForError = proxyGateway.current.sendRespondentInput(respondentMessage, questionResponse.current.uniqueId)
+        })
+
+    )
+
+        // Return proxy errors
+        const checkForError = proxyGateway.current.sendRespondentInput(respondentMessage, questionResponse.uniqueId)
         if (checkForError instanceof Error) {
             setErrors([checkForError])
         }
@@ -114,7 +130,7 @@ export function ChatBox({questionResponseStringified, connectionSetupStringified
     return (
         <div className="flex flex-col items-start justify-end  pb-2 w-full h-full">
             {/* Question banner */}
-            <QuestionBanner questionText={questionResponse.current.question.modelPrompt} />
+            <QuestionBanner questionText={questionResponse.question.question} />
             {/* Chats container */}
             <div className="overflow-y-auto flex flex-col items-start justify-baseline pl-3 pr-3 pt-1 gap-2.5 w-full flex-1 h-full">
                 {transcript.map((turn, i) => {

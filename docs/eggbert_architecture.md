@@ -85,9 +85,11 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 	-   hooks: folder has no description
 	-   icons: svg icons for use in the ui
 	-   messages: folder has no description
-	-   navbar: folder has no description
+	-   navigation: folder has no description
+		-   navbar: folder has no description
+		-   qr_scroll: folder has no description
+		-   sidebar: folder has no description
 	-   response_input: folder has no description
-	-   sidebar: folder has no description
 
 ### Testing
 

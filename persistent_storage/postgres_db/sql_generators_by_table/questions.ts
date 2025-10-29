@@ -11,12 +11,13 @@ export function insertOrUpdateQuestions(
 ): PossibleStatementFormat {
     const orderedFields = [
         "uniqueId",
+        "question",
         "modelPrompt",
         "maxNumberOfTurns",
         "timeCreated",
         "lastEdited",
     ];
-    const timestampFieldIndices = [3, 4];
+    const timestampFieldIndices = [4, 5];
     const allQuestionValues = getAllEntityValuesAsArray(
         questions,
         orderedFields,
@@ -25,9 +26,9 @@ export function insertOrUpdateQuestions(
     if (!allQuestionValues) return "pass";
     return {
         sql: `
-        INSERT INTO questions (uniqueId, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
+        INSERT INTO questions (uniqueId, question, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
             VALUES ${createParameterizedStatement(
-                5,
+                6,
                 allQuestionValues.length,
                 timestampFieldIndices
             )}
@@ -40,6 +41,7 @@ export function createJsonbQuestions(as: string = "questionsAgg") {
     return `
     jsonb_agg(jsonb_build_object(
         'uniqueId', questions.uniqueId,
+        'question', questions.question,
         'modelPrompt', questions.modelPrompt,
         'maxNumberOfTurns', questions.maxNumberOfTurns,
         'timeCreated', questions.timeCreated,
@@ -51,6 +53,7 @@ export function createJsonbQuestion(as: string = "question") {
     return `
     jsonb_build_object(
         'uniqueId', questions.uniqueId,
+        'question', questions.question,
         'modelPrompt', questions.modelPrompt,
         'maxNumberOfTurns', questions.maxNumberOfTurns,
         'timeCreated', questions.timeCreated,

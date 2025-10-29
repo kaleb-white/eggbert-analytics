@@ -3,6 +3,7 @@ import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
 
 export class Question {
     uniqueId: string;
+    question: string;
     modelPrompt: string;
     maxNumberOfTurns: number;
     timeCreated: number;
@@ -10,12 +11,14 @@ export class Question {
 
     constructor(
         uniqueId: string | CryptographyUtilities = "",
+        question: string = "",
         modelPrompt: string = "",
         maxNumberOfTurns: number = 0,
         timeCreated: number = Date.now(),
         lastEdited: number = Date.now()
     ) {
         this.uniqueId = assignOrCreateUniqueId(uniqueId);
+        this.question = question;
         this.modelPrompt = modelPrompt;
         this.maxNumberOfTurns = maxNumberOfTurns;
         this.timeCreated = timeCreated;

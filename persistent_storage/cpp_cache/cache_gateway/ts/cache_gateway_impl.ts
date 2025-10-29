@@ -57,7 +57,7 @@ export class CacheGatewayImpl implements CacheGateway {
     async create(id: string, value: string): Promise<null | Error> {
         const message = message_to_protocol_format(
             "create ".concat(id).concat(" ").concat(value),
-            false
+            true
         );
         const send_result = await this.send(message);
         if (send_result instanceof Error) {
@@ -73,7 +73,7 @@ export class CacheGatewayImpl implements CacheGateway {
     }
 
     async read(id: string): Promise<string | Error> {
-        const message = message_to_protocol_format("read ".concat(id), false);
+        const message = message_to_protocol_format("read ".concat(id), true);
         const send_result = await this.send(message);
 
         if (send_result instanceof Error) {
@@ -90,7 +90,7 @@ export class CacheGatewayImpl implements CacheGateway {
     }
 
     async delete(id: string): Promise<null | Error> {
-        const message = message_to_protocol_format("delete ".concat(id));
+        const message = message_to_protocol_format("delete ".concat(id), true);
         const send_result = await this.send(message);
         if (send_result instanceof Error) {
             return send_result;

@@ -5,8 +5,8 @@ import { Turn } from "@/core/entities/surveys/turn";
 import { Response } from "@/core/entities/surveys/response";
 import { Author } from "@/core/entities/users/author";
 
-const q1: Question = new Question("q1", "first model prompt");
-const q2: Question = new Question("q2", "second model prompt");
+const q1: Question = new Question("q1", "first question");
+const q2: Question = new Question("q2", "question");
 
 const q1t1: Turn = new Turn(
     "q1t1",

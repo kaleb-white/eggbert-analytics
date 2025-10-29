@@ -1,29 +1,29 @@
 "use server"
 
-import { QuestionResponse } from "@/core/entities/surveys/question_response"
+import { Response } from "@/core/entities/surveys/response"
 import { storage, uniqueIdGen } from "@/core/injections"
 import { PORT } from "@/model_client_proxy/config"
 import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client"
 import { ProxySetupForServer } from "@/model_client_proxy/core/entities/proxy_setup_for_server"
 import { addNewAllowedConnection } from "@/model_client_proxy/core/gateways/external/add_new_allowed_server"
-import { ChatBox } from "@/ui/chat_box/chat_box"
 import { CustomError } from "@/ui/error/custom_error"
+import { ResponseBox } from "@/ui/response/response"
 
 export default async function ResponsesPage({ params }:{ params: Promise<{response: string}>}) {
     const {response} = await params
 
     // Retrieve question response from db
-    const qr = await storage.get<QuestionResponse>(response[0], new QuestionResponse())
-    if (!qr || qr instanceof Error) {
+    const res = await storage.get<Response>(response[0], new Response())
+    if (!res || res instanceof Error) {
         return (
             <CustomError errorMsg={
-                qr? qr.message : "Not found"
+                res? res.message : "Not found"
             } />
         )
     }
 
     const connectionId = uniqueIdGen.createUniqueId()
-    const proxySetup: ProxySetupForServer = new ProxySetupForServer(connectionId, "", qr.uniqueId, qr.transcript, qr.question)
+    const proxySetup: ProxySetupForServer = new ProxySetupForServer(connectionId, "", res)
 
     // Send to proxy
     const proxySetupResult = await addNewAllowedConnection(proxySetup)
@@ -42,8 +42,6 @@ export default async function ResponsesPage({ params }:{ params: Promise<{respon
     const setup = new ProxySetupForClient(`localhost:${PORT}`, connectionId)
 
     return (
-        <div className="flex place-content-center w-1/2 h-full border-l-2 border-r-2 border-primary">
-            <ChatBox questionResponseStringified={JSON.stringify(qr)} connectionSetupStringified={JSON.stringify(setup)} />
-        </div>
+       <ResponseBox responseStringified={JSON.stringify(res)} connectionSetupStringified={JSON.stringify(setup)}/>
     )
 }
