@@ -1,0 +1,47 @@
+import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
+import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
+import { Respondent } from "../users/respondent";
+import { QuestionResponse } from "./question_response";
+
+export type ResponseProps = {
+    uniqueId?: string | CryptographyUtilities;
+    questionResponses?: QuestionResponse[];
+    respondent?: Respondent;
+    timeCreated?: number;
+    lastEdited?: number;
+};
+
+const defaultProps = {
+    uniqueId: "",
+    questionResponses: [],
+    respondent: new Respondent(""),
+    timeCreated: Date.now(),
+    lastEdited: Date.now(),
+};
+
+export class Response {
+    uniqueId: string;
+    questionResponses: QuestionResponse[];
+    respondent: Respondent;
+    timeCreated: number;
+    lastEdited: number;
+
+    constructor(partialProps?: ResponseProps) {
+        const props = partialProps ? partialProps : defaultProps;
+        this.uniqueId = assignOrCreateUniqueId(
+            props.uniqueId ? props.uniqueId : defaultProps.uniqueId
+        );
+        this.questionResponses = props.questionResponses
+            ? props.questionResponses
+            : defaultProps.questionResponses;
+        this.respondent = props.respondent
+            ? props.respondent
+            : defaultProps.respondent;
+        this.timeCreated = props.timeCreated
+            ? props.timeCreated
+            : defaultProps.timeCreated;
+        this.lastEdited = props.lastEdited
+            ? props.lastEdited
+            : defaultProps.lastEdited;
+    }
+}

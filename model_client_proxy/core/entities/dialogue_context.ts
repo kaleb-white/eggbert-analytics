@@ -1,28 +1,21 @@
-import { Question } from "../../../core/entities/surveys/question";
-import type { ConnectionSetup } from "./connection_setup";
+import type { Response } from "../../../core/entities/surveys/response";
+import type { ProxySetupForServer } from "./proxy_setup_for_server";
 
 export class DialogueContext {
-    questionResponseId: string;
     promptContext: string;
-    question: Question;
+    response: Response;
 
-    constructor(
-        promptContext: string = "",
-        questionResponseId: string = "",
-        question: Question = new Question()
-    ) {
-        this.questionResponseId = questionResponseId;
+    constructor(promptContext: string = "", response: Response) {
         this.promptContext = promptContext;
-        this.question = question;
+        this.response = response;
     }
 }
 
-export function dialogueContextFromConnectionSetup(
-    connectionSetup: ConnectionSetup
+export function dialogueContextFromProxySetupForServer(
+    connectionSetup: ProxySetupForServer
 ): DialogueContext {
     return new DialogueContext(
         connectionSetup.promptContext,
-        connectionSetup.questionResponseId,
-        connectionSetup.question
+        connectionSetup.response
     );
 }

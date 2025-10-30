@@ -64,6 +64,7 @@ A message to the client from the server: ==STX (start message)== -> ==uint peer_
 
 ## TODO
 
+1. Deal with sending resulted in socket error
 1. Add sigint graceful shutdown
 1. Add timeout to client socket config
 1. Look into ensuring only connections over loopback are allowed

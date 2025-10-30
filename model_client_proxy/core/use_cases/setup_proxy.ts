@@ -1,13 +1,15 @@
 import type { Request, Response } from "express";
-import { ConnectionSetup } from "../entities/connection_setup";
+import { ProxySetupForServer } from "../entities/proxy_setup_for_server";
 import { checkRawServerToken } from "./auth";
+import { proxy_debug } from "../../../stable_utilities/verbose_checks";
 
 const space4 = "    ";
 const space6 = "      ";
+const space8 = "        ";
 
 function checkRequestFields(foundRequestFields: string[]): string[] {
     const expectedRequestFields = Object.getOwnPropertyNames(
-        new ConnectionSetup()
+        new ProxySetupForServer()
     );
 
     const fieldsMissingFromRequest: string[] = [];
@@ -20,9 +22,8 @@ function checkRequestFields(foundRequestFields: string[]): string[] {
 
 export function extractSetupArgumentsFromRequestBody(
     req: Request,
-    res: Response,
-    DEV: boolean = false
-): ConnectionSetup | null {
+    res: Response
+): ProxySetupForServer | null {
     // Check that a body was sent, it includes a "serverToken" field, and that the serverToken is correct
     if (
         !Object.keys(req).includes("body") ||
@@ -30,21 +31,40 @@ export function extractSetupArgumentsFromRequestBody(
         !checkRawServerToken(req.body.serverToken)
     ) {
         res.status(401).statusMessage = "Access denied";
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(
                 space6,
                 "Failed with status message:",
                 res.statusMessage
             );
         }
+
+        if (proxy_debug()) {
+            if (!Object.keys(req).includes("body"))
+                console.log(space8, "Reason: Request missing body");
+            else if (!Object.keys(req.body).includes("serverToken"))
+                console.log(space8, "Reason: Request body missing serverToken");
+            else if (!checkRawServerToken(req.body.serverToken))
+                console.log(
+                    space8,
+                    "Reason: Incorrect server token:",
+                    req.body.serverToken
+                );
+        }
+
         return null;
     }
 
     // Check conection setup field
-    console.log(space6, req.body);
+    if (proxy_debug()) {
+        console.log(
+            space6,
+            "Request body found and includes correct server token"
+        );
+    }
     if (!Object.keys(req.body).includes("connectionSetup")) {
         res.status(400).statusMessage = "Missing connectionSetup object";
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(
                 space6,
                 "Failed with status message:",
@@ -54,14 +74,18 @@ export function extractSetupArgumentsFromRequestBody(
         return null;
     }
 
-    const foundRequestFields = Object.keys(req.body.connectionSetup);
+    const connectionSetup =
+        req.body.connectionSetup && typeof req.body.connectionSetup == "object"
+            ? req.body.connectionSetup
+            : JSON.parse(req.body.connectionSetup);
+    const foundRequestFields = Object.keys(connectionSetup);
     const fieldsMissingFromRequest = checkRequestFields(foundRequestFields);
 
     if (fieldsMissingFromRequest.length > 0) {
         res.status(400).statusMessage =
             "A server request was missing these fields during setup: " +
             fieldsMissingFromRequest.join(", ");
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(
                 space6,
                 "Failed with status message:",
@@ -71,35 +95,30 @@ export function extractSetupArgumentsFromRequestBody(
         return null;
     }
 
-    const setupArguments: ConnectionSetup = req.body
-        .connectionSetup as ConnectionSetup;
-
-    return setupArguments;
+    return connectionSetup;
 }
 
 export function setupProxy(
     req: Request,
     res: Response,
-    idToConnection: Map<string, ConnectionSetup>,
-    approvedPeerAddresses: string[],
-    DEV: boolean = false
+    idToConnection: Map<string, ProxySetupForServer>
 ) {
-    if (DEV) {
+    if (proxy_debug()) {
         console.log(space4, "Extracting arguments from request body...");
     }
-    const setupArguments = extractSetupArgumentsFromRequestBody(req, res, DEV);
+    const setupArguments = extractSetupArgumentsFromRequestBody(req, res);
     if (!setupArguments) {
         return;
     }
 
-    if (DEV) {
+    if (proxy_debug()) {
         console.log(
             space4,
             "Success! Saving connection information and returning 200..."
         );
+        console.log(space4, "Saving connectionId", setupArguments.connectionId);
     }
     idToConnection.set(setupArguments.connectionId, setupArguments);
-    approvedPeerAddresses.push(setupArguments.peerAddress);
     res.status(200);
     res.send("OK");
 }

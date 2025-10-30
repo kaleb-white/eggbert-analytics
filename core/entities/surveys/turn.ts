@@ -1,27 +1,58 @@
-export class Turn {
-    modelAnswer?: string;
-    respondentInput?: string;
+import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
+import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
 
-    constructor(modelAnswer?: string, respondentInput?: string) {
-        this.modelAnswer = modelAnswer;
-        this.respondentInput = respondentInput;
+export type TurnProps = {
+    uniqueId?: string | CryptographyUtilities;
+    modelMessage?: string;
+    respondentMessage?: string;
+    timeCreated?: number;
+    lastEdited?: number;
+};
+
+const defaultProps = {
+    uniqueId: "",
+    modelMessage: "",
+    respondentMessage: "",
+    timeCreated: Date.now(),
+    lastEdited: Date.now(),
+};
+
+export class Turn {
+    uniqueId: string;
+    modelMessage: string;
+    respondentMessage: string;
+    timeCreated: number;
+    lastEdited: number;
+
+    constructor(partialProps?: TurnProps) {
+        const props = partialProps ? partialProps : defaultProps;
+        this.uniqueId = assignOrCreateUniqueId(
+            props.uniqueId ? props.uniqueId : defaultProps.uniqueId
+        );
+        this.modelMessage = props.modelMessage
+            ? props.modelMessage
+            : defaultProps.modelMessage;
+        this.respondentMessage = props.respondentMessage
+            ? props.respondentMessage
+            : defaultProps.respondentMessage;
+        this.timeCreated = props.timeCreated
+            ? props.timeCreated
+            : defaultProps.timeCreated;
+        this.lastEdited = props.lastEdited
+            ? props.lastEdited
+            : defaultProps.lastEdited;
     }
 
     /** Returns an empty string if the turn is not complete. */
-    get respondentInputAndUserAnswerAsString(): string {
-        if (!this.turnWasTaken) return "";
-        return `\nthe model asked: ${this.modelAnswer} \nthe user responded: ${this.respondentInput}`;
+    get modelMessageExists() {
+        return this.modelMessage ? true : false;
     }
 
-    get modelAnswerExists() {
-        return this.modelAnswer ? true : false;
-    }
-
-    get respondentInputExists() {
-        return this.respondentInput ? true : false;
+    get respondentMessageExists() {
+        return this.respondentMessage ? true : false;
     }
 
     get turnWasTaken() {
-        return this.modelAnswerExists || this.respondentInputExists;
+        return this.modelMessageExists || this.respondentMessageExists;
     }
 }

@@ -9,22 +9,29 @@
         "start": "next start",
         "lint": "next lint",
         "test": "bun test",
+        "cache": "cd ./persistent_storage/cpp_cache && bun run socket-cache",
+        "proxy-dev": "cd ./model_client_proxy && bun run dev",
         "compile-icons": "bun run ui/icons/create_icons.ts",
-        "redis-cli": "bun run entrypoints/redis-cli/main.ts"
+        "update-directories-in-docs": "python ./stable_utilities/git_hooks/post_commit.py",
+        "dev-solo-qr": "bun run ./entrypoints/test_solo_qr/main.ts",
+        "initialize-db": "bun run ./persistent_storage/postgres_db/initialization/initialize.ts"
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.63.0",
-        "@types/bun": "^1.2.21",
+        "@types/bun": "^1.3.0",
         "@types/express": "^5.0.3",
-        "@types/redis": "^4.0.11",
+        "@types/pg": "^8.15.5",
+        "clsx": "^2.1.1",
         "express": "4",
         "litellm": "^0.12.0",
         "next": "15.4.6",
         "node-redis": "^0.1.7",
+        "pg": "^8.16.3",
         "react": "19.1.0",
         "react-dom": "19.1.0",
         "socket.io": "^4.8.1",
-        "socket.io-client": "^4.8.1"
+        "socket.io-client": "^4.8.1",
+        "tailwind-merge": "^3.3.1"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3",
@@ -36,7 +43,6 @@
         "eslint": "^9",
         "eslint-config-next": "15.4.6",
         "tailwindcss": "^4",
-        "typescript": "^5",
-        "@types/bun": "latest"
+        "typescript": "^5"
     }
 }

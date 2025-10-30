@@ -48,3 +48,7 @@ persistent_storage/cpp_cache/headers/doctest
 .vscode/
 
 .devcontainer/
+
+#lock files
+bun.lock
+package-lock.json

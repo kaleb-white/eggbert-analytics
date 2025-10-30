@@ -46,11 +46,11 @@ Includes a question and survey respondent answer. Transcripts consist of turns.
 
 A model's question or a user's answer. Not an entity, a description.
 
-#### respondent input
+#### respondent message
 
 A respondent's message.
 
-#### model answer
+#### model message
 
 A model's message.
 
@@ -77,6 +77,28 @@ Input that is meant to hijack the server.
 #### model
 
 To be consistent, use 'model' when referring to chatGPT, deepseek, or other generative ai models.
+
+### DB (some just a reminder / definition)
+
+#### generation
+
+The creation of sql to save an object, fetch an object, create a view, etc.
+
+#### execution
+
+Interacting with the database to act on generated sql.
+
+#### parameterized statement
+
+A parameterized statement is a method of preventing SQL injection by first sending a query to the db with the SQL statement with some variable representing successive parameters, i.e. `client.query('INSERT INTO myTable (column1, column2) VALUES ($1, $2)', ['value1', 'value2'])` in node-postgres.
+
+#### row
+
+Use row when referring to a class, type, interface or object member which is stored within a row in the database.
+
+#### aggregation
+
+Use aggregation to refer to a collection of jsonb objects.
 
 ### Locations
 
