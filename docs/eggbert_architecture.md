@@ -89,6 +89,7 @@ This Unified Modeling Language Diagram from Robert C. Martin's _Clean Architectu
 		-   navbar: folder has no description
 		-   qr_scroll: folder has no description
 		-   sidebar: folder has no description
+	-   response: folder has no description
 	-   response_input: folder has no description
 
 ### Testing

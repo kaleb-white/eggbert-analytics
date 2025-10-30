@@ -10,11 +10,13 @@ export function reconstructQuestionResponse(
             ? (JSON.parse(questionResponse as string) as QuestionResponse)
             : (questionResponse as QuestionResponse);
 
-    return new QuestionResponse(
-        asQuestionResponse.uniqueId,
-        reconstructQuestion(asQuestionResponse.question),
-        asQuestionResponse.transcript.map((t) => reconstructTurn(t)),
-        asQuestionResponse.timeCreated,
-        asQuestionResponse.lastEdited
-    );
+    return new QuestionResponse({
+        uniqueId: asQuestionResponse.uniqueId,
+        question: reconstructQuestion(asQuestionResponse.question),
+        transcript: asQuestionResponse.transcript.map((t) =>
+            reconstructTurn(t)
+        ),
+        timeCreated: asQuestionResponse.timeCreated,
+        lastEdited: asQuestionResponse.lastEdited,
+    });
 }

@@ -3,7 +3,11 @@ import testPool from "./utilities/test_pool";
 
 import { sampleSurvey } from "./utilities/sample_data";
 import { executeStatements } from "@/persistent_storage/postgres_db/execution_utilities";
-import { getSurveyWithoutResponses } from "@/persistent_storage/postgres_db/sql_generators_by_entity/survey";
+import {
+    getSurveys,
+    getSurveyWithoutResponses,
+    saveSurveys,
+} from "@/persistent_storage/postgres_db/sql_generators_by_entity/survey";
 import { QueryResult } from "pg";
 import {
     getAllEntities,
@@ -22,7 +26,7 @@ describe("test that survey is saved to database", async () => {
 
     // Create sql from sample survey
     test("try execute survey save", async () => {
-        const statements = saveOrUpdateSurvey(sampleSurvey);
+        const statements = saveSurveys([sampleSurvey]);
         const result = await executeStatements(statements, testPool);
         expect(result).not.toBeInstanceOf(Error);
     });
@@ -33,7 +37,10 @@ describe("test that survey is saved to database", async () => {
         const result = await executeStatements(statements, testPool);
         expect(result).not.toBeInstanceOf(Error);
 
-        const surveyOrError = getFirstEntity<Survey>(result as QueryResult[]);
+        const surveyOrError = getFirstEntity<Survey>(
+            result as QueryResult[],
+            "surveyagg"
+        );
         expect(surveyOrError).not.toBeInstanceOf(Error);
 
         const survey = surveyOrError as Survey;
@@ -93,14 +100,14 @@ describe("test that survey is saved to database", async () => {
     });
 
     test("get surveys", async () => {
-        const statements = getSurveyWithResponses("sampleSurvey");
+        const statements = getSurveys(["sampleSurvey"]);
 
         const result = await executeStatements(statements, testPool);
         expect(result).not.toBeInstanceOf(Error);
 
         const entitiesOrError = getAllEntities<Survey>(
             result as QueryResult[],
-            "surveyAgg"
+            "surveysAgg"
         );
         expect(entitiesOrError).not.toBeInstanceOf(Error);
 

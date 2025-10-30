@@ -4,8 +4,8 @@ import type { DialogueContext } from "../entities/dialogue_context.ts";
 import { isPeerInputMalicious } from "./auth.ts";
 import type { Model } from "../gateways/interfaces/external/model.ts";
 import { Turn } from "../../../core/entities/surveys/turn.ts";
-import { DEV } from "../../main.ts";
 import type { QuestionResponse } from "../../../core/entities/surveys/question_response.ts";
+import { proxy_debug } from "../../../stable_utilities/verbose_checks.ts";
 
 const space6 = "      ";
 const space8 = "        ";
@@ -38,7 +38,7 @@ export function handlePeer(
     responseInProgress: Response
 ) {
     peer.on("respondent input", async (msg, questionResponseId) => {
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(
                 space6,
                 "ConnectionId",
@@ -50,13 +50,23 @@ export function handlePeer(
             );
         }
 
+        // Check that both params were received
+        if (!msg || !questionResponseId) {
+            peer.emit(
+                "error",
+                `Expcted msg and questionResponseId to be defined but received msg ${msg} and questionResponseId ${questionResponseId}`
+            );
+            return;
+        }
+
         // Parse user input for malicious messages
         const validatePeerInput = isPeerInputMalicious(msg);
         if (validatePeerInput) {
             peer.emit("error", validatePeerInput.message);
             return;
         }
-        if (DEV) {
+
+        if (proxy_debug()) {
             console.log(space8, "Input validated");
         }
 
@@ -71,7 +81,7 @@ export function handlePeer(
             );
             return;
         }
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(space8, "Question response identified");
         }
         const questionResponseInProgress = matchingQrs[0] as QuestionResponse;
@@ -81,15 +91,15 @@ export function handlePeer(
             context.promptContext,
             questionResponseInProgress.transcript
         );
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(space8, "Context constructed");
         }
 
         // Add a turn to our survey response
-        const thisTurn = new Turn(undefined, msg);
+        const thisTurn = new Turn({ respondentMessage: msg });
         questionResponseInProgress.addTurn(thisTurn);
 
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(space8, "Awaiting model...");
         }
         let modelMessage: string = "";
@@ -101,13 +111,13 @@ export function handlePeer(
 
             modelMessage += modelMessageChunk as string;
         }
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(space8, "Model finished");
         }
 
         // Tell peer model is finished
         peer.emit("modelMessageFinished");
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(space8, "Informed peer model finished");
         }
 

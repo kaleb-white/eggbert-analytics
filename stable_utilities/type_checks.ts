@@ -29,7 +29,7 @@ export function isCryptographyUtilities(obj: unknown): boolean {
 }
 
 export function isSurvey(obj: unknown): boolean {
-    const keys = Object.keys(new Survey("", [], [], new Author("")));
+    const keys = Object.keys(new Survey());
     return (
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
@@ -37,7 +37,7 @@ export function isSurvey(obj: unknown): boolean {
 }
 
 export function isResponse(obj: unknown): boolean {
-    const keys = Object.keys(new Response("", []));
+    const keys = Object.keys(new Response());
     return (
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
@@ -45,7 +45,7 @@ export function isResponse(obj: unknown): boolean {
 }
 
 export function isQuestionResponse(obj: unknown): boolean {
-    const keys = Object.keys(new QuestionResponse("", new Question("")));
+    const keys = Object.keys(new QuestionResponse());
     return (
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))

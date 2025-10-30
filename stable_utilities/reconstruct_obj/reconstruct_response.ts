@@ -8,13 +8,13 @@ export function reconstructResponse(response: string | Response): Response {
             ? (JSON.parse(response as string) as Response)
             : (response as Response);
 
-    return new Response(
-        asResponse.uniqueId,
-        asResponse.questionResponses.map((qr) =>
+    return new Response({
+        uniqueId: asResponse.uniqueId,
+        questionResponses: asResponse.questionResponses.map((qr) =>
             reconstructQuestionResponse(qr)
         ),
-        reconstructRespondent(asResponse.respondent),
-        asResponse.timeCreated,
-        asResponse.lastEdited
-    );
+        respondent: reconstructRespondent(asResponse.respondent),
+        timeCreated: asResponse.timeCreated,
+        lastEdited: asResponse.lastEdited,
+    });
 }

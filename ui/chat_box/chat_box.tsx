@@ -73,8 +73,7 @@ export function ChatBox({questionResponse, connectionSetup, onQrChanged}: {quest
                 When the callback to setTransript is called modelMessageInternal.current IS "", so good to remember those
                 callbacks execute with the initial useState / Ref values.
             */
-           console.log('here1')
-            const newTurn = new Turn("", modelMessageInternal.current)
+            const newTurn = new Turn({modelMessage: modelMessageInternal.current})
             setTranscript(transcript =>
                 transcript.concat(newTurn)
             )

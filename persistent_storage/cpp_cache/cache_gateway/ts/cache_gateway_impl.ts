@@ -11,10 +11,12 @@ export class CacheGatewayImpl implements CacheGateway {
     client: net.Socket | null = null;
 
     async connect(): Promise<null | Error> {
-        if (!this.client) {
-            this.client = new net.Socket();
+        if (!this.client || this.client.closed) {
             try {
-                this.client.connect(this.PORT_NUMBER, () => {});
+                this.client = net.createConnection(
+                    { port: this.PORT_NUMBER },
+                    () => {}
+                );
             } catch (e) {
                 return e as Error;
             }
@@ -23,7 +25,7 @@ export class CacheGatewayImpl implements CacheGateway {
     }
 
     async send(message: string): Promise<string | Error> {
-        if (!this.client) {
+        if (!this.client || this.client.closed) {
             const connect_result = await this.connect();
             if (connect_result instanceof Error) {
                 return connect_result;
@@ -54,10 +56,14 @@ export class CacheGatewayImpl implements CacheGateway {
         });
     }
 
-    async create(id: string, value: string): Promise<null | Error> {
+    async create(
+        id: string,
+        value: string,
+        isLast: boolean = false
+    ): Promise<null | Error> {
         const message = message_to_protocol_format(
             "create ".concat(id).concat(" ").concat(value),
-            true
+            isLast
         );
         const send_result = await this.send(message);
         if (send_result instanceof Error) {
@@ -72,8 +78,8 @@ export class CacheGatewayImpl implements CacheGateway {
         return new Error("Cache returned an unexpected value: " + send_result);
     }
 
-    async read(id: string): Promise<string | Error> {
-        const message = message_to_protocol_format("read ".concat(id), true);
+    async read(id: string, isLast: boolean = false): Promise<string | Error> {
+        const message = message_to_protocol_format("read ".concat(id), isLast);
         const send_result = await this.send(message);
 
         if (send_result instanceof Error) {
@@ -85,12 +91,19 @@ export class CacheGatewayImpl implements CacheGateway {
         return send_result;
     }
 
-    async update(id: string, value: string): Promise<null | Error> {
-        return this.create(id, value);
+    async update(
+        id: string,
+        value: string,
+        isLast: boolean = false
+    ): Promise<null | Error> {
+        return this.create(id, value, isLast);
     }
 
-    async delete(id: string): Promise<null | Error> {
-        const message = message_to_protocol_format("delete ".concat(id), true);
+    async delete(id: string, isLast: boolean = false): Promise<null | Error> {
+        const message = message_to_protocol_format(
+            "delete ".concat(id),
+            isLast
+        );
         const send_result = await this.send(message);
         if (send_result instanceof Error) {
             return send_result;
@@ -102,5 +115,11 @@ export class CacheGatewayImpl implements CacheGateway {
             return null;
         }
         return new Error("Cache returned an unexpected value: " + send_result);
+    }
+
+    async disconnect(): Promise<null> {
+        await this.send(message_to_protocol_format("disconnect", true));
+        this.client!.destroy();
+        return null;
     }
 }

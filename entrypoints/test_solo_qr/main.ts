@@ -91,33 +91,83 @@ async function main() {
     // Create sample question response and save
     printOp("Creating a sample response in progress and saving it...");
     console.log(space4 + redString("Creating sample response..."));
-    const question1 = new Question("1", "Question one");
-    const question2 = new Question("2", "Question two");
-    const question3 = new Question("3", "Question three");
-    const question4 = new Question("4", "Question five");
-    const question5 = new Question("5", "Question six");
-    const qr1 = new QuestionResponse("test1", question1, [
-        new Turn("a", "model msg 1.1", "resp msg 1.1"),
-        new Turn("b", "model msg 2.1"),
-    ]);
-    const qr2 = new QuestionResponse("test2", question2, [
-        new Turn("c", "model msg 1.2", "resp msg 1.2"),
-        new Turn("d", "model msg 2.2"),
-    ]);
-    const qr3 = new QuestionResponse("test3", question3, [
-        new Turn("e", "model msg 1.3", "resp msg 1.3"),
-        new Turn("f", "model msg 2.3"),
-    ]);
-    const qr4 = new QuestionResponse("test4", question4, [
-        new Turn("g", "model msg 1.4", "resp msg 1.4"),
-        new Turn("h", "model msg 2.4"),
-    ]);
-    const qr5 = new QuestionResponse("test5", question5, [
-        new Turn("i", "model msg 1.5", "resp msg 1.5"),
-        new Turn("j", "model msg 2.5"),
-    ]);
+    const question1 = new Question({ uniqueId: "1", question: "Question one" });
+    const question2 = new Question({ uniqueId: "2", question: "Question two" });
+    const question3 = new Question({
+        uniqueId: "3",
+        question: "Question three",
+    });
+    const question4 = new Question({
+        uniqueId: "4",
+        question: "Question five",
+    });
+    const question5 = new Question({ uniqueId: "5", question: "Question six" });
+    const qr1 = new QuestionResponse({
+        uniqueId: "test1",
+        question: question1,
+        transcript: [
+            new Turn({
+                uniqueId: "a",
+                modelMessage: "model msg 1.1",
+                respondentMessage: "resp msg 1.1",
+            }),
+            new Turn({ uniqueId: "b", modelMessage: "model msg 2.1" }),
+        ],
+    });
+    const qr2 = new QuestionResponse({
+        uniqueId: "test2",
+        question: question2,
+        transcript: [
+            new Turn({
+                uniqueId: "c",
+                modelMessage: "model msg 1.2",
+                respondentMessage: "resp msg 1.2",
+            }),
+            new Turn({ uniqueId: "d", modelMessage: "model msg 2.2" }),
+        ],
+    });
+    const qr3 = new QuestionResponse({
+        uniqueId: "test3",
+        question: question3,
+        transcript: [
+            new Turn({
+                uniqueId: "e",
+                modelMessage: "model msg 1.3",
+                respondentMessage: "resp msg 1.3",
+            }),
+            new Turn({ uniqueId: "f", modelMessage: "model msg 2.3" }),
+        ],
+    });
+    const qr4 = new QuestionResponse({
+        uniqueId: "test4",
+        question: question4,
+        transcript: [
+            new Turn({
+                uniqueId: "g",
+                modelMessage: "model msg 1.4",
+                respondentMessage: "resp msg 1.4",
+            }),
+            new Turn({ uniqueId: "h", modelMessage: "model msg 2.4" }),
+        ],
+    });
+    const qr5 = new QuestionResponse({
+        uniqueId: "test5",
+        question: question5,
+        transcript: [
+            new Turn({
+                uniqueId: "i",
+                modelMessage: "model msg 1.5",
+                respondentMessage: "resp msg 1.5",
+            }),
+            new Turn({ uniqueId: "j", modelMessage: "model msg 2.5" }),
+        ],
+    });
     const qrs = [qr1, qr2, qr3, qr4, qr5];
-    const res = new Response("test", qrs, new Respondent("test6"));
+    const res = new Response({
+        uniqueId: "test",
+        questionResponses: qrs,
+        respondent: new Respondent("test6"),
+    });
 
     console.log(space4 + redString("Creating storage gateway..."));
     const cacheGateway = new CacheGatewayImpl();

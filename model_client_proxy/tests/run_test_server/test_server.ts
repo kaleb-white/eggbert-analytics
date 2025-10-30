@@ -19,7 +19,7 @@ function test_server() {
         new Response()
     );
     const testModelForPeerHandler: ModelTest = new ModelTest();
-    const responseForPeerHandler: Response = new Response("a");
+    const responseForPeerHandler: Response = new Response({ uniqueId: "a" });
     io.on("connection", (peer) => {
         handlePeer(
             peer,

@@ -23,6 +23,7 @@ export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
 }
 
 export function createJsonbSurvey(
+    excludeResponses: boolean = false,
     tableContainingResponses: string = "responses",
     responsesAggName: string = "responsesAgg",
     tableContainingQuestions: string = "questions",
@@ -35,7 +36,11 @@ export function createJsonbSurvey(
         'timeCreated', surveys.timeCreated,
         'lastEdited', surveys.lastEdited,
         'questions', COALESCE(${tableContainingQuestions}.${questionsAggName}, '[]'::jsonb),
-        'responses', COALESCE(${tableContainingResponses}.${responsesAggName}, '[]'::jsonb)
+        'responses', ${
+            excludeResponses
+                ? "'[]'::jsonb"
+                : `COALESCE(${tableContainingResponses}.${responsesAggName}, '[]'::jsonb)`
+        }
     )) AS ${as}
     `;
 }

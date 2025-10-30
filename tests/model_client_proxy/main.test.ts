@@ -2,6 +2,8 @@ import { describe, test, expect } from "bun:test";
 import { ProxySetupForServer } from "../../model_client_proxy/core/entities/proxy_setup_for_server";
 import { ProxyClientGatewayImpl } from "../../model_client_proxy/core/gateways/external/proxy_client_gateway_impl";
 import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client";
+import { Response } from "@/core/entities/surveys/response";
+import { QuestionResponse } from "@/core/entities/surveys/question_response";
 
 const PORT = 1038;
 
@@ -39,7 +41,9 @@ describe("test model client proxy integration", () => {
         const setup: ProxySetupForServer = new ProxySetupForServer(
             "abc",
             "a",
-            "a"
+            new Response({
+                questionResponses: [new QuestionResponse({ uniqueId: "test" })],
+            })
         );
 
         const body = {
@@ -137,7 +141,7 @@ describe("test model client proxy integration", () => {
                     expected_value = modelChunk;
                 }
             );
-            const sendResult = client.sendRespondentInput("my input");
+            const sendResult = client.sendRespondentInput("my input", "test");
 
             expect(sendResult).toBe(null);
 

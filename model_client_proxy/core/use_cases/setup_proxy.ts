@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { ProxySetupForServer } from "../entities/proxy_setup_for_server";
 import { checkRawServerToken } from "./auth";
+import { proxy_debug } from "../../../stable_utilities/verbose_checks";
 
 const space4 = "    ";
 const space6 = "      ";
@@ -21,8 +22,7 @@ function checkRequestFields(foundRequestFields: string[]): string[] {
 
 export function extractSetupArgumentsFromRequestBody(
     req: Request,
-    res: Response,
-    DEV: boolean = false
+    res: Response
 ): ProxySetupForServer | null {
     // Check that a body was sent, it includes a "serverToken" field, and that the serverToken is correct
     if (
@@ -31,7 +31,7 @@ export function extractSetupArgumentsFromRequestBody(
         !checkRawServerToken(req.body.serverToken)
     ) {
         res.status(401).statusMessage = "Access denied";
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(
                 space6,
                 "Failed with status message:",
@@ -39,7 +39,7 @@ export function extractSetupArgumentsFromRequestBody(
             );
         }
 
-        if (DEV) {
+        if (proxy_debug()) {
             if (!Object.keys(req).includes("body"))
                 console.log(space8, "Reason: Request missing body");
             else if (!Object.keys(req.body).includes("serverToken"))
@@ -56,7 +56,7 @@ export function extractSetupArgumentsFromRequestBody(
     }
 
     // Check conection setup field
-    if (DEV) {
+    if (proxy_debug()) {
         console.log(
             space6,
             "Request body found and includes correct server token"
@@ -64,7 +64,7 @@ export function extractSetupArgumentsFromRequestBody(
     }
     if (!Object.keys(req.body).includes("connectionSetup")) {
         res.status(400).statusMessage = "Missing connectionSetup object";
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(
                 space6,
                 "Failed with status message:",
@@ -85,7 +85,7 @@ export function extractSetupArgumentsFromRequestBody(
         res.status(400).statusMessage =
             "A server request was missing these fields during setup: " +
             fieldsMissingFromRequest.join(", ");
-        if (DEV) {
+        if (proxy_debug()) {
             console.log(
                 space6,
                 "Failed with status message:",
@@ -101,18 +101,17 @@ export function extractSetupArgumentsFromRequestBody(
 export function setupProxy(
     req: Request,
     res: Response,
-    idToConnection: Map<string, ProxySetupForServer>,
-    DEV: boolean = false
+    idToConnection: Map<string, ProxySetupForServer>
 ) {
-    if (DEV) {
+    if (proxy_debug()) {
         console.log(space4, "Extracting arguments from request body...");
     }
-    const setupArguments = extractSetupArgumentsFromRequestBody(req, res, DEV);
+    const setupArguments = extractSetupArgumentsFromRequestBody(req, res);
     if (!setupArguments) {
         return;
     }
 
-    if (DEV) {
+    if (proxy_debug()) {
         console.log(
             space4,
             "Success! Saving connection information and returning 200..."

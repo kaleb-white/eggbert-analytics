@@ -22,8 +22,12 @@ describe("test use case handle peer", () => {
                 expect(msg).toBe("my message");
             }
         });
+        peer.on("error", (err) => {
+            console.log("Error", err);
+            expect(err).fail();
+        });
 
-        peer.emit("respondent input", "my message");
+        peer.emit("respondent input", "my message", "test");
 
         // Wait until we've received something
         await new Promise<void>((resolve) => {

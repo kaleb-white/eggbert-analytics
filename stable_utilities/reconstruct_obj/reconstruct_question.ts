@@ -5,12 +5,12 @@ export function reconstructQuestion(question: string | Question): Question {
         typeof question === "string"
             ? (JSON.parse(question as string) as Question)
             : (question as Question);
-    return new Question(
-        asQuestion.uniqueId,
-        asQuestion.question,
-        asQuestion.modelPrompt,
-        asQuestion.maxNumberOfTurns,
-        asQuestion.timeCreated,
-        asQuestion.lastEdited
-    );
+    return new Question({
+        uniqueId: asQuestion.uniqueId,
+        question: asQuestion.question,
+        modelPrompt: asQuestion.modelPrompt,
+        maxNumberOfTurns: asQuestion.maxNumberOfTurns,
+        timeCreated: asQuestion.timeCreated,
+        lastEdited: asQuestion.lastEdited,
+    });
 }

@@ -39,12 +39,6 @@ export function ResponseBox({ responseStringified, connectionSetupStringified }:
         })
     }
 
-    //
-    useEffect(() => {
-        console.log(response.questionResponses.filter(qr => {if (qr.uniqueId == currentQrId) return qr})[0].transcript)
-    }, [currentQrId, response.questionResponses])
-
-
     return (
         <div className="flex flex-row w-full h-full items-end justify-center">
             <div className="flex place-content-center w-1/2 h-full border-l-2 border-r-2 border-primary">

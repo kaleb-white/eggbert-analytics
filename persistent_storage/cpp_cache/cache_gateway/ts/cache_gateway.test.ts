@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { CacheGatewayImpl } from "./cache_gateway_impl";
 import type { CacheGateway } from "./cache_gateway";
 
-describe("test cache_gateway", () => {
+describe("test cache_gateway", async () => {
     const cache: CacheGateway = new CacheGatewayImpl();
 
     test("connect", async () => {
@@ -17,10 +17,9 @@ describe("test cache_gateway", () => {
     });
 
     test("create large id length 10000", async () => {
-        const create_res = await cache.create(
-            "a".repeat(5000),
-            "bc".repeat(2500)
-        );
+        const id = "a".repeat(5000);
+        const val = "bc".repeat(2500);
+        const create_res = await cache.create(id, val);
         expect(create_res).toBe(null);
     });
 
@@ -45,7 +44,7 @@ describe("test cache_gateway", () => {
     });
 
     test("delete large id length 10000", async () => {
-        const delete_res = await cache.delete("a".repeat(5000));
+        const delete_res = await cache.delete("a".repeat(5000), true);
         expect(delete_res).toBe(null);
     });
 });

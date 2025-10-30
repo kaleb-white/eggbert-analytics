@@ -1,7 +1,10 @@
 import { insertOrUpdateOneManyRelation } from "@/persistent_storage/postgres_db/sql_generators_by_table/one-many_tables";
 import { describe, expect, test } from "bun:test";
 import { truncateSql } from "../testing_utilities";
-import { RequiredUniqueId } from "@/persistent_storage/postgres_db/generation_types_and_utilities";
+import {
+    ParameterizedStatement,
+    RequiredUniqueId,
+} from "@/persistent_storage/postgres_db/generation_types_and_utilities";
 
 describe("test one-many sql generation", () => {
     describe("test insertOrUpdateOneManyRelation", () => {
@@ -28,7 +31,7 @@ describe("test one-many sql generation", () => {
 
         const expectedOutputOne = `
             INSERT INTO ${tableName} (${oneUniqueIdCol}, ${manyUniqueIdCol})
-                VALUES (${basicTestObjOne.uniqueId}, ${basicTestObjOne.childObjs[0].uniqueId})
+                VALUES ('${basicTestObjOne.uniqueId}', '${basicTestObjOne.childObjs[0].uniqueId}')
                 ON CONFLICT (${oneUniqueIdCol}, ${manyUniqueIdCol}) DO NOTHING;
         `;
 
@@ -39,7 +42,7 @@ describe("test one-many sql generation", () => {
 
         const expectedOutputTwo = `
             INSERT INTO ${tableName} (${oneUniqueIdCol}, ${manyUniqueIdCol})
-                VALUES (${basicTestObjTwo.uniqueId}, ${basicTestObjTwo.childObjs[0].uniqueId}), (${basicTestObjTwo.uniqueId}, ${basicTestObjTwo.childObjs[1].uniqueId})
+                VALUES ('${basicTestObjTwo.uniqueId}', '${basicTestObjTwo.childObjs[0].uniqueId}'), ('${basicTestObjTwo.uniqueId}', '${basicTestObjTwo.childObjs[1].uniqueId}')
                 ON CONFLICT (${oneUniqueIdCol}, ${manyUniqueIdCol}) DO NOTHING;
         `;
 
@@ -64,7 +67,9 @@ describe("test one-many sql generation", () => {
                 basicTestObjOne,
                 "childObjs"
             );
-            expect(truncateSql(res as string)).toBe(
+            expect(res).not.toBe("pass");
+
+            expect(truncateSql((res as ParameterizedStatement).sql)).toBe(
                 truncateSql(expectedOutputOne)
             );
         });
@@ -77,7 +82,8 @@ describe("test one-many sql generation", () => {
                 basicTestObjTwo,
                 "childObjs"
             );
-            expect(truncateSql(res as string)).toBe(
+            expect(res).not.toBe("pass");
+            expect(truncateSql((res as ParameterizedStatement).sql)).toBe(
                 truncateSql(expectedOutputTwo)
             );
         });

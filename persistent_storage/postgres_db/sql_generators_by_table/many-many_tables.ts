@@ -25,9 +25,12 @@ export function insertOrUpdateManyManyRelation(
     valuesFirst: Array<RequiredUniqueId>,
     valuesSecond: Array<RequiredUniqueId>
 ): PossibleStatementFormat {
-    return `
+    return {
+        sql: `
     INSERT INTO ${tableName} (${columnNameFirst}, ${columnNameSecond})
         VALUES ${getAllValues(valuesFirst, valuesSecond)}
         ON CONFLICT (${columnNameFirst}, ${columnNameSecond}) DO NOTHING;
-    `;
+    `,
+        userInput: [],
+    };
 }

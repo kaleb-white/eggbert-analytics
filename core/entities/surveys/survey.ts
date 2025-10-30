@@ -4,6 +4,24 @@ import { Question } from "./question";
 import { Response } from "./response";
 import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
 
+export type SurveyProps = {
+    questions?: Question[];
+    responses?: Response[];
+    timeCreated?: number;
+    lastEdited?: number;
+    uniqueId?: string | CryptographyUtilities;
+    author?: Author;
+};
+
+const defaultProps = {
+    uniqueId: "",
+    questions: [new Question()],
+    responses: [new Response()],
+    author: new Author(""),
+    timeCreated: Date.now(),
+    lastEdited: Date.now(),
+};
+
 export class Survey {
     questions: Question[];
     responses: Response[];
@@ -12,20 +30,24 @@ export class Survey {
     uniqueId: string;
     author: Author;
 
-    constructor(
-        uniqueId: string | CryptographyUtilities = "",
-        questions: Question[] = [new Question()],
-        responses: Response[] = [new Response()],
-        author: Author = new Author(""),
-        timeCreated: number = Date.now(),
-        lastEdited: number = Date.now()
-    ) {
-        this.uniqueId = assignOrCreateUniqueId(uniqueId);
-        this.questions = questions;
-        this.responses = responses;
-        this.author = author;
-        this.timeCreated = timeCreated;
-        this.lastEdited = lastEdited;
+    constructor(partialProps?: SurveyProps) {
+        const props = partialProps ? partialProps : defaultProps;
+        this.uniqueId = assignOrCreateUniqueId(
+            props.uniqueId ? props.uniqueId : defaultProps.uniqueId
+        );
+        this.questions = props.questions
+            ? props.questions
+            : defaultProps.questions;
+        this.responses = props.responses
+            ? props.responses
+            : defaultProps.responses;
+        this.author = props.author ? props.author : defaultProps.author;
+        this.timeCreated = props.timeCreated
+            ? props.timeCreated
+            : defaultProps.timeCreated;
+        this.lastEdited = props.lastEdited
+            ? props.lastEdited
+            : defaultProps.lastEdited;
     }
 
     addResponse(newResponse: Response, changeTimeLastEdited = true) {

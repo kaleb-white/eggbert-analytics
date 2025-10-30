@@ -114,9 +114,9 @@ export function getSurveys(ids: string[]): ParameterizedStatementSets {
         'uniqueId', surveys.uniqueId,
         'timeCreated', surveys.timeCreated,
         'lastEdited', surveys.lastEdited,
-        'responses', '[]'::jsonb,
+        'responses', COALESCE(responses.responsesAgg, '[]'::jsonb),
         'questions', COALESCE(sq.questionsAgg, '[]'::jsonb)
-    ) AS surveysAgg
+        )) AS surveysAgg
         FROM surveys
         ${leftJoinResponses(
             "surveys",
@@ -147,7 +147,7 @@ export function getSurveyWithoutResponses(
     return [
         {
             sql: `
-        SELECT ${createJsonbSurvey()}
+        SELECT ${createJsonbSurvey(true)}
         FROM surveys
         ${leftJoinQuestions("surveys", "surveysQuestions", "surveyId")}
         WHERE surveys.uniqueId = $1;

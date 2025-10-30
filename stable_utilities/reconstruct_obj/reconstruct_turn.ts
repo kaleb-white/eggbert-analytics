@@ -5,11 +5,11 @@ export function reconstructTurn(turn: string | Turn): Turn {
         typeof turn === "string"
             ? (JSON.parse(turn as string) as Turn)
             : (turn as Turn);
-    return new Turn(
-        asTurn.uniqueId,
-        asTurn.modelMessage,
-        asTurn.respondentMessage,
-        asTurn.timeCreated,
-        asTurn.lastEdited
-    );
+    return new Turn({
+        uniqueId: asTurn.uniqueId,
+        modelMessage: asTurn.modelMessage,
+        respondentMessage: asTurn.respondentMessage,
+        timeCreated: asTurn.timeCreated,
+        lastEdited: asTurn.lastEdited,
+    });
 }
