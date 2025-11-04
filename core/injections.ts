@@ -1,4 +1,4 @@
-import { CacheGatewayImpl } from "@/persistent_storage/cpp_cache/cache_gateway/ts/cache_gateway_impl";
+import { CacheGatewayImpl } from "@/storage/cpp_cache/cache_gateway/ts/cache_gateway_impl";
 import { CacheImpl } from "./gateways/external/cpp_socket_cache_impl";
 import testPool from "@/tests/db/utilities/test_pool";
 import { PostgresDbImpl } from "./gateways/external/postgres_db_impl";

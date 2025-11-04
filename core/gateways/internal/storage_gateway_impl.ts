@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isT } from "@/stable_utilities/global_type_check";
+import { isT } from "@/utilities/global_type_check";
 import { Cache } from "../interfaces/external/cache";
 import { Database } from "../interfaces/external/database";
 import { StorageGateway } from "../interfaces/internal/storage_gateway";
+import { Response } from "@/core/entities/surveys/response";
 
 type Result<T> = {
     error: Error | null;
@@ -83,6 +84,10 @@ export class StorageGatewayImpl implements StorageGateway {
         // Check if finished
         if (resultObj.finished) {
             await this.cache.get("fake", true);
+            console.log(
+                "result from cache",
+                (resultObj.result as Response).questionResponses[0].transcript
+            );
             return returnResultOrError<T>(resultObj);
         }
 
@@ -132,7 +137,10 @@ export class StorageGatewayImpl implements StorageGateway {
         if (!resultObj.cacheFinished) {
             await this.cache.get("fake", true);
         }
-
+        console.log(
+            "result from db",
+            (resultObj.result as Response).questionResponses[0].transcript
+        );
         return returnResultOrError(resultObj);
     }
 }

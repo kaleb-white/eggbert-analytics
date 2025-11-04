@@ -1,7 +1,7 @@
 import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
 import { Question } from "./question";
 import { Turn } from "./turn";
-import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
+import { assignOrCreateUniqueId } from "@/utilities/assign_or_create_uid";
 
 export type QuestionResponseProps = {
     summary?: string;

@@ -1,32 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Database } from "../interfaces/external/database";
-import { executeStatements } from "@/persistent_storage/postgres_db/execution_utilities";
+import { executeStatements } from "@/storage/postgres_db/execution_utilities";
 import {
     getAllEntities,
     ParameterizedStatementSets,
-} from "@/persistent_storage/postgres_db/generation_types_and_utilities";
+} from "@/storage/postgres_db/generation_types_and_utilities";
 import { Pool } from "pg";
-import { isEntity } from "@/stable_utilities/global_type_check";
+import { isEntity } from "@/utilities/global_type_check";
 import {
     getResponses,
     saveResponses,
-} from "@/persistent_storage/postgres_db/sql_generators_by_entity/responses";
+} from "@/storage/postgres_db/sql_generators_by_entity/responses";
 import {
     getQuestionResponses,
     saveQuestionResponses,
-} from "@/persistent_storage/postgres_db/sql_generators_by_entity/question_responses";
+} from "@/storage/postgres_db/sql_generators_by_entity/question_responses";
 import {
     getQuestions,
     saveQuestions,
-} from "@/persistent_storage/postgres_db/sql_generators_by_entity/questions";
+} from "@/storage/postgres_db/sql_generators_by_entity/questions";
 import {
     getTurns,
     saveTurns,
-} from "@/persistent_storage/postgres_db/sql_generators_by_entity/turns";
+} from "@/storage/postgres_db/sql_generators_by_entity/turns";
 import {
     getSurveys,
     saveSurveys,
-} from "@/persistent_storage/postgres_db/sql_generators_by_entity/survey";
+} from "@/storage/postgres_db/sql_generators_by_entity/survey";
 import { Survey } from "@/core/entities/surveys/survey";
 import { Response } from "@/core/entities/surveys/response";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";

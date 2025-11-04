@@ -1,5 +1,5 @@
 import type { ProxySetupForServer } from "../../entities/proxy_setup_for_server";
-import { createConnectionRouteName, PORT } from "../../../config";
+import { createConnectionRouteName, PORT, URL } from "../../../config";
 
 export async function addNewAllowedConnection(proxySetup: ProxySetupForServer) {
     if (!process.env.EXPECTED_SERVER_TOKEN)
@@ -15,7 +15,7 @@ export async function addNewAllowedConnection(proxySetup: ProxySetupForServer) {
     let fetchResult;
     try {
         fetchResult = await fetch(
-            `http://localhost:${PORT}/${createConnectionRouteName}`,
+            `http://${URL}:${PORT}/${createConnectionRouteName}`,
             {
                 method: "POST",
                 headers: {

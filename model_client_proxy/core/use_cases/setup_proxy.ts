@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { ProxySetupForServer } from "../entities/proxy_setup_for_server";
 import { checkRawServerToken } from "./auth";
-import { proxy_debug } from "../../../stable_utilities/verbose_checks";
+import { proxy_debug } from "../../../utilities/verbose_checks";
 
 const space4 = "    ";
 const space6 = "      ";

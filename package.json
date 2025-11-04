@@ -9,11 +9,11 @@
         "start": "next start",
         "lint": "next lint",
         "test": "bun test",
-        "cache": "cd ./persistent_storage/cpp_cache && bun run socket-cache",
-        "proxy-dev": "cd ./model_client_proxy && bun run dev",
+        "cache": "cd ./storage/cpp_cache && bun run socket-cache-verbose",
+        "proxy-dev": "cd ./model_client_proxy && bun run main.ts",
         "compile-icons": "bun run ui/icons/create_icons.ts",
         "update-directories-in-docs": "python ./stable_utilities/git_hooks/post_commit.py",
-        "dev-solo-qr": "bun run ./entrypoints/test_solo_qr/main.ts",
+        "dev-solo-response": "bun run ./entrypoints/test_solo_response/main.ts",
         "initialize-db": "bun run ./persistent_storage/postgres_db/initialization/initialize.ts"
     },
     "dependencies": {
@@ -26,6 +26,7 @@
         "litellm": "^0.12.0",
         "next": "15.4.6",
         "node-redis": "^0.1.7",
+        "openai": "^6.7.0",
         "pg": "^8.16.3",
         "react": "19.1.0",
         "react-dom": "19.1.0",

@@ -1,4 +1,4 @@
-import { initializationStatements } from "@/persistent_storage/postgres_db/initialization/sql";
+import { initializationStatements } from "@/storage/postgres_db/initialization/sql";
 import testPool from "./test_pool";
 
 export async function initialize() {

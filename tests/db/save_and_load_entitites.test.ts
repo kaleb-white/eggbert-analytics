@@ -2,21 +2,21 @@ import { describe, expect, test } from "bun:test";
 import testPool from "./utilities/test_pool";
 
 import { sampleSurvey } from "./utilities/sample_data";
-import { executeStatements } from "@/persistent_storage/postgres_db/execution_utilities";
+import { executeStatements } from "@/storage/postgres_db/execution_utilities";
 import {
     getSurveys,
     getSurveyWithoutResponses,
     saveSurveys,
-} from "@/persistent_storage/postgres_db/sql_generators_by_entity/survey";
+} from "@/storage/postgres_db/sql_generators_by_entity/survey";
 import { QueryResult } from "pg";
 import {
     getAllEntities,
     getFirstEntity,
-} from "@/persistent_storage/postgres_db/generation_types_and_utilities";
+} from "@/storage/postgres_db/generation_types_and_utilities";
 import { Survey } from "@/core/entities/surveys/survey";
-import { getTurns } from "@/persistent_storage/postgres_db/sql_generators_by_entity/turns";
+import { getTurns } from "@/storage/postgres_db/sql_generators_by_entity/turns";
 import { Turn } from "@/core/entities/surveys/turn";
-import { getResponses } from "@/persistent_storage/postgres_db/sql_generators_by_entity/responses";
+import { getResponses } from "@/storage/postgres_db/sql_generators_by_entity/responses";
 import { Response } from "@/core/entities/surveys/response";
 import { initialize } from "./utilities/reset_and_initialize";
 

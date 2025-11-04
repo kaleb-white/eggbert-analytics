@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { sampleSurvey } from "@/tests/db/utilities/sample_data";
 import { StorageGatewayImpl } from "@/core/gateways/internal/storage_gateway_impl";
 import { CacheImpl } from "@/core/gateways/external/cpp_socket_cache_impl";
-import { CacheGatewayImpl } from "@/persistent_storage/cpp_cache/cache_gateway/ts/cache_gateway_impl";
+import { CacheGatewayImpl } from "@/storage/cpp_cache/cache_gateway/ts/cache_gateway_impl";
 import { PostgresDbImpl } from "@/core/gateways/external/postgres_db_impl";
 import testPool from "@/tests/db/utilities/test_pool";
 import { initialize } from "@/tests/db/utilities/reset_and_initialize";

@@ -22,11 +22,9 @@
         ],
         "paths": {
             "@/*": ["./*"],
-            "@cache_gateway/*": [
-                "./persistent_storage/cpp_cache/cache_gateway/*"
-            ],
+            "@cache_gateway/*": ["./storage/cpp_cache/cache_gateway/*"],
             "@entities/*": ["./core/entities/*"],
-            "@pool": ["./persistent_storage/postgres_db/pool.ts"]
+            "@pool": ["./storage/postgres_db/pool.ts"]
         }
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
