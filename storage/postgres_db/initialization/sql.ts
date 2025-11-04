@@ -1,4 +1,5 @@
 export const initializationStatements = {
+    dropUsersTable: "DROP TABLE users;",
     dropSurveysResponsesTable: "DROP TABLE surveysResponses;",
     dropSurveysQuestionsTable: "DROP TABLE surveysQuestions;",
     dropSurveysTable: "DROP TABLE surveys;",
@@ -9,6 +10,13 @@ export const initializationStatements = {
     dropQuestionResponsesTable: "DROP TABLE questionResponses;",
     dropQuestionsTable: "DROP TABLE questions;",
     dropTurnsTable: "DROP TABLE turns;",
+
+    createUsersTable:
+        "\
+        CREATE TABLE users( \
+            uniqueId text PRIMARY KEY \
+        ); \
+    ",
 
     createTurnsTable: `
         CREATE TABLE turns(
@@ -76,7 +84,8 @@ export const initializationStatements = {
         CREATE TABLE surveys(\
             uniqueId text PRIMARY KEY, \
             timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
-            lastEdited timestamp NOT NULL \
+            lastEdited timestamp NOT NULL, \
+            authorId text REFERENCES users (uniqueId) ON DELETE RESTRICT \
         );\
         ",
 

@@ -17,5 +17,17 @@ export function isEntity(obj: unknown): string {
 }
 
 export function isT<T>(obj: unknown, objOfTypeT: T): boolean {
+    // Debug
+    if (process.env.UTILITIES_DEBUG && process.env.UTILITIES_DEBUG === "1") {
+        const missingKeys = Object.keys(obj as object).filter(
+            (key) => !Object.keys(objOfTypeT as object).includes(key)
+        );
+        if (missingKeys.length > 0) {
+            console.log(
+                "Keys missing from obj found in objOfTypeT:",
+                missingKeys.join(", ")
+            );
+        }
+    }
     return isEntity(obj) === isEntity(objOfTypeT);
 }

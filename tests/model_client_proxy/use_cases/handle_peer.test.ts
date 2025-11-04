@@ -7,7 +7,7 @@ spawnAsyncTestServer();
 
 describe("test use case handle peer", () => {
     // Peer to connect with
-    const peer = io("http://localhost:1313");
+    const peer = io("http://0.0.0.0:1313");
 
     test("test handle_peer respondent input callback", async () => {
         let expected_value = "";

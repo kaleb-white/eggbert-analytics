@@ -20,6 +20,10 @@ import {
     createLeftJoin,
     ParameterizedStatementSets,
 } from "../generation_types_and_utilities";
+import {
+    insertOrUpdateUser,
+    leftJoinUsers,
+} from "../sql_generators_by_table/user";
 
 export function insertOrUpdateOneManyRelationsOfSurvey(survey: Survey) {
     const uncheckedResult = [
@@ -92,7 +96,10 @@ export function insertOrUpdateResponsesBySurvey(survey: Survey) {
 export function saveSurveys(surveys: Survey[]): ParameterizedStatementSets {
     return [
         surveys.flatMap((survey) => {
-            return [insertOrUpdateQuestionsBySurvey(survey)];
+            return [
+                insertOrUpdateQuestionsBySurvey(survey),
+                insertOrUpdateUser(survey.author),
+            ];
         }),
         surveys.flatMap((survey) => {
             return [
@@ -117,7 +124,8 @@ export function getSurveys(ids: string[]): ParameterizedStatementSets {
         'timeCreated', surveys.timeCreated,
         'lastEdited', surveys.lastEdited,
         'responses', COALESCE(responses.responsesAgg, '[]'::jsonb),
-        'questions', COALESCE(sq.questionsAgg, '[]'::jsonb)
+        'questions', COALESCE(sq.questionsAgg, '[]'::jsonb),
+        'author', COALESCE(u.user, '{}'::jsonb)
         )) AS surveysAgg
         FROM surveys
         ${leftJoinResponses(
@@ -136,6 +144,7 @@ export function getSurveys(ids: string[]): ParameterizedStatementSets {
             createJsonbQuestions,
             "sq"
         )}
+        ${leftJoinUsers("surveys", "authorId", "u")}
         WHERE surveys.uniqueId IN ${argumentsToInStatementFromArray(ids)};
     `,
             userInput: [],

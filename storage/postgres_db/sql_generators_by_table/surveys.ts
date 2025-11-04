@@ -6,11 +6,12 @@ import {
 
 export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
     return {
-        sql: `INSERT INTO surveys (uniqueId, timeCreated, lastEdited)
+        sql: `INSERT INTO surveys (uniqueId, timeCreated, lastEdited, authorId)
                 VALUES (
                 $1,
                 to_timestamp($2),
-                to_timestamp($3)
+                to_timestamp($3),
+                $4
             )
             ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;
             `,
@@ -18,6 +19,7 @@ export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
             survey.uniqueId,
             jsDateToSqlTimestamp(survey.timeCreated),
             jsDateToSqlTimestamp(survey.lastEdited),
+            survey.author.uniqueId,
         ],
     };
 }
