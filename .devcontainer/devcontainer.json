@@ -28,7 +28,8 @@
                 "esbenp.prettier-vscode",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
-                "bradlc.vscode-tailwindcss"
+                "bradlc.vscode-tailwindcss",
+                "medo64.render-crlf"
             ]
         }
     }
