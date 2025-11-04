@@ -42,3 +42,8 @@ EXPOSE 1313/tcp
 
 # Copy the rest of the application
 COPY . .
+
+
+#TODO:
+    # Custom network for interoperation with postgres: https://docs.docker.com/get-started/docker-concepts/running-containers/overriding-container-defaults/
+        # Section: Run postgres container in a controlled network

@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 
 import os, platform, re
 from math import inf
 
 print("Updating directories in docs/eggbert_architecture.md...")
 
-EGGBERT_ARCHITECTURE_REL_PATH = "\docs\eggbert_architecture.md"
+EGGBERT_ARCHITECTURE_REL_PATH = "/docs/eggbert_architecture.md"
 EGGBERT_ARCHITECTURE_ABSOLUTE_PATH = os.getcwd() + EGGBERT_ARCHITECTURE_REL_PATH
 
 SUBFOLDER_CHAR = chr(26)  # Ascii 'substitute' character
