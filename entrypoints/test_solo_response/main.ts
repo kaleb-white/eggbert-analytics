@@ -373,7 +373,11 @@ async function main() {
         printOpDone();
         console.log(
             greenString(
-                "Bye! Please wait a minute or two before restarting so all ports are available again."
+                `Bye! ${
+                    spawn
+                        ? "Please wait a minute or two before restarting so all ports are available again."
+                        : ""
+                }`
             )
         );
         process.exit();

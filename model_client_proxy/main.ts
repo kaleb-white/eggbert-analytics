@@ -18,9 +18,10 @@ import {
 } from "./config";
 import { proxy_debug } from "../utilities/verbose_checks";
 import { responseSaverImpl } from "./core/gateways/internal/response_saver_impl";
+import { GPTModelImpl } from "./core/gateways/external/query_model/gpt_model_impl";
 
 // Injected Dependencies
-const Model = ModelTest;
+const Model = GPTModelImpl;
 
 // CONSTANTS
 const space2 = "  ";

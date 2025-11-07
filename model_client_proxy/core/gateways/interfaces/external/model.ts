@@ -4,5 +4,5 @@ export interface Model {
      * @param context The promptContext, ie everything the model needs to know.
      * @param userInput The user's question
      */
-    requestModelAnswerAsync(context: string, userInput: string): Generator;
+    requestModelAnswerAsync(context: string, userInput: string): AsyncGenerator;
 }
