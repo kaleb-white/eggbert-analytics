@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import testPool from "./utilities/test_pool";
 
 import { sampleSurvey } from "./utilities/sample_data";
 import { executeStatements } from "@/storage/postgres_db/execution_utilities";
@@ -19,6 +18,7 @@ import { Turn } from "@/core/entities/surveys/turn";
 import { getResponses } from "@/storage/postgres_db/sql_generators_by_entity/responses";
 import { Response } from "@/core/entities/surveys/response";
 import { initialize } from "./utilities/reset_and_initialize";
+import testPool from "./utilities/test_pool";
 
 describe("test that survey is saved to database", async () => {
     // Initialize database

@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
     turbopack: {
-        root: "/workspaces/eggbert-analytics/",
+        root:
+            process.platform == "win32" ? "" : "/workspaces/eggbert-analytics/",
     },
 };
 

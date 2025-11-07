@@ -15,3 +15,5 @@ NextJS is a web framework which emphasizes the use of server-side rendering in o
 ## Socket.io
 
 ## Express
+
+## Zod

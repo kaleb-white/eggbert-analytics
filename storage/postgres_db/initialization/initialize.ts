@@ -1,5 +1,5 @@
+import { pool } from "@/injections";
 import { initializationStatements } from "./sql";
-import pool from "../pool";
 
 console.log(
     "Continuing will cause all tables to be dropped. Are you sure you want to continue? Enter Y/y to continue"

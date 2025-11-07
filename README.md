@@ -26,6 +26,7 @@
 
 1. Install bun globally via `npm i bun -g`. Bun is _just faster_ than node, and includes native support for typescript. No commands in `package.json` are configure to call node.
 1. Install all dependencies via `bun install`. If bun hangs, just use `npm install`.
+1. Install nextJS globally: `npm i next -g`. Use `npm` to avoid having to add bun's bin directory to path.
 1. Run `bun run dev-solo-reponse-windows`. This starts the cache and proxy. If there are issues during start, contact kaleboppwhite@gmail.com. Alternatively, try running without the shorthand: `bun run ./entrypoints/test_solo_response/main.ts spawn`.
 1. Visit localhost:3000/responses/test (allow nextJS time to compile when you do!)
 

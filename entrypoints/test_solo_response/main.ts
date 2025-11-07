@@ -16,8 +16,8 @@ import {
 } from "@/utilities/logging";
 import { isProcessRunningOnPort } from "@/utilities/process_running";
 import { initialize } from "@/tests/db/utilities/reset_and_initialize";
-import testPool from "@/tests/db/utilities/test_pool";
 import { exec } from "child_process";
+import { pool } from "@/injections";
 
 function createStreamEchoingToStdout() {
     const decoder = new TextDecoder("utf-8");
@@ -146,7 +146,7 @@ async function main() {
         );
         if (windows) {
             cache = Bun.spawn(
-                ["../../storage/cpp_cache/socket_cache_windows.exe -v=1"],
+                ["storage\\cpp_cache\\socket_cache_windows.exe", "-v=1"],
                 {
                     signal: cacheController.signal,
                 }
@@ -161,9 +161,18 @@ async function main() {
         }
 
         printSubOp(`Trying to start proxy...`);
-        proxy = Bun.spawn(["bun", "run", "../../model_client_proxy/main.ts"], {
-            signal: proxyController.signal,
-        });
+        if (windows) {
+            proxy = Bun.spawn(["bun", "run", "model_client_proxy\\main.ts"], {
+                signal: proxyController.signal,
+            });
+        } else {
+            proxy = Bun.spawn(
+                ["bun", "run", "../../model_client_proxy/main.ts"],
+                {
+                    signal: proxyController.signal,
+                }
+            );
+        }
 
         printOpDone();
 
@@ -296,7 +305,7 @@ async function main() {
     printSubOp("Creating storage gateway...");
     const cacheGateway = new CacheGatewayImpl();
     const cacheImpl = new CacheImpl(cacheGateway);
-    const db = new PostgresDbImpl(testPool);
+    const db = new PostgresDbImpl(pool);
     const storage = new StorageGatewayImpl(cacheImpl, db);
 
     printOp("Saving sample response...");

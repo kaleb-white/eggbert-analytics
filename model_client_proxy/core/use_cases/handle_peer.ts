@@ -7,7 +7,7 @@ import { Turn } from "../../../core/entities/surveys/turn.ts";
 import type { QuestionResponse } from "../../../core/entities/surveys/question_response.ts";
 import { proxy_debug } from "../../../utilities/verbose_checks.ts";
 import type { responseSaver } from "../gateways/interfaces/internal/response_saver.ts";
-import { uniqueIdGen } from "../../../core/injections.ts";
+import { uniqueIdGen } from "../../../injections.ts";
 
 const space6 = "      ";
 const space8 = "        ";

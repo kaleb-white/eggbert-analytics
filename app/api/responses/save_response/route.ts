@@ -1,5 +1,5 @@
 import { Response as ResponseEntity } from "@/core/entities/surveys/response";
-import { storage } from "@/core/injections";
+import { storage } from "@/injections";
 import { reconstructResponse } from "@/utilities/reconstruct_obj/reconstruct_response";
 import { isResponse } from "@/utilities/type_checks";
 
