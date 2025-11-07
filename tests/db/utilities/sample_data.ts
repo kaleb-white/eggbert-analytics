@@ -3,7 +3,6 @@ import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Survey } from "@/core/entities/surveys/survey";
 import { Turn } from "@/core/entities/surveys/turn";
 import { Response } from "@/core/entities/surveys/response";
-import { Author } from "@/core/entities/users/author";
 
 const q1: Question = new Question({
     uniqueId: "q1",
@@ -86,5 +85,4 @@ export const sampleSurvey: Survey = new Survey({
     uniqueId: "sampleSurvey",
     questions: [q1, q2],
     responses: [r1, r2],
-    author: new Author(""),
 });

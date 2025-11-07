@@ -5,7 +5,9 @@ import { isPeerInputMalicious } from "./auth.ts";
 import type { Model } from "../gateways/interfaces/external/model.ts";
 import { Turn } from "../../../core/entities/surveys/turn.ts";
 import type { QuestionResponse } from "../../../core/entities/surveys/question_response.ts";
-import { proxy_debug } from "../../../stable_utilities/verbose_checks.ts";
+import { proxy_debug } from "../../../utilities/verbose_checks.ts";
+import type { responseSaver } from "../gateways/interfaces/internal/response_saver.ts";
+import { uniqueIdGen } from "../../../injections.ts";
 
 const space6 = "      ";
 const space8 = "        ";
@@ -35,92 +37,112 @@ export function handlePeer(
     peer: Socket,
     context: DialogueContext,
     model: Model,
-    responseInProgress: Response
+    responseInProgress: Response,
+    responseSaver: responseSaver
 ) {
-    peer.on("respondent input", async (msg, questionResponseId) => {
-        if (proxy_debug()) {
-            console.log(
-                space6,
-                "ConnectionId",
-                peer.handshake.auth.connectionId,
-                "sent message:",
-                msg,
-                "to questionResponse with id:",
-                questionResponseId
+    peer.on(
+        "respondent input",
+        async (respondentMessage, questionResponseId) => {
+            if (proxy_debug()) {
+                console.log(
+                    space6,
+                    "ConnectionId",
+                    peer.handshake.auth.connectionId,
+                    "sent message:",
+                    respondentMessage,
+                    "to questionResponse with id:",
+                    questionResponseId
+                );
+            }
+
+            // Check that both params were received
+            if (!respondentMessage || !questionResponseId) {
+                peer.emit(
+                    "error",
+                    `Expected respondentMessage and questionResponseId to be defined but received respondentMessage ${respondentMessage} and questionResponseId ${questionResponseId}`
+                );
+                return;
+            }
+
+            // Parse user input for malicious messages
+            const validatePeerInput = isPeerInputMalicious(respondentMessage);
+            if (validatePeerInput) {
+                peer.emit("error", validatePeerInput.message);
+                return;
+            }
+
+            if (proxy_debug()) {
+                console.log(space8, "Input validated");
+            }
+
+            // Check that questionResponseId is valid
+            const matchingQrs = responseInProgress.questionResponses.filter(
+                (qr) => qr.uniqueId == questionResponseId
             );
-        }
+            if (matchingQrs.length != 1) {
+                peer.emit(
+                    "error",
+                    `Question response with id ${questionResponseId} not found!`
+                );
+                return;
+            }
+            if (proxy_debug()) {
+                console.log(space8, "Question response identified");
+            }
+            const questionResponseInProgress =
+                matchingQrs[0] as QuestionResponse;
 
-        // Check that both params were received
-        if (!msg || !questionResponseId) {
-            peer.emit(
-                "error",
-                `Expcted msg and questionResponseId to be defined but received msg ${msg} and questionResponseId ${questionResponseId}`
+            // Construct full context
+            const fullContext = constructFullContext(
+                context.promptContext,
+                questionResponseInProgress.transcript
             );
-            return;
-        }
+            if (proxy_debug()) {
+                console.log(space8, "Context constructed");
+            }
 
-        // Parse user input for malicious messages
-        const validatePeerInput = isPeerInputMalicious(msg);
-        if (validatePeerInput) {
-            peer.emit("error", validatePeerInput.message);
-            return;
-        }
+            if (proxy_debug()) {
+                console.log(space8, "Awaiting model...");
+            }
+            let modelMessage: string = "";
+            for await (const modelMessageChunk of model.requestModelAnswerAsync(
+                fullContext,
+                respondentMessage
+            )) {
+                peer.emit("modelMessageChunk", modelMessageChunk);
 
-        if (proxy_debug()) {
-            console.log(space8, "Input validated");
-        }
+                modelMessage += modelMessageChunk as string;
+            }
+            if (proxy_debug()) {
+                console.log(space8, "Model finished");
+            }
 
-        // Check that questionResponseId is valid
-        const matchingQrs = responseInProgress.questionResponses.filter(
-            (qr) => qr.uniqueId == questionResponseId
-        );
-        if (matchingQrs.length != 1) {
-            peer.emit(
-                "error",
-                `Question response with id ${questionResponseId} not found!`
-            );
-            return;
-        }
-        if (proxy_debug()) {
-            console.log(space8, "Question response identified");
-        }
-        const questionResponseInProgress = matchingQrs[0] as QuestionResponse;
+            // Tell peer model is finished
+            peer.emit("modelMessageFinished");
+            if (proxy_debug()) {
+                console.log(space8, "Informed peer model finished");
+            }
 
-        // Construct full context
-        const fullContext = constructFullContext(
-            context.promptContext,
-            questionResponseInProgress.transcript
-        );
-        if (proxy_debug()) {
-            console.log(space8, "Context constructed");
-        }
+            // Update the response in progress
+            const lastTurn =
+                questionResponseInProgress.transcript[
+                    questionResponseInProgress.transcript.length - 1
+                ];
+            if (lastTurn) {
+                lastTurn.respondentMessage = respondentMessage;
+            }
+            const thisTurn = new Turn({
+                uniqueId: uniqueIdGen,
+                modelMessage: modelMessage,
+            });
+            questionResponseInProgress.addTurn(thisTurn);
+            questionResponseInProgress.lastEdited = Date.now();
 
-        // Add a turn to our survey response
-        const thisTurn = new Turn({ respondentMessage: msg });
-        questionResponseInProgress.addTurn(thisTurn);
-
-        if (proxy_debug()) {
-            console.log(space8, "Awaiting model...");
+            // Try to save, if fail, emit error
+            const saveResult = await responseSaver(responseInProgress);
+            if (saveResult instanceof Error) {
+                peer.emit("error", JSON.stringify(saveResult));
+            }
         }
-        let modelMessage: string = "";
-        for await (const modelMessageChunk of model.requestModelAnswerAsync(
-            fullContext,
-            msg
-        )) {
-            peer.emit("modelMessageChunk", modelMessageChunk);
-
-            modelMessage += modelMessageChunk as string;
-        }
-        if (proxy_debug()) {
-            console.log(space8, "Model finished");
-        }
-
-        // Tell peer model is finished
-        peer.emit("modelMessageFinished");
-        if (proxy_debug()) {
-            console.log(space8, "Informed peer model finished");
-        }
-
-        thisTurn.modelMessage = modelMessage;
-    });
+    );
 }

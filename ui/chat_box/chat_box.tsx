@@ -108,7 +108,6 @@ export function ChatBox({questionResponse, connectionSetup, onQrChanged}: {quest
             }
             return t
         })
-
     )
 
         // Return proxy errors

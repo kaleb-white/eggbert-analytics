@@ -2,7 +2,7 @@
 import { ChatBox } from "../chat_box/chat_box";
 import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client";
 import { useEffect, useRef, useState } from "react";
-import { reconstructResponse } from "@/stable_utilities/reconstruct_obj/reconstruct_response";
+import { reconstructResponse } from "@/utilities/reconstruct_obj/reconstruct_response";
 import { QuestionResponseScroll } from "../navigation/qr_scroll/qr_scroll";
 import { Turn } from "@/core/entities/surveys/turn";
 

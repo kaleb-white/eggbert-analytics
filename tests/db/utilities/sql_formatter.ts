@@ -1,4 +1,4 @@
-import { magentaString, redString } from "@/stable_utilities/logging";
+import { magentaString, redString } from "@/utilities/logging";
 
 const INDENT_ON = /(LEFT JOIN)|(SELECT)|(jsonb_build_object)/g;
 const DEINDENT_ON = /(FROM)|(WHERE)|(AS)|(^(\s*?)\) )/g;

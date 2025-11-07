@@ -2,7 +2,7 @@ import {
     ParameterizedStatementSets,
     ParameterizedStatement,
     PossibleStatementFormat,
-} from "@/persistent_storage/postgres_db/generation_types_and_utilities";
+} from "@/storage/postgres_db/generation_types_and_utilities";
 
 export function truncateSql(sql: string): string {
     return sql.replace(/\t/g, "").replace(/\n/g, "").replace(/ /g, "");

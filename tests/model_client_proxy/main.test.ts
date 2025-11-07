@@ -15,7 +15,7 @@ async function call(
     body: string = "",
     authorization: string = ""
 ) {
-    const full_route = `localhost:${PORT}/${route}`;
+    const full_route = `http://127.0.0.1:${PORT}/${route}`;
 
     if (body == "") {
         return await fetch(full_route, {

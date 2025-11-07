@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isT } from "@/stable_utilities/global_type_check";
+import { isT } from "@/utilities/global_type_check";
 import { Cache } from "../interfaces/external/cache";
 import { Database } from "../interfaces/external/database";
 import { StorageGateway } from "../interfaces/internal/storage_gateway";
+import { Response } from "@/core/entities/surveys/response";
+import { isSurvey } from "@/utilities/type_checks";
 
 type Result<T> = {
     error: Error | null;
@@ -107,12 +109,13 @@ export class StorageGatewayImpl implements StorageGateway {
             resultObj.finished = true;
             resultObj.success = true;
         }
-        // Unexpected failure
+        // Unexpected failure where database did not error but unexpected obj was returned
         if (
             !resultObj.finished &&
             !(tryDatabaseLoad instanceof Error) &&
             !isT<T>(tryDatabaseLoad, objOfTypeT)
         ) {
+            console.log("is survey", isSurvey(tryDatabaseLoad));
             resultObj.error = new Error(
                 `Database returned something that wasn't of type T or an error: ${JSON.stringify(
                     tryDatabaseLoad
@@ -132,7 +135,6 @@ export class StorageGatewayImpl implements StorageGateway {
         if (!resultObj.cacheFinished) {
             await this.cache.get("fake", true);
         }
-
         return returnResultOrError(resultObj);
     }
 }

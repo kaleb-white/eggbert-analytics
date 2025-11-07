@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import { checkServerToken } from "./core/use_cases/auth";
 import type { AddressInfo } from "net";
 import { handlePeer } from "./core/use_cases/handle_peer";
-import { reconstructResponse } from "../stable_utilities/reconstruct_obj/reconstruct_response";
+import { reconstructResponse } from "../utilities/reconstruct_obj/reconstruct_response";
 import { finalizePeer } from "./core/gateways/internal/finalize_peer";
 import type { ProxySetupForServer } from "./core/entities/proxy_setup_for_server";
 import { dialogueContextFromProxySetupForServer } from "./core/entities/dialogue_context";
@@ -14,11 +14,14 @@ import {
     connectionIdsRouteName,
     createConnectionRouteName,
     PORT,
+    URL,
 } from "./config";
-import { proxy_debug } from "../stable_utilities/verbose_checks";
+import { proxy_debug } from "../utilities/verbose_checks";
+import { responseSaverImpl } from "./core/gateways/internal/response_saver_impl";
+import { GPTModelImpl } from "./core/gateways/external/query_model/gpt_model_impl";
 
 // Injected Dependencies
-const Model = ModelTest;
+const Model = GPTModelImpl;
 
 // CONSTANTS
 const space2 = "  ";
@@ -120,13 +123,19 @@ io.on("connection", (peer) => {
     const context = dialogueContextFromProxySetupForServer(peerConnection);
     const responseInProgress = reconstructResponse(context.response);
     // Setup handlers
-    handlePeer(peer, context, new Model(), responseInProgress);
+    handlePeer(
+        peer,
+        context,
+        new Model(),
+        responseInProgress,
+        responseSaverImpl
+    );
     finalizePeer(peer, context, responseInProgress, () => {
         idToConnection.delete(peerConnection.connectionId);
     });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, URL, () => {
     if (!server.address()) {
         server.close();
     }

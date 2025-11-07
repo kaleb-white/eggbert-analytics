@@ -1,5 +1,5 @@
 import { Cache } from "../interfaces/external/cache";
-import { CacheGateway } from "@cache_gateway/ts/cache_gateway";
+import { CacheGateway } from "@/storage/cpp_cache/cache_gateway/ts/cache_gateway";
 
 export class CacheImpl implements Cache {
     private cacheGateway: CacheGateway;

@@ -1,4 +1,4 @@
-import { assignOrCreateUniqueId } from "@/stable_utilities/assign_or_create_uid";
+import { assignOrCreateUniqueId } from "@/utilities/assign_or_create_uid";
 import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
 
 export type TurnProps = {

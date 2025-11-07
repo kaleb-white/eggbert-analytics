@@ -2,17 +2,14 @@ import { CryptographyUtilities } from "@entities/interfaces/crypto_utility_creat
 import { Question } from "@entities/surveys/question";
 import { Survey } from "@entities/surveys/survey";
 import { Response } from "@entities/surveys/response";
-import {
-    isCryptographyUtilities,
-    isSurvey,
-} from "@/stable_utilities/type_checks";
+import { isCryptographyUtilities, isSurvey } from "@/utilities/type_checks";
 import { describe, expect, test } from "bun:test";
 import { Author } from "@/core/entities/users/author";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Turn } from "@/core/entities/surveys/turn";
 import { User } from "@/core/entities/users/user";
 import { Respondent } from "@/core/entities/users/respondent";
-import { isT } from "@/stable_utilities/global_type_check";
+import { isT } from "@/utilities/global_type_check";
 
 describe("test type checks", () => {
     describe("test crypto utility creator type check", () => {

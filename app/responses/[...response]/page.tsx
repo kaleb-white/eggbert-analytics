@@ -1,7 +1,7 @@
 "use server"
 
 import { Response } from "@/core/entities/surveys/response"
-import { storage, uniqueIdGen } from "@/core/injections"
+import { storage, uniqueIdGen } from "@/injections"
 import { PORT } from "@/model_client_proxy/config"
 import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_setup_for_client"
 import { ProxySetupForServer } from "@/model_client_proxy/core/entities/proxy_setup_for_server"
