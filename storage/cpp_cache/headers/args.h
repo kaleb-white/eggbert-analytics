@@ -14,8 +14,6 @@
 #include <iostream>
 #include <climits>
 
-#include <ws2tcpip.h>
-
 struct CommandLineArguments
 {
 public:
@@ -45,8 +43,8 @@ public:
     CommandLineArgument BacklogSize{
         "Backlog Size",
         "backlog-size",
-        SOMAXCONN,
-        SOMAXCONN,
+        10,
+        10,
         "The number of connections to allow in a backlong."};
     // Amount to buffer from port sender
     CommandLineArgument MaximumInputSizeBytes{

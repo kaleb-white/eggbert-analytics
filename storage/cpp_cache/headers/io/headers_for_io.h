@@ -22,4 +22,32 @@
 #define ETB 0x17
 #define NAK 0x15
 
+struct PeerCommunicationResult
+{
+    CommandLineArguments args{};
+    bool was_sucessful{false};
+    std::string failure_message{""};
+
+    void reset()
+    {
+        was_sucessful = true;
+        failure_message = "";
+    }
+
+    void print_if_verbose(CustomCout *&printer)
+    {
+        if (args.verbose())
+        {
+            *printer << failure_message;
+        }
+    }
+
+    void set_failure(std::string new_failure_message, CustomCout *&printer)
+    {
+        was_sucessful = false;
+        failure_message = new_failure_message;
+        print_if_verbose(printer);
+    }
+};
+
 #endif

@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     pkg-config \
     libssl-dev \
+    unzip \
+    psmisc \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js (LTS) and npm via NodeSource
@@ -25,10 +27,23 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
 
 # Install bun
-RUN npm i bun -g
+RUN npm install bun -g
 
-# Install dependencies
-RUN bun i
+# Check bun is on path
+RUN bun --version
+
+# Install dependencies (bun hangs?)
+RUN npm install
+
+# Install next globally
+RUN npm i next -g
+
+# Set NODE_ENV
+RUN touch ~/.bashrc
+RUN echo "NODE_ENV=development" >> ~/.bashrc
+
+# Increase number of file watchers for dev hot reload (unsure if this works to speed up next tbh, look here: https://stackoverflow.com/questions/75463779/next-js-app-for-development-running-on-docker)
+RUN echo "fs.inotify.max_user_watches=1048576" >> /etc/sysctl.conf
 
 # Expose required ports (next server, cache, proxy, proxy test server)
 # Next dev
@@ -45,5 +60,5 @@ COPY . .
 
 
 #TODO:
-    # Custom network for interoperation with postgres: https://docs.docker.com/get-started/docker-concepts/running-containers/overriding-container-defaults/
-        # Section: Run postgres container in a controlled network
+# Custom network for interoperation with postgres: https://docs.docker.com/get-started/docker-concepts/running-containers/overriding-container-defaults/
+# Section: Run postgres container in a controlled network

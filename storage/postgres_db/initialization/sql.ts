@@ -1,5 +1,5 @@
 export const initializationStatements = {
-    dropUsersTable: "DROP TABLE users;",
+    dropUsersTable: "DROP TABLE users CASCADE;",
     dropSurveysResponsesTable: "DROP TABLE surveysResponses;",
     dropSurveysQuestionsTable: "DROP TABLE surveysQuestions;",
     dropSurveysTable: "DROP TABLE surveys;",
@@ -11,12 +11,11 @@ export const initializationStatements = {
     dropQuestionsTable: "DROP TABLE questions;",
     dropTurnsTable: "DROP TABLE turns;",
 
-    createUsersTable:
-        "\
-        CREATE TABLE users( \
-            uniqueId text PRIMARY KEY \
-        ); \
-    ",
+    createUsersTable: `
+        CREATE TABLE users(
+            uniqueId text PRIMARY KEY
+        );
+    `,
 
     createTurnsTable: `
         CREATE TABLE turns(

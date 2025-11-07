@@ -82,16 +82,6 @@ private:
         return true;
     }
 
-    void print_server_sock_port(SOCKET &server_sock)
-    {
-        sockaddr_in socket_addr_info;
-        int size_of_socket_addr_info = sizeof(socket_addr_info);
-        getsockname(server_sock, (sockaddr *)&socket_addr_info, &size_of_socket_addr_info);
-        std::string constructed_output{"Bound socket listening on port "};
-        constructed_output.append(std::to_string(ntohs(socket_addr_info.sin_port))).append("...");
-        *printer << constructed_output;
-    }
-
     bool configure(SOCKET &server_sock)
     {
         sockaddr_in address_info{};
@@ -125,6 +115,16 @@ private:
         return true;
     }
 
+    void print_server_sock_port(SOCKET &server_sock)
+    {
+        sockaddr_in socket_addr_info;
+        int size_of_socket_addr_info = sizeof(socket_addr_info);
+        getsockname(server_sock, (sockaddr *)&socket_addr_info, &size_of_socket_addr_info);
+        std::string constructed_output{"Bound socket listening on port "};
+        constructed_output.append(std::to_string(ntohs(socket_addr_info.sin_port))).append("...");
+        *printer << constructed_output;
+    }
+
     // Reference: https://learn.microsoft.com/en-us/windows/win32/WinSock/accepting-a-connection
     bool wait_for_connection(SOCKET &server_sock, SOCKET &client_sock)
     {
@@ -142,52 +142,23 @@ private:
 
     // Start functions in which peer should know about error
 
-    struct PeerCommunicationResult
-    {
-        CommandLineArguments args{};
-        bool was_sucessful{false};
-        std::string failure_message{""};
-
-        void reset()
-        {
-            was_sucessful = true;
-            failure_message = "";
-        }
-
-        void print_if_verbose(CustomCout *&printer)
-        {
-            if (args.verbose())
-            {
-                *printer << failure_message;
-            }
-        }
-
-        void set_failure(std::string new_failure_message, CustomCout *&printer)
-        {
-            was_sucessful = false;
-            failure_message = new_failure_message;
-            print_if_verbose(printer);
-        }
-
-        bool check_for_socket_error(int socket_response_code, CustomCout *&printer)
-        {
-            if (socket_response_code == SOCKET_ERROR)
-            {
-                was_sucessful = false;
-                failure_message = "\tSending or receiving resulted in SOCKET_ERROR";
-                print_if_verbose(printer);
-                return true;
-            }
-            return false;
-        }
-    };
-
     using Clock = std::chrono::time_point<std::chrono::system_clock>;
 
     bool should_timeout(Clock &start_time)
     {
         Clock now = std::chrono::system_clock::now();
         return std::chrono::duration<double>(now - start_time).count() > (double)args.MaxTransmissionWaitTimeSeconds.value;
+    }
+
+    bool check_for_socket_error(int socket_response_code, CustomCout *&printer, PeerCommunicationResult &res)
+    {
+        if (socket_response_code == SOCKET_ERROR)
+        {
+            std::string failure_message{"\tSending or receiving resulted in SOCKET_ERROR"};
+            res.set_failure(failure_message);
+            return true;
+        }
+        return false;
     }
 
     void wait_for_transmission(SOCKET &client_sock, PeerCommunicationResult &res)
@@ -203,7 +174,7 @@ private:
         {
             receive_result = recv(client_sock, &single_char_buffer, 1, 0);
 
-            if (res.check_for_socket_error(receive_result, printer))
+            if (check_for_socket_error(receive_result, printer))
                 return;
 
             if (receive_result >= 1 && single_char_buffer == STX)
@@ -235,7 +206,7 @@ private:
         int receive_result;
         receive_result = recv(client_sock, temp_char_buffer, max_number_of_digits, 0);
 
-        if (res.check_for_socket_error(receive_result, printer))
+        if (check_for_socket_error(receive_result, printer))
             return;
         if (receive_result < max_number_of_digits)
         {
@@ -270,7 +241,7 @@ private:
         {
             recv_result_as_int = recv(client_sock, receiving_buffer.get(), peer_reported_message_length - total_bytes_received, 0);
 
-            if (res.check_for_socket_error(recv_result_as_int, printer))
+            if (check_for_socket_error(recv_result_as_int, printer, res))
                 return;
 
             last_request_bytes_received = static_cast<uint32_t>(recv_result_as_int);
@@ -281,10 +252,11 @@ private:
                 res.set_failure("While reading a message, received " + std::to_string(total_bytes_received) + ", but then received 0 more bytes. Expected " + std::to_string(peer_reported_message_length) + " bytes", printer);
                 return;
             }
-        }
-        if (should_timeout(start))
-        {
-            res.set_failure("Timeout while reading a message", printer);
+            if (should_timeout(start))
+            {
+                res.set_failure("Timeout while reading a message", printer);
+                return;
+            }
         }
 
         return;
@@ -296,7 +268,7 @@ private:
 
         int bytes_received = 0;
         bytes_received = recv(client_sock, &peer_end_char, 1, 0);
-        if (res.check_for_socket_error(bytes_received, printer))
+        if (check_for_socket_error(bytes_received, printer, res))
             return;
         if (bytes_received == 1)
             return;

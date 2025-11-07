@@ -85,10 +85,6 @@ export class StorageGatewayImpl implements StorageGateway {
         // Check if finished
         if (resultObj.finished) {
             await this.cache.get("fake", true);
-            console.log(
-                "result from cache",
-                (resultObj.result as Response).questionResponses[0].transcript
-            );
             return returnResultOrError<T>(resultObj);
         }
 

@@ -1,5 +1,9 @@
 # Project Naming Conventions
 
+## Extending this document!
+
+If you see terms within the code that are not covered in here, add them! Creating naming conventions makes for much cleaner code.
+
 ## Terms
 
 ### People
@@ -22,7 +26,7 @@ A survey.
 
 A specific question which a survey seeks a respondent response to.
 
-#### survey response
+#### response
 
 The encapsulated summary and data of the survey response. Survey responses correspond to a question. Survey responses contain transcript, as well as summaries, transcripts, demographics, etc.
 
