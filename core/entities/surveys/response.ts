@@ -1,7 +1,7 @@
 import { assignOrCreateUniqueId } from "@/utilities/assign_or_create_uid";
 import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
-import { Respondent } from "../users/respondent";
 import { QuestionResponse } from "./question_response";
+import { Respondent } from "../users/respondent";
 
 export type ResponseProps = {
     uniqueId?: string | CryptographyUtilities;
@@ -14,7 +14,7 @@ export type ResponseProps = {
 const defaultProps = {
     uniqueId: "",
     questionResponses: [],
-    respondent: new Respondent(""),
+    respondent: new Respondent(),
     timeCreated: Date.now(),
     lastEdited: Date.now(),
 };

@@ -16,6 +16,18 @@ The survey taker.
 
 Anyone who uses the app.
 
+#### anonymous
+
+A respondent who has not signed in.
+
+#### author
+
+Someone who creates surveys.
+
+#### role
+
+A string which corresponds to a set of authorized actions.
+
 ### Surveys
 
 #### survey
