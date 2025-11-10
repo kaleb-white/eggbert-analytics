@@ -1,6 +1,6 @@
 # A Simple Cache Implementation
 
-A very simple implementation of an in-memory cache. There is an IO implementation for the winsock2 windows header; but no implementation yet exists for linux.
+A very simple implementation of an in-memory cache. There is an IO implementation for the winsock2 windows header and for the sys/socket.h linux header, but no implementation exists for whatever abomination mac uses.
 
 ## Commands
 
@@ -68,3 +68,4 @@ A message to the client from the server: ==STX (start message)== -> ==uint peer_
 1. Add sigint graceful shutdown
 1. Add timeout to client socket config
 1. Look into ensuring only connections over loopback are allowed
+
