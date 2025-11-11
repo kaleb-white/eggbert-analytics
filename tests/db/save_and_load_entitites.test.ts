@@ -17,12 +17,12 @@ import { getTurns } from "@/storage/postgres_db/sql_generators_by_entity/turns";
 import { Turn } from "@/core/entities/surveys/turn";
 import { getResponses } from "@/storage/postgres_db/sql_generators_by_entity/responses";
 import { Response } from "@/core/entities/surveys/response";
-import { initialize } from "./utilities/reset_and_initialize";
 import testPool from "./utilities/test_pool";
+import { testInitializer } from "@/injections";
 
 describe("test that survey is saved to database", async () => {
     // Initialize database
-    await initialize();
+    await testInitializer.initialize();
 
     // Create sql from sample survey
     test("try execute survey save", async () => {

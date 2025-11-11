@@ -2,7 +2,6 @@ import { Question } from "@/core/entities/surveys/question";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Response } from "@/core/entities/surveys/response";
 import { Turn } from "@/core/entities/surveys/turn";
-import { Respondent } from "@/core/entities/users/respondent";
 import { CacheImpl } from "@/core/gateways/external/cpp_socket_cache_impl";
 import { PostgresDbImpl } from "@/core/gateways/external/postgres_db_impl";
 import { StorageGatewayImpl } from "@/core/gateways/internal/storage_gateway_impl";
@@ -15,9 +14,10 @@ import {
     yellowString,
 } from "@/utilities/logging";
 import { isProcessRunningOnPort } from "@/utilities/process_running";
-import { initialize } from "@/tests/db/utilities/reset_and_initialize";
 import { exec } from "child_process";
 import { pool } from "@/injections";
+import { Respondent } from "@/core/entities/users/respondent";
+import { testInitializer } from "@/injections";
 
 function createStreamEchoingToStdout() {
     const decoder = new TextDecoder("utf-8");
@@ -215,7 +215,7 @@ async function main() {
 
     // Reset db
     printOp("Resetting test database...");
-    await initialize();
+    await testInitializer.initialize();
     printOpDone();
 
     // Create sample question response and save
@@ -299,7 +299,7 @@ async function main() {
     const res = new Response({
         uniqueId: "test",
         questionResponses: qrs,
-        respondent: new Respondent("test6"),
+        respondent: new Respondent({ uniqueId: "test6" }),
     });
 
     printSubOp("Creating storage gateway...");

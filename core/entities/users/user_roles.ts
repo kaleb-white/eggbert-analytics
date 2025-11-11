@@ -3,5 +3,5 @@ import { User } from "./user";
 export type Role = "anonymous" | "respondent" | "author";
 
 export type UserNoRole = {
-    [Property in keyof User as Exclude<Property, "role">]: User[Property];
+    [Property in keyof User as Exclude<Property, "role">]?: User[Property];
 };
