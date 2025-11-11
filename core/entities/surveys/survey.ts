@@ -1,4 +1,4 @@
-import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "../../controllers/crypto/interfaces/crypto_utility_creator";
 import { Author } from "../users/author";
 import { Question } from "./question";
 import { Response } from "./response";

@@ -22,16 +22,11 @@ export type ParameterizedStatementSets = (
 
 export function createParameterizedStatement(
     numRows: number,
-    numParameters: number,
-    timestampFieldIndices: number[] = []
+    numParameters: number
 ) {
     let stringResult = "(";
     for (let i = 1; i <= numParameters; i++) {
-        if (timestampFieldIndices.includes((i - 1) % numRows)) {
-            stringResult = stringResult.concat(`to_timestamp($${i})`);
-        } else {
-            stringResult = stringResult.concat(`$${i}`);
-        }
+        stringResult = stringResult.concat(`$${i}`);
 
         if (i == numParameters) {
             stringResult = stringResult.concat(`)`);
@@ -60,27 +55,19 @@ export function argumentsToInStatementFromArray(uniqueIds: string[]) {
         .concat(")");
 }
 
-export function jsDateToSqlTimestamp(date: number) {
-    return `${Math.floor(date / 1000)}`;
-}
-
 export function getAllEntityValuesAsArray(
     entities: object[],
-    orderedFields: (string | string[])[],
-    timestampFieldIndices: number[] = []
+    orderedFields: (string | string[])[]
 ) {
     if (entities.length == 0) return null;
     return entities.flatMap((entity) =>
-        orderedFields.map((field, i) => {
+        orderedFields.map((field) => {
             if (Array.isArray(field)) {
                 let subObj = entity;
                 for (const subField of field) {
                     subObj = subObj[subField];
                 }
                 return subObj;
-            }
-            if (timestampFieldIndices.includes(i)) {
-                return jsDateToSqlTimestamp(entity[field] as number);
             }
             return entity[field];
         })

@@ -1,4 +1,4 @@
-import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "../../controllers/crypto/interfaces/crypto_utility_creator";
 import { Question } from "./question";
 import { Turn } from "./turn";
 import { assignOrCreateUniqueId } from "@/utilities/assign_or_create_uid";

@@ -6,6 +6,24 @@ If you see terms within the code that are not covered in here, add them! Creatin
 
 ## Terms
 
+### Architecture
+
+#### Controller
+
+A grouped set of internal data pathways; for example, actions related to users are in the user controller, and actions related to crypto are in the crypto folder under controllers.
+
+#### Use Case
+
+A specific internal data pathway.
+
+#### Gateway
+
+An external interface which provides access to core functionality from the outside or an internal interface which provides access to external functionality from the inside.
+
+#### Server Action
+
+A react term for a function which exists on the server but is called from client components. Documentation [here](https://react.dev/reference/rsc/server-functions).
+
 ### People
 
 #### respondent
@@ -87,6 +105,10 @@ Demographic information about a survey response.
 #### malicious
 
 Input that is meant to hijack the server.
+
+#### identifier
+
+A group of means by which to identify an entity. For example, a user could be identified by their email.
 
 ### AI
 

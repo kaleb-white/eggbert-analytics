@@ -1,5 +1,6 @@
 export const initializationStatements = {
     dropUsersTable: "DROP TABLE users CASCADE;",
+    dropSessionsTable: "DROP TABLE sessions CASCADE;",
     dropSurveysResponsesTable: "DROP TABLE surveysResponses;",
     dropSurveysQuestionsTable: "DROP TABLE surveysQuestions;",
     dropSurveysTable: "DROP TABLE surveys;",
@@ -10,10 +11,28 @@ export const initializationStatements = {
     dropQuestionResponsesTable: "DROP TABLE questionResponses;",
     dropQuestionsTable: "DROP TABLE questions;",
     dropTurnsTable: "DROP TABLE turns;",
+    dropRolesType: "DROP TYPE IF EXISTS roles;",
+
+    createRolesType:
+        "CREATE TYPE roles AS ENUM ('anonymous', 'respondent', 'author');",
 
     createUsersTable: `
         CREATE TABLE users(
-            uniqueId text PRIMARY KEY
+            uniqueId text PRIMARY KEY,
+            role roles NOT NULL,
+            email text,
+            timeCreated text NOT NULL,
+            lastLogin text NOT NULL
+        );
+    `,
+
+    createSessionsTable: `
+        CREATE TABLE sessions(
+            uniqueId text PRIMARY KEY,
+            antiCsrfToken text NOT NULL,
+            userId text REFERENCES users (uniqueId),
+            role roles NOT NULL,
+            expiration text NOT NULL
         );
     `,
 
@@ -22,8 +41,8 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY,
             modelMessage text,
             respondentMessage text,
-            timeCreated timestamp NOT NULL DEFAULT current_timestamp,
-            lastEdited timestamp NOT NULL
+            timeCreated text NOT NULL,
+            lastEdited text NOT NULL
         );
         `,
 
@@ -33,8 +52,8 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY, \
             question text NOT NULL, \
             modelPrompt text NOT NULL, \
-            timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
-            lastEdited timestamp NOT NULL, \
+            timeCreated text NOT NULL, \
+            lastEdited text NOT NULL, \
             maxNumberOfTurns integer DEFAULT 0 \
         ); \
         ",
@@ -45,8 +64,8 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY, \
             summary text, \
             currentTurn integer DEFAULT 0, \
-            timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
-            lastEdited timestamp NOT NULL, \
+            timeCreated text NOT NULL, \
+            lastEdited text NOT NULL, \
             question text REFERENCES questions (uniqueId) \
         ); \
         ",
@@ -64,8 +83,8 @@ export const initializationStatements = {
         " \
         CREATE TABLE responses( \
             uniqueId text PRIMARY KEY, \
-            timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
-            lastEdited timestamp NOT NULL \
+            timeCreated text NOT NULL, \
+            lastEdited text NOT NULL \
         ); \
         ",
 
@@ -82,8 +101,8 @@ export const initializationStatements = {
         "\
         CREATE TABLE surveys(\
             uniqueId text PRIMARY KEY, \
-            timeCreated timestamp NOT NULL DEFAULT current_timestamp, \
-            lastEdited timestamp NOT NULL, \
+            timeCreated text NOT NULL, \
+            lastEdited text NOT NULL, \
             authorId text REFERENCES users (uniqueId) ON DELETE RESTRICT \
         );\
         ",

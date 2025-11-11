@@ -1,5 +1,5 @@
 import { assignOrCreateUniqueId } from "@/utilities/assign_or_create_uid";
-import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "../../controllers/crypto/interfaces/crypto_utility_creator";
 import { QuestionResponse } from "./question_response";
 import { Respondent } from "../users/respondent";
 

@@ -11,21 +11,15 @@ export function insertOrUpdateResponses(
     responses: Response[]
 ): PossibleStatementFormat {
     const orderedFields = ["uniqueId", "timeCreated", "lastEdited"];
-    const timestampFieldIndices = [1, 2];
     const allResponsesValues = getAllEntityValuesAsArray(
         responses,
-        orderedFields,
-        timestampFieldIndices
+        orderedFields
     );
     if (!allResponsesValues) return "pass";
     return {
         sql: `
     INSERT INTO responses (uniqueId, timeCreated, lastEdited)
-        VALUES ${createParameterizedStatement(
-            3,
-            allResponsesValues.length,
-            timestampFieldIndices
-        )}
+        VALUES ${createParameterizedStatement(3, allResponsesValues.length)}
         ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;
     `,
         userInput: allResponsesValues,

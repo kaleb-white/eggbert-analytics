@@ -17,21 +17,15 @@ export function insertOrUpdateQuestions(
         "timeCreated",
         "lastEdited",
     ];
-    const timestampFieldIndices = [4, 5];
     const allQuestionValues = getAllEntityValuesAsArray(
         questions,
-        orderedFields,
-        timestampFieldIndices
+        orderedFields
     );
     if (!allQuestionValues) return "pass";
     return {
         sql: `
         INSERT INTO questions (uniqueId, question, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
-            VALUES ${createParameterizedStatement(
-                6,
-                allQuestionValues.length,
-                timestampFieldIndices
-            )}
+            VALUES ${createParameterizedStatement(6, allQuestionValues.length)}
             ON CONFLICT (uniqueId) DO NOTHING;`,
         userInput: allQuestionValues,
     };

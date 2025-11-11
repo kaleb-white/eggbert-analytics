@@ -1,8 +1,5 @@
 import { Survey } from "@/core/entities/surveys/survey";
-import {
-    jsDateToSqlTimestamp,
-    PossibleStatementFormat,
-} from "../generation_types_and_utilities";
+import { PossibleStatementFormat } from "../generation_types_and_utilities";
 
 export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
     return {
@@ -17,8 +14,8 @@ export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
             `,
         userInput: [
             survey.uniqueId,
-            jsDateToSqlTimestamp(survey.timeCreated),
-            jsDateToSqlTimestamp(survey.lastEdited),
+            String(survey.timeCreated),
+            String(survey.lastEdited),
             survey.author.uniqueId,
         ],
     };

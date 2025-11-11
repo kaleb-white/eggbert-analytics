@@ -4,18 +4,28 @@ import { PossibleStatementFormat } from "../generation_types_and_utilities";
 export function insertOrUpdateUser(user: User): PossibleStatementFormat {
     return {
         sql: `
-        INSERT INTO users (uniqueId)
-            VALUES ($1)
-            ON CONFLICT (uniqueId) DO NOTHING;
+        INSERT INTO users (uniqueId, role, email, timeCreated, lastLogin)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (uniqueId) DO UPDATE SET lastLogin = EXCLUDED.lastLogin;
         `,
-        userInput: [user.uniqueId],
+        userInput: [
+            user.uniqueId,
+            user.role,
+            user.email,
+            String(user.timeCreated),
+            String(user.lastLogin),
+        ],
     };
 }
 
 export function createJsonbUser(as: string = "user") {
     return `
     jsonb_build_object(
-        'uniqueId', users.uniqueId
+        'uniqueId', users.uniqueId,
+        'role', users.role,
+        'email', users.email,
+        'timeCreated', users.timeCreated,
+        'lastLogin', users.lastLogin
     ) AS ${as}
     `;
 }

@@ -14,22 +14,13 @@ export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
         "timeCreated",
         "lastEdited",
     ];
-    const timestampFieldIndices = [3, 4];
-    const allTurnValues = getAllEntityValuesAsArray(
-        turns,
-        orderedFields,
-        timestampFieldIndices
-    );
+    const allTurnValues = getAllEntityValuesAsArray(turns, orderedFields);
     if (!allTurnValues) return "pass";
 
     return {
         sql: `
         INSERT INTO turns (uniqueId, modelMessage, respondentMessage, timeCreated, lastEdited)
-            VALUES ${createParameterizedStatement(
-                5,
-                allTurnValues.length,
-                timestampFieldIndices
-            )}
+            VALUES ${createParameterizedStatement(5, allTurnValues.length)}
             ON CONFLICT (uniqueId) DO UPDATE SET modelMessage = EXCLUDED.modelMessage, respondentMessage = EXCLUDED.respondentMessage;
         `,
         userInput: allTurnValues,

@@ -18,11 +18,9 @@ export function insertOrUpdateQuestionResponses(
         "lastEdited",
         ["question", "uniqueId"],
     ];
-    const timestampFieldIndices = [2, 3];
     const allQuestionResponseValues = getAllEntityValuesAsArray(
         questionResponses,
-        orderedFields,
-        timestampFieldIndices
+        orderedFields
     );
     if (allQuestionResponseValues == null) return "pass";
     return {
@@ -30,8 +28,7 @@ export function insertOrUpdateQuestionResponses(
     INSERT INTO questionResponses (uniqueId, currentTurn, timeCreated, lastEdited, question)
         VALUES ${createParameterizedStatement(
             5,
-            allQuestionResponseValues.length,
-            timestampFieldIndices
+            allQuestionResponseValues.length
         )}
         ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;
     `,

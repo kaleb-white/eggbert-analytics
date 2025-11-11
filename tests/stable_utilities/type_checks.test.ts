@@ -1,4 +1,4 @@
-import { CryptographyUtilities } from "@entities/interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "@/core/controllers/crypto/interfaces/crypto_utility_creator";
 import { Question } from "@entities/surveys/question";
 import { Survey } from "@entities/surveys/survey";
 import { Response } from "@entities/surveys/response";
