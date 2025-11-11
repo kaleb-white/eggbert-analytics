@@ -27,8 +27,8 @@ const defaultProps: {
 };
 
 export class Session {
-    uniqueId: string | CryptographyUtilities;
-    antiCsrfToken: string | CryptographyUtilities;
+    uniqueId: string;
+    antiCsrfToken: string;
     userId: string;
     role: Role;
     expiration: number;

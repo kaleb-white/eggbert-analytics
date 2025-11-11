@@ -20,7 +20,7 @@ export const initializationStatements = {
         CREATE TABLE users(
             uniqueId text PRIMARY KEY,
             role roles NOT NULL,
-            email text,
+            email text UNIQUE,
             timeCreated text NOT NULL,
             lastLogin text NOT NULL
         );

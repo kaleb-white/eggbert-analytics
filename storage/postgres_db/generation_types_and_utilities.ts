@@ -21,7 +21,7 @@ export type ParameterizedStatementSets = (
 )[];
 
 export function createParameterizedStatement(
-    numRows: number,
+    numCols: number,
     numParameters: number
 ) {
     let stringResult = "(";
@@ -30,7 +30,7 @@ export function createParameterizedStatement(
 
         if (i == numParameters) {
             stringResult = stringResult.concat(`)`);
-        } else if (i % numRows == 0) {
+        } else if (i % numCols == 0) {
             stringResult = stringResult.concat(`), (`);
         } else {
             stringResult = stringResult.concat(`,`);
