@@ -32,6 +32,18 @@ import { Response } from "@/core/entities/surveys/response";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Question } from "@/core/entities/surveys/question";
 import { Turn } from "@/core/entities/surveys/turn";
+import {
+    getUsers,
+    saveUsers,
+} from "@/storage/postgres_db/sql_generators_by_entity/users";
+import {
+    getSessions,
+    saveSessions,
+} from "@/storage/postgres_db/sql_generators_by_entity/sessions";
+import { Respondent } from "@/core/entities/users/respondent";
+import { Author } from "@/core/entities/users/author";
+import { Anonymous } from "@/core/entities/users/anonymous";
+import { Session } from "@/core/entities/users/session";
 
 async function genAndExecuteSaveSql(
     sqlGen: (any: any[]) => ParameterizedStatementSets,
@@ -94,6 +106,17 @@ export class PostgresDbImpl implements Database {
             case "turn":
                 res = await genAndExecuteSaveSql(saveTurns, [obj], this.pool);
                 break;
+            case "respondent":
+            case "author":
+            case "anonymous":
+                res = await genAndExecuteSaveSql(saveUsers, [obj], this.pool);
+                break;
+            case "session":
+                res = await genAndExecuteSaveSql(
+                    saveSessions,
+                    [obj],
+                    this.pool
+                );
             default:
                 return new Error(
                     `Object unrecognized as registered entity (type check missing?). Object was ${JSON.stringify(
@@ -149,6 +172,36 @@ export class PostgresDbImpl implements Database {
                     "turns"
                 );
                 break;
+            case "respondent":
+                promise = genAndExecuteGetSql<Respondent>(
+                    getUsers,
+                    [id],
+                    this.pool,
+                    "users"
+                );
+                break;
+            case "anonymous":
+                promise = genAndExecuteGetSql<Anonymous>(
+                    getUsers,
+                    [id],
+                    this.pool,
+                    "users"
+                );
+                break;
+            case "author":
+                promise = genAndExecuteGetSql<Author>(
+                    getUsers,
+                    [id],
+                    this.pool,
+                    "users"
+                );
+            case "session":
+                promise = genAndExecuteGetSql<Session>(
+                    getSessions,
+                    [id],
+                    this.pool,
+                    "users"
+                );
             default:
                 return new Error(
                     `Object unrecognized as registered entity (type check missing?). Object was ${JSON.stringify(

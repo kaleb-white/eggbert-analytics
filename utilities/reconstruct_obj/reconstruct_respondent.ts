@@ -8,5 +8,10 @@ export function reconstructRespondent(
             ? (JSON.parse(respondent as string) as Respondent)
             : (respondent as Respondent);
 
-    return new Respondent(asRespondent.uniqueId);
+    return new Respondent({
+        uniqueId: asRespondent.uniqueId,
+        email: asRespondent.email,
+        lastLogin: asRespondent.lastLogin,
+        timeCreated: asRespondent.timeCreated,
+    });
 }

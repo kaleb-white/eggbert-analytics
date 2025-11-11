@@ -5,9 +5,9 @@ import { Role } from "./user_roles";
 export type SessionProps = {
     uniqueId?: string | CryptographyUtilities;
     antiCsrfToken?: string | CryptographyUtilities;
-    userId: string;
-    role: Role;
-    expiration: number;
+    userId?: string;
+    role?: Role;
+    expiration?: number;
 };
 
 const msInThirtyDays: number = 2592000000;
@@ -33,7 +33,7 @@ export class Session {
     role: Role;
     expiration: number;
 
-    constructor(partialProps: SessionProps) {
+    constructor(partialProps?: SessionProps) {
         const props = partialProps ? partialProps : defaultProps;
         this.uniqueId = assignOrCreateUniqueId(
             props.uniqueId ? props.uniqueId : defaultProps.uniqueId

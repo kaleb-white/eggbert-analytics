@@ -31,7 +31,7 @@ export class User {
     timeCreated: number;
     lastLogin: number;
 
-    constructor(partialProps: UserProps) {
+    constructor(partialProps?: UserProps) {
         const props = partialProps ? partialProps : defaultProps;
         this.uniqueId = assignOrCreateUniqueId(
             props.uniqueId ? props.uniqueId : defaultProps.uniqueId

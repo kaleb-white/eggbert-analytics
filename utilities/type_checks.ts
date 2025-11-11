@@ -2,8 +2,7 @@ import { Question } from "@/core/entities/surveys/question";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Response } from "@/core/entities/surveys/response";
 import { Turn } from "@/core/entities/surveys/turn";
-import { Author } from "@/core/entities/users/author";
-import { Respondent } from "@/core/entities/users/respondent";
+import { Session } from "@/core/entities/users/session";
 import { User } from "@/core/entities/users/user";
 import { Survey } from "@entities/surveys/survey";
 
@@ -68,26 +67,41 @@ export function isTurn(obj: unknown): boolean {
     );
 }
 
-export function isUser(obj: unknown): boolean {
-    const keys = Object.keys(new User());
+export function isSession(obj: unknown): boolean {
+    const keys = Object.keys(new Session());
     return (
-        typeof obj === "object" &&
+        typeof obj == "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
 }
 
+// These are all subsets of user, so check is slightly different
 export function isRespondent(obj: unknown): boolean {
-    const keys = Object.keys(new Respondent());
+    const keys = Object.keys(new User());
     return (
         typeof obj === "object" &&
-        doUnorderedArraysMatch(keys, Object.keys(obj as object))
+        doUnorderedArraysMatch(keys, Object.keys(obj as object)) &&
+        (obj as User).role &&
+        (obj as User).role == "respondent"
     );
 }
 
 export function isAuthor(obj: unknown): boolean {
-    const keys = Object.keys(new Author());
+    const keys = Object.keys(new User());
     return (
         typeof obj === "object" &&
-        doUnorderedArraysMatch(keys, Object.keys(obj as object))
+        doUnorderedArraysMatch(keys, Object.keys(obj as object)) &&
+        (obj as User).role &&
+        (obj as User).role == "author"
+    );
+}
+
+export function isAnonymous(obj: unknown): boolean {
+    const keys = Object.keys(new User());
+    return (
+        typeof obj === "object" &&
+        doUnorderedArraysMatch(keys, Object.keys(obj as object)) &&
+        (obj as User).role &&
+        (obj as User).role == "anonymous"
     );
 }
