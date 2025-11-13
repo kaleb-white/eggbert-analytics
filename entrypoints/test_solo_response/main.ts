@@ -241,10 +241,16 @@ async function main() {
         transcript: [
             new Turn({
                 uniqueId: "a",
-                modelMessage: "model msg 1.1",
-                respondentMessage: "resp msg 1.1",
+                modelMessage:
+                    "What are your thoughts on the rise of AI in everyday life?",
+                respondentMessage:
+                    "I don't know much about it, but it's a little scary. Is AI really making our lives better?",
             }),
-            new Turn({ uniqueId: "b", modelMessage: "model msg 2.1" }),
+            new Turn({
+                uniqueId: "b",
+                modelMessage:
+                    "AI definitely has its drawbacks, but experts agree that its potential for augmenting human ability could bring about changes in human society. What specific aspects of AI do you find frustrating?",
+            }),
         ],
     });
     const qr2 = new QuestionResponse({

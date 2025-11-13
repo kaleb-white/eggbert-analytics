@@ -47,6 +47,10 @@ Refer to [the architecture file](./docs/eggbert_architecture.md) to learn more a
 
 There is a also an [abbreviated summary of the key principles of Martin's book.](/docs/clean_architecture.md)
 
+## Demo
+
+Check it our [here](/public/eggbert%20demo.mp4)!
+
 ## Credit
 
 ### Solar Bold Icons for all icons
