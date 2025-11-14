@@ -2,6 +2,7 @@ import { Question } from "@/core/entities/surveys/question";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Response } from "@/core/entities/surveys/response";
 import { Turn } from "@/core/entities/surveys/turn";
+import { Password } from "@/core/entities/users/password";
 import { Session } from "@/core/entities/users/session";
 import { User } from "@/core/entities/users/user";
 import { Survey } from "@entities/surveys/survey";
@@ -103,5 +104,13 @@ export function isAnonymous(obj: unknown): boolean {
         doUnorderedArraysMatch(keys, Object.keys(obj as object)) &&
         (obj as User).role &&
         (obj as User).role == "anonymous"
+    );
+}
+
+export function isPassword(obj: unknown): boolean {
+    const keys = Object.keys(new Password());
+    return (
+        typeof obj === "object" &&
+        doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
 }

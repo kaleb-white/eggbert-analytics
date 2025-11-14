@@ -33,6 +33,12 @@ import { User } from "@/core/entities/users/user";
 import { Respondent } from "@/core/entities/users/respondent";
 import { Anonymous } from "@/core/entities/users/anonymous";
 import { Author } from "@/core/entities/users/author";
+import { Password } from "@/core/entities/users/password";
+import {
+    getPassword,
+    getPasswords,
+    savePasswords,
+} from "@/storage/postgres_db/sql_generators_by_entity/passwords";
 
 describe("test that survey is saved to database", async () => {
     // Initialize database
@@ -130,7 +136,7 @@ describe("test that survey is saved to database", async () => {
     });
 });
 
-describe("test that user is saved to database", async () => {
+describe("test that user, session, password is saved to database", async () => {
     // Initialize database
     await testInitializer.initialize();
 
@@ -158,6 +164,22 @@ describe("test that user is saved to database", async () => {
         userId: "ghi",
     });
 
+    const p1 = new Password({
+        userId: "abc",
+        salt: "def",
+        hash: "ghi",
+    });
+    const p2 = new Password({
+        userId: "def",
+        salt: "def",
+        hash: "ghi",
+    });
+    const p3 = new Password({
+        userId: "ghi",
+        salt: "def",
+        hash: "ghi",
+    });
+
     test("save no user", async () => {
         const statements = saveUsers([]);
         const result = await executeStatements(statements, testPool);
@@ -173,6 +195,7 @@ describe("test that user is saved to database", async () => {
         const result = await executeStatements(statements, testPool);
         expect(result).not.toBeInstanceOf(Error);
     });
+
     test("save no session", async () => {
         const statements = saveSessions([]);
         const result = await executeStatements(statements, testPool);
@@ -188,6 +211,23 @@ describe("test that user is saved to database", async () => {
         const result = await executeStatements(statements, testPool);
         expect(result).not.toBeInstanceOf(Error);
     });
+
+    test("save no password", async () => {
+        const statements = savePasswords([]);
+        const result = await executeStatements(statements, testPool);
+        expect(result).not.toBeInstanceOf(Error);
+    });
+    test("save one password", async () => {
+        const statements = savePasswords([p1]);
+        const result = await executeStatements(statements, testPool);
+        expect(result).not.toBeInstanceOf(Error);
+    });
+    test("save two passwords", async () => {
+        const statements = savePasswords([p2, p3]);
+        const result = await executeStatements(statements, testPool);
+        expect(result).not.toBeInstanceOf(Error);
+    });
+
     test("get no session", async () => {
         const statements = getSession("fake");
         const result = await executeStatements(statements, testPool);
@@ -220,6 +260,7 @@ describe("test that user is saved to database", async () => {
         expect(e[0].uniqueId).toBe(s2.uniqueId);
         expect(e[1].uniqueId).toBe(s3.uniqueId);
     });
+
     test("get no user", async () => {
         const statements = getUser("fake");
         const result = await executeStatements(statements, testPool);
@@ -250,5 +291,39 @@ describe("test that user is saved to database", async () => {
         expect(e.length).toBe(2);
         expect(e[0].uniqueId).toBe(anon.uniqueId);
         expect(e[1].uniqueId).toBe(auth.uniqueId);
+    });
+
+    test("get no password", async () => {
+        const statements = getPassword("fake");
+        const result = await executeStatements(statements, testPool);
+        expect(result).not.toBeInstanceOf(Error);
+    });
+    test("get one password", async () => {
+        const statements = getPassword(resp.uniqueId);
+        const result = await executeStatements(statements, testPool);
+        expect(result).not.toBeInstanceOf(Error);
+        const entities = getAllEntities<Password>(result as QueryResult[]);
+        expect(entities).not.toBeInstanceOf(Error);
+        expect(entities).not.toBeNull();
+        const e = entities as Password[];
+        expect(e.length).toBe(1);
+        expect(e[0].userId).toBe(p1.userId);
+        expect(e[0].salt).toBe(p1.salt);
+    });
+    test("get two passwords", async () => {
+        const statements = getPasswords([anon.uniqueId, auth.uniqueId]);
+        const result = await executeStatements(statements, testPool);
+        expect(result).not.toBeInstanceOf(Error);
+        const entities = getAllEntities<Password>(
+            result as QueryResult[],
+            "passwordsAgg"
+        );
+        expect(entities).not.toBeInstanceOf(Error);
+        expect(entities).not.toBeNull();
+        const e = entities as Password[];
+        expect(e.length).toBe(2);
+        expect(e[0].userId).toBe(p2.userId);
+        expect(e[0].hash).toBe(p2.hash);
+        expect(e[1].userId).toBe(p3.userId);
     });
 });

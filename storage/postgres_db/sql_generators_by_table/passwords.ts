@@ -30,7 +30,7 @@ export function insertOrUpdatePassword(
     return {
         sql: `INSERT INTO passwords (userId, salt, hash)
             VALUES ($1, $2, $3)
-            ON CONFLICT (userId) DO UPDATE SET (salt, hash) = (EXCLUDED.salt, EXCLUDED.hash);
+            ON CONFLICT (userId) DO UPDATE SET salt = EXCLUDED.salt, hash = EXCLUDED.hash;
         `,
         userInput: [password.userId, password.salt, password.hash],
     };

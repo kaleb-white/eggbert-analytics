@@ -30,7 +30,7 @@ export const initializationStatements = {
     createPasswordsTable: `
         CREATE TABLE passwords(
             id BIGSERIAL,
-            userId text REFERENCES users (uniqueId),
+            userId text REFERENCES users (uniqueId) UNIQUE,
             salt text NOT NULL,
             hash text NOT NULL
         );

@@ -44,6 +44,11 @@ import { Respondent } from "@/core/entities/users/respondent";
 import { Author } from "@/core/entities/users/author";
 import { Anonymous } from "@/core/entities/users/anonymous";
 import { Session } from "@/core/entities/users/session";
+import {
+    getPasswords,
+    savePasswords,
+} from "@/storage/postgres_db/sql_generators_by_entity/passwords";
+import { Password } from "@/core/entities/users/password";
 
 async function genAndExecuteSaveSql(
     sqlGen: (any: any[]) => ParameterizedStatementSets,
@@ -118,6 +123,14 @@ export class PostgresDbImpl implements Database {
                     [obj],
                     this.pool
                 );
+                break;
+            case "password":
+                res = await genAndExecuteSaveSql(
+                    savePasswords,
+                    [obj],
+                    this.pool
+                );
+                break;
             default:
                 return new Error(
                     `Object unrecognized as registered entity (type check missing?). Object was ${JSON.stringify(
@@ -196,6 +209,7 @@ export class PostgresDbImpl implements Database {
                     this.pool,
                     "users"
                 );
+                break;
             case "session":
                 promise = genAndExecuteGetSql<Session>(
                     getSessions,
@@ -203,6 +217,15 @@ export class PostgresDbImpl implements Database {
                     this.pool,
                     "users"
                 );
+                break;
+            case "password":
+                promise = genAndExecuteGetSql<Password>(
+                    getPasswords,
+                    [id],
+                    this.pool,
+                    "passwords"
+                );
+                break;
             default:
                 return new Error(
                     `Object unrecognized as registered entity (type check missing?). Object was ${JSON.stringify(

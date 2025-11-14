@@ -14,7 +14,7 @@ export function getPasswords(userIds: string[]): ParameterizedStatementSets {
     return [
         {
             sql: `
-            SELECT ${createJsonbPasswords}
+            SELECT ${createJsonbPasswords()}
                 FROM passwords
                 WHERE passwords.userId IN ${createParameterizedStatement(
                     userIds.length,
@@ -26,13 +26,13 @@ export function getPasswords(userIds: string[]): ParameterizedStatementSets {
     ];
 }
 
-export function getSession(userId: string): ParameterizedStatementSets {
+export function getPassword(userId: string): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbPassword()}
                 FROM passwords
-                WHERE passwords.uniqueId = $1;
+                WHERE passwords.userId = $1;
             `,
             userInput: [userId],
         },
