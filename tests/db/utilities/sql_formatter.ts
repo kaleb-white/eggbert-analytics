@@ -5,6 +5,7 @@ const DEINDENT_ON = /(FROM)|(WHERE)|(AS)|(^(\s*?)\) )/g;
 const CAPITALIZED_WORDS = /([A-Z]* )/g;
 
 export function formatSql(sql: string) {
+    if (!sql) return;
     const lines = sql.split("\n");
     let currentIndentationLevel = 0;
     let nextIndentationLevel = 0;

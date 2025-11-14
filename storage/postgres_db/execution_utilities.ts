@@ -62,7 +62,7 @@ export async function executeStatements(
             } catch (err) {
                 return err as Error;
             }
-        } else {
+        } else if (!(statementSet == "pass")) {
             if (db_debug()) {
                 console.log(
                     "Executing sql:\n",

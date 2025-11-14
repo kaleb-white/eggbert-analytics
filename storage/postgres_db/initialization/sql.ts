@@ -21,8 +21,8 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY,
             role roles NOT NULL,
             email text UNIQUE,
-            timeCreated text NOT NULL,
-            lastLogin text NOT NULL
+            timeCreated bigint NOT NULL,
+            lastLogin bigint NOT NULL
         );
     `,
 
@@ -32,7 +32,7 @@ export const initializationStatements = {
             antiCsrfToken text NOT NULL,
             userId text REFERENCES users (uniqueId),
             role roles NOT NULL,
-            expiration text NOT NULL
+            expiration bigint NOT NULL
         );
     `,
 
@@ -41,8 +41,8 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY,
             modelMessage text,
             respondentMessage text,
-            timeCreated text NOT NULL,
-            lastEdited text NOT NULL
+            timeCreated bigint NOT NULL,
+            lastEdited bigint NOT NULL
         );
         `,
 
@@ -52,8 +52,8 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY, \
             question text NOT NULL, \
             modelPrompt text NOT NULL, \
-            timeCreated text NOT NULL, \
-            lastEdited text NOT NULL, \
+            timeCreated bigint NOT NULL, \
+            lastEdited bigint NOT NULL, \
             maxNumberOfTurns integer DEFAULT 0 \
         ); \
         ",
@@ -64,8 +64,8 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY, \
             summary text, \
             currentTurn integer DEFAULT 0, \
-            timeCreated text NOT NULL, \
-            lastEdited text NOT NULL, \
+            timeCreated bigint NOT NULL, \
+            lastEdited bigint NOT NULL, \
             question text REFERENCES questions (uniqueId) \
         ); \
         ",
@@ -83,8 +83,8 @@ export const initializationStatements = {
         " \
         CREATE TABLE responses( \
             uniqueId text PRIMARY KEY, \
-            timeCreated text NOT NULL, \
-            lastEdited text NOT NULL \
+            timeCreated bigint NOT NULL, \
+            lastEdited bigint NOT NULL \
         ); \
         ",
 
@@ -101,8 +101,8 @@ export const initializationStatements = {
         "\
         CREATE TABLE surveys(\
             uniqueId text PRIMARY KEY, \
-            timeCreated text NOT NULL, \
-            lastEdited text NOT NULL, \
+            timeCreated bigint NOT NULL, \
+            lastEdited bigint NOT NULL, \
             authorId text REFERENCES users (uniqueId) ON DELETE RESTRICT \
         );\
         ",

@@ -31,8 +31,8 @@ export function getUser(id: string): ParameterizedStatementSets {
         {
             sql: `
             SELECT ${createJsonbUser()}
-                FROM sessions
-                WHERE sessions.uniqueId = $1;
+                FROM users
+                WHERE users.uniqueId = $1;
             `,
             userInput: [id],
         },

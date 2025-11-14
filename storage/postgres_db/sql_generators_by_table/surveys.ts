@@ -6,8 +6,8 @@ export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
         sql: `INSERT INTO surveys (uniqueId, timeCreated, lastEdited, authorId)
                 VALUES (
                 $1,
-                to_timestamp($2),
-                to_timestamp($3),
+                $2,
+                $3,
                 $4
             )
             ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;

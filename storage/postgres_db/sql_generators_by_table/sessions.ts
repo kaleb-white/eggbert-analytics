@@ -19,9 +19,9 @@ export function insertOrUpdateSessions(
     if (!allUsersValues) return "pass";
     return {
         sql: `
-        INSERT INTO users (uniqueId, role, email, timeCreated, lastLogin)
-            VALUES ${createParameterizedStatement(5, sessions.length)}
-            ON CONFLICT (uniqueId) DO UPDATE SET lastLogin = EXCLUDED.lastLogin;
+        INSERT INTO sessions (uniqueId, antiCsrfToken, userId, role, expiration)
+            VALUES ${createParameterizedStatement(5, 5 * sessions.length)}
+            ON CONFLICT (uniqueId) DO UPDATE SET expiration = EXCLUDED.expiration;
         `,
         userInput: allUsersValues,
     };
@@ -34,7 +34,7 @@ export function insertOrUpdateSession(
         sql: `
         INSERT INTO sessions (uniqueId, antiCsrfToken, userId, role, expiration)
             VALUES ($1, $2, $3, $4, $5)
-            ON CONFLICT (uniqueId) DO UPDATE SET lastLogin = EXCLUDED.lastLogin;
+            ON CONFLICT (uniqueId) DO UPDATE SET expiration = EXCLUDED.expiration;
         `,
         userInput: [
             session.uniqueId,
@@ -58,7 +58,7 @@ export function createJsonbSessions(as: string = "sessionsAgg") {
     `;
 }
 
-export function createJsonbSession(as: string = "session") {
+export function createJsonbSession(as: string = "jsonb_build_object") {
     return `
     jsonb_build_object(
         'uniqueId', sessions.uniqueId,

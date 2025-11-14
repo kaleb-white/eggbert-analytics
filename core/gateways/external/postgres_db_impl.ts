@@ -64,6 +64,7 @@ async function genAndExecuteGetSql<T>(
     const getResult = await executeStatements(sqlGen(ids), pool);
     if (getResult instanceof Error) return getResult;
     if (getResult.length == 0) return null;
+    // This is a terrible way to do it lol
     const entities = getAllEntities<T>(getResult, entityName.concat("Agg"));
     return entities;
 }

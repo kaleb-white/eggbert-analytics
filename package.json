@@ -37,12 +37,14 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3",
         "@tailwindcss/postcss": "^4",
+        "@types/lodash": "^4.17.20",
         "@types/node": "^20.19.11",
         "@types/react": "^19.1.10",
         "@types/react-dom": "^19.1.7",
         "bun": "^1.2.20",
         "eslint": "^9",
         "eslint-config-next": "15.4.6",
+        "lodash": "^4.17.21",
         "tailwindcss": "^4",
         "typescript": "^5"
     }

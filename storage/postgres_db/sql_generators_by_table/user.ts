@@ -18,7 +18,7 @@ export function insertOrUpdateUsers(users: User[]): PossibleStatementFormat {
     return {
         sql: `
         INSERT INTO users (uniqueId, role, email, timeCreated, lastLogin)
-            VALUES ${createParameterizedStatement(5, users.length)}
+            VALUES ${createParameterizedStatement(5, 5 * users.length)}
             ON CONFLICT (uniqueId) DO UPDATE SET lastLogin = EXCLUDED.lastLogin;
         `,
         userInput: allUsersValues,
@@ -54,7 +54,7 @@ export function createJsonbUsers(as: string = "usersAgg") {
     `;
 }
 
-export function createJsonbUser(as: string = "user") {
+export function createJsonbUser(as: string = "jsonb_build_object") {
     return `
     jsonb_build_object(
         'uniqueId', users.uniqueId,
@@ -73,7 +73,7 @@ export function leftJoinUsers(
 ) {
     return `
     LEFT JOIN (
-        SELECT ${createJsonbUser()}, uniqueId
+        SELECT ${createJsonbUser("user")}, uniqueId
             FROM users
     ) ${as} ON ${manyTableName}.${manyTableRelevantId} = ${as}.uniqueId
     `;

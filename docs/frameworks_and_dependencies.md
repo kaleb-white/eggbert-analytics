@@ -17,3 +17,7 @@ NextJS is a web framework which emphasizes the use of server-side rendering in o
 ## Express
 
 ## Zod
+
+## Lodash
+
+Useful for various utility functions, such as `isEqual`. Only used for development at the moment. The documentation can be found [here.](https://lodash.com/)

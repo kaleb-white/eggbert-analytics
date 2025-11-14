@@ -20,6 +20,12 @@ export type ParameterizedStatementSets = (
     | PossibleStatementFormat
 )[];
 
+/**
+ *
+ * @param numCols The total number of columns. For example, if an entity has two fields (`name`, `email`), then numCols would be 2.
+ * @param numParameters The total number of parameters. For example, say there are three entities which are being inserted, and each entity has two fields, then numParameters would be 6.
+ * @returns
+ */
 export function createParameterizedStatement(
     numCols: number,
     numParameters: number
@@ -144,7 +150,7 @@ export function getFirstEntity<T>(
  * Does not type check T, just casts the found entities to T.
  * DO NOT include any column that is not the aggregation name in the select statement.
  * @param queryResults Multiple QueryResult objects, from the pg module. Usually the result of a call to `executeStatements`.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
+ * @param expectedAggregationName The expected aggregation name, if any. For example, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
  * @returns All entities found or an error.
  */
 export function getAllEntities<T>(
