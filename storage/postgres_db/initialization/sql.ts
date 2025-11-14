@@ -1,5 +1,6 @@
 export const initializationStatements = {
     dropUsersTable: "DROP TABLE users CASCADE;",
+    dropPasswordsTable: "DROP TABLE passwords CASCADE;",
     dropSessionsTable: "DROP TABLE sessions CASCADE;",
     dropSurveysResponsesTable: "DROP TABLE surveysResponses;",
     dropSurveysQuestionsTable: "DROP TABLE surveysQuestions;",
@@ -23,6 +24,15 @@ export const initializationStatements = {
             email text UNIQUE,
             timeCreated bigint NOT NULL,
             lastLogin bigint NOT NULL
+        );
+    `,
+
+    createPasswordsTable: `
+        CREATE TABLE passwords(
+            id BIGSERIAL,
+            userId text REFERENCES users (uniqueId),
+            salt text NOT NULL,
+            hash text NOT NULL
         );
     `,
 

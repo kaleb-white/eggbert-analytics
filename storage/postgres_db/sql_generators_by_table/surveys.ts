@@ -14,7 +14,7 @@ export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
             `,
         userInput: [
             survey.uniqueId,
-            String(survey.timeCreated),
+            String(survey.timeCreated), // Doesn't matter because stringified going over the network anyway?
             String(survey.lastEdited),
             survey.author.uniqueId,
         ],

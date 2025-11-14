@@ -15,15 +15,18 @@ export function insertOrUpdateSessions(
         "role",
         "expiration",
     ];
-    const allUsersValues = getAllEntityValuesAsArray(sessions, orderedFields);
-    if (!allUsersValues) return "pass";
+    const allSessionsValues = getAllEntityValuesAsArray(
+        sessions,
+        orderedFields
+    );
+    if (!allSessionsValues) return "pass";
     return {
         sql: `
         INSERT INTO sessions (uniqueId, antiCsrfToken, userId, role, expiration)
             VALUES ${createParameterizedStatement(5, 5 * sessions.length)}
             ON CONFLICT (uniqueId) DO UPDATE SET expiration = EXCLUDED.expiration;
         `,
-        userInput: allUsersValues,
+        userInput: allSessionsValues,
     };
 }
 
