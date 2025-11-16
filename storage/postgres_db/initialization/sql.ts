@@ -31,7 +31,6 @@ export const initializationStatements = {
         CREATE TABLE passwords(
             id BIGSERIAL,
             userId text REFERENCES users (uniqueId) UNIQUE,
-            salt text NOT NULL,
             hash text NOT NULL
         );
     `,

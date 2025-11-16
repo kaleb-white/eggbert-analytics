@@ -166,17 +166,14 @@ describe("test that user, session, password is saved to database", async () => {
 
     const p1 = new Password({
         userId: "abc",
-        salt: "def",
         hash: "ghi",
     });
     const p2 = new Password({
         userId: "def",
-        salt: "def",
         hash: "ghi",
     });
     const p3 = new Password({
         userId: "ghi",
-        salt: "def",
         hash: "ghi",
     });
 
@@ -308,7 +305,7 @@ describe("test that user, session, password is saved to database", async () => {
         const e = entities as Password[];
         expect(e.length).toBe(1);
         expect(e[0].userId).toBe(p1.userId);
-        expect(e[0].salt).toBe(p1.salt);
+        expect(e[0].hash).toBe(p1.hash);
     });
     test("get two passwords", async () => {
         const statements = getPasswords([anon.uniqueId, auth.uniqueId]);
