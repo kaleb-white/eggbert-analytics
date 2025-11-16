@@ -3,7 +3,6 @@ import { isT } from "@/utilities/global_type_check";
 import { Cache } from "../interfaces/external/cache";
 import { Database } from "../interfaces/external/database";
 import { StorageGateway } from "../interfaces/internal/storage_gateway";
-import { Response } from "@/core/entities/surveys/response";
 import { isSurvey } from "@/utilities/type_checks";
 
 type Result<T> = {
@@ -28,22 +27,39 @@ export class StorageGatewayImpl implements StorageGateway {
         this.database = database;
     }
 
-    async save(id: string, obj: any): Promise<null | Error> {
-        const toBeExecuted = [
-            this.cache.save(id, obj, true),
-            this.database.save(obj),
-        ];
-        const promises = await Promise.all(toBeExecuted);
-        const tryCacheSave = promises[0];
-        const tryDbSave = promises[1];
+    /**
+     *
+     * @param id The uniqueId of the object.
+     * @param obj The object itself.
+     * @param noCache If set, will no try to cache the object, will just persist it to the database. In this case, id is ignored.
+     * @returns
+     */
+    async save(
+        id: string,
+        obj: any,
+        noCache: boolean = false
+    ): Promise<null | Error> {
+        if (!noCache) {
+            const toBeExecuted = [
+                this.cache.save(id, obj, true),
+                this.database.save(obj),
+            ];
+            const promises = await Promise.all(toBeExecuted);
+            const tryCacheSave = promises[0];
+            const tryDbSave = promises[1];
 
-        if (tryCacheSave instanceof Error && tryDbSave instanceof Error)
-            return new Error(
-                `Failed to save to cache or db. Cache failure message was ${tryCacheSave.message}. Db failure message was ${tryDbSave.message}`
-            );
-        if (tryDbSave instanceof Error) return tryDbSave;
+            if (tryCacheSave instanceof Error && tryDbSave instanceof Error)
+                return new Error(
+                    `Failed to save to cache or db. Cache failure message was ${tryCacheSave.message}. Db failure message was ${tryDbSave.message}`
+                );
+            if (tryDbSave instanceof Error) return tryDbSave;
 
-        return null;
+            return null;
+        } else {
+            const tryDbSave = await this.database.save(obj);
+            if (tryDbSave instanceof Error) return tryDbSave;
+            return null;
+        }
     }
 
     async get<T>(id: string, objOfTypeT: T): Promise<T | null | Error> {

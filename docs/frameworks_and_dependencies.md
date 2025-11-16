@@ -21,3 +21,7 @@ NextJS is a web framework which emphasizes the use of server-side rendering in o
 ## Lodash
 
 Useful for various utility functions, such as `isEqual`. Only used for development at the moment. The documentation can be found [here.](https://lodash.com/)
+
+## Argon2id
+
+A prebuilt node version of the winning Argon2id algorithm for hashing passwords. More info [here.](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
