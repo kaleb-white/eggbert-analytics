@@ -8,13 +8,16 @@ import {
     insertOrUpdateTurns,
 } from "../sql_generators_by_table/turns";
 
-export function getTurns(ids: string[]): ParameterizedStatementSets {
+export function getTurns(
+    ids: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
     SELECT ${createJsonbTurns()}
         FROM turns
-        WHERE turns.uniqueId IN ${argumentsToInStatementFromArray(ids)};
+        WHERE turns.${field} IN ${argumentsToInStatementFromArray(ids)};
     `,
             userInput: [],
         },

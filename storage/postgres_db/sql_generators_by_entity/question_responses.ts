@@ -18,7 +18,8 @@ import {
 import { insertOrUpdateOneManyRelation } from "../sql_generators_by_table/one-many_tables";
 
 export function getQuestionResponses(
-    ids: string[]
+    ids: string[],
+    field: string = "uniqueId"
 ): ParameterizedStatementSets {
     return [
         {
@@ -36,7 +37,7 @@ export function getQuestionResponses(
         SELECT questions.uniqueId, ${createJsonbQuestion("question")}
         FROM questions
     ) questions ON questions.uniqueId = questionResponses.question
-    WHERE questionResponses.uniqueId IN ${argumentsToInStatementFromArray(ids)};
+    WHERE questionResponses.${field} IN ${argumentsToInStatementFromArray(ids)};
     `,
             userInput: [],
         },

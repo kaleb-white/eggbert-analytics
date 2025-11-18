@@ -10,29 +10,35 @@ import {
     insertOrUpdateSessions,
 } from "../sql_generators_by_table/sessions";
 
-export function getSessions(ids: string[]): ParameterizedStatementSets {
+export function getSessions(
+    ids: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbSessions()}
                 FROM sessions
-                WHERE sessions.uniqueId IN ${createParameterizedStatement(
-                    ids.length,
-                    ids.length
-                )};
+                WHERE sessions.${field} IN ${createParameterizedStatement(
+                ids.length,
+                ids.length
+            )};
             `,
             userInput: ids,
         },
     ];
 }
 
-export function getSession(id: string): ParameterizedStatementSets {
+export function getSession(
+    id: string,
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbSession()}
                 FROM sessions
-                WHERE sessions.uniqueId = $1;
+                WHERE sessions.${field} = $1;
             `,
             userInput: [id],
         },

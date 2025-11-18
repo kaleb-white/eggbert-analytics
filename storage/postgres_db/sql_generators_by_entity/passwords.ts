@@ -10,29 +10,35 @@ import {
     insertOrUpdatePasswords,
 } from "../sql_generators_by_table/passwords";
 
-export function getPasswords(userIds: string[]): ParameterizedStatementSets {
+export function getPasswords(
+    userIds: string[],
+    field: string = "userId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbPasswords()}
                 FROM passwords
-                WHERE passwords.userId IN ${createParameterizedStatement(
-                    userIds.length,
-                    userIds.length
-                )}
+                WHERE passwords.${field} IN ${createParameterizedStatement(
+                userIds.length,
+                userIds.length
+            )}
             `,
             userInput: userIds,
         },
     ];
 }
 
-export function getPassword(userId: string): ParameterizedStatementSets {
+export function getPassword(
+    userId: string,
+    field: string = "userId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbPassword()}
                 FROM passwords
-                WHERE passwords.userId = $1;
+                WHERE passwords.${field} = $1;
             `,
             userInput: [userId],
         },

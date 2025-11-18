@@ -115,7 +115,10 @@ export function saveSurveys(surveys: Survey[]): ParameterizedStatementSets {
     ];
 }
 
-export function getSurveys(ids: string[]): ParameterizedStatementSets {
+export function getSurveys(
+    ids: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
@@ -145,7 +148,7 @@ export function getSurveys(ids: string[]): ParameterizedStatementSets {
             "sq"
         )}
         ${leftJoinUsers("surveys", "authorId", "u")}
-        WHERE surveys.uniqueId IN ${argumentsToInStatementFromArray(ids)};
+        WHERE surveys.${field} IN ${argumentsToInStatementFromArray(ids)};
     `,
             userInput: [],
         },
@@ -153,7 +156,8 @@ export function getSurveys(ids: string[]): ParameterizedStatementSets {
 }
 
 export function getSurveyWithoutResponses(
-    uniqueId: string
+    uniqueId: string,
+    field: string = "uniqueId"
 ): ParameterizedStatementSets {
     return [
         {
@@ -161,7 +165,7 @@ export function getSurveyWithoutResponses(
         SELECT ${createJsonbSurvey(true)}
         FROM surveys
         ${leftJoinQuestions("surveys", "surveysQuestions", "surveyId")}
-        WHERE surveys.uniqueId = $1;
+        WHERE surveys.${field} = $1;
         `,
             userInput: [uniqueId],
         },

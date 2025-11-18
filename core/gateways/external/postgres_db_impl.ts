@@ -61,12 +61,13 @@ async function genAndExecuteSaveSql(
 }
 
 async function genAndExecuteGetSql<T>(
-    sqlGen: (ids: string[]) => ParameterizedStatementSets,
+    sqlGen: (ids: string[], field?: string) => ParameterizedStatementSets,
     ids: string[],
     pool: Pool,
-    entityName: string
+    entityName: string,
+    field: string = "uniqueId"
 ): Promise<T[] | null | Error> {
-    const getResult = await executeStatements(sqlGen(ids), pool);
+    const getResult = await executeStatements(sqlGen(ids, field), pool);
     if (getResult instanceof Error) return getResult;
     if (getResult.length == 0) return null;
     // This is a terrible way to do it lol
@@ -142,7 +143,11 @@ export class PostgresDbImpl implements Database {
         return null;
     }
 
-    async get<T>(id: string, objOfTypeT: T): Promise<T | null | Error> {
+    async get<T>(
+        id: string,
+        objOfTypeT: T,
+        field: string = "uniqueId"
+    ): Promise<T | null | Error> {
         const entityName = isEntity(objOfTypeT);
         let promise: Promise<any[] | Error | null>;
         switch (entityName) {
@@ -151,7 +156,8 @@ export class PostgresDbImpl implements Database {
                     getSurveys,
                     [id],
                     this.pool,
-                    "surveys"
+                    "surveys",
+                    field
                 );
                 break;
             case "response":
@@ -159,7 +165,8 @@ export class PostgresDbImpl implements Database {
                     getResponses,
                     [id],
                     this.pool,
-                    "responses"
+                    "responses",
+                    field
                 );
                 break;
             case "questionresponse":
@@ -167,7 +174,8 @@ export class PostgresDbImpl implements Database {
                     getQuestionResponses,
                     [id],
                     this.pool,
-                    "questionResponses"
+                    "questionResponses",
+                    field
                 );
                 break;
             case "question":
@@ -175,7 +183,8 @@ export class PostgresDbImpl implements Database {
                     getQuestions,
                     [id],
                     this.pool,
-                    "questions"
+                    "questions",
+                    field
                 );
                 break;
             case "turn":
@@ -183,7 +192,8 @@ export class PostgresDbImpl implements Database {
                     getTurns,
                     [id],
                     this.pool,
-                    "turns"
+                    "turns",
+                    field
                 );
                 break;
             case "respondent":
@@ -191,7 +201,8 @@ export class PostgresDbImpl implements Database {
                     getUsers,
                     [id],
                     this.pool,
-                    "users"
+                    "users",
+                    field
                 );
                 break;
             case "anonymous":
@@ -199,7 +210,8 @@ export class PostgresDbImpl implements Database {
                     getUsers,
                     [id],
                     this.pool,
-                    "users"
+                    "users",
+                    field
                 );
                 break;
             case "author":
@@ -207,7 +219,8 @@ export class PostgresDbImpl implements Database {
                     getUsers,
                     [id],
                     this.pool,
-                    "users"
+                    "users",
+                    field
                 );
                 break;
             case "session":
@@ -215,7 +228,8 @@ export class PostgresDbImpl implements Database {
                     getSessions,
                     [id],
                     this.pool,
-                    "users"
+                    "users",
+                    field
                 );
                 break;
             case "password":
@@ -223,7 +237,8 @@ export class PostgresDbImpl implements Database {
                     getPasswords,
                     [id],
                     this.pool,
-                    "passwords"
+                    "passwords",
+                    "userId"
                 );
                 break;
             default:

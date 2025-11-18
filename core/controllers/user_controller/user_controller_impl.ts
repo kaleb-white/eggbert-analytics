@@ -23,12 +23,53 @@ export class UserControllerImpl implements UserController {
         }
         return hash;
     }
+
     async getUser(uniqueId: string | Session): Promise<User | Error | null> {
         const uniqueIdDetermination =
             typeof uniqueId === "string" ? uniqueId : uniqueId.userId;
         const dbResult = await storage.get(uniqueIdDetermination, new User());
         return dbResult;
     }
+
+    async getUserByEmail(email: string): Promise<User | Error | null> {
+        const dbResult = await storage.get(email, new User(), "email");
+        return dbResult;
+    }
+
+    async getPassword(userId: string): Promise<Password | Error | null> {
+        return await storage.get(userId, new Password(), "userId");
+    }
+
+    async getUserAndPasswordByEmail(
+        email: string
+    ): Promise<[User, Password] | Error | null> {
+        const user = await this.getUserByEmail(email);
+        if (!user || user instanceof Error) {
+            return user;
+        }
+        const password = await this.getPassword(user.uniqueId);
+        if (!password || password instanceof Error) {
+            return password;
+        }
+        return [user, password];
+    }
+
+    async checkPassword(
+        email: string,
+        password: string
+    ): Promise<boolean | Error> {
+        const userAndPassword = await this.getUserAndPasswordByEmail(email);
+        if (!userAndPassword) {
+            return new Error("No user found with that email");
+        } else if (userAndPassword instanceof Error) {
+            return userAndPassword;
+        }
+
+        const [user, correctPasswordHash] = userAndPassword;
+        const providedPasswordHash = await this.hashPassword(password);
+        return providedPasswordHash === correctPasswordHash.hash;
+    }
+
     async createOrUpdateUser(
         newUser: User,
         password: string

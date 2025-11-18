@@ -8,15 +8,18 @@ import {
     insertOrUpdateQuestions,
 } from "../sql_generators_by_table/questions";
 
-export function getQuestions(ids: string[]): ParameterizedStatementSets {
+export function getQuestions(
+    ids: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbQuestions()}
                 FROM questions
-                WHERE questions.uniqueId in ${argumentsToInStatementFromArray(
-                    ids
-                )};
+                WHERE questions.${field} in ${argumentsToInStatementFromArray(
+                ids
+            )};
             `,
             userInput: [],
         },

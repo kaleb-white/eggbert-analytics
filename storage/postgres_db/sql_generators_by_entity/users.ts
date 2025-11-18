@@ -10,29 +10,35 @@ import {
 } from "../sql_generators_by_table/user";
 import { User } from "@/core/entities/users/user";
 
-export function getUsers(ids: string[]): ParameterizedStatementSets {
+export function getUsers(
+    ids: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbUsers()}
                 FROM users
-                WHERE users.uniqueId IN ${createParameterizedStatement(
-                    ids.length,
-                    ids.length
-                )};
+                WHERE users.${field} IN ${createParameterizedStatement(
+                ids.length,
+                ids.length
+            )};
             `,
             userInput: ids,
         },
     ];
 }
 
-export function getUser(id: string): ParameterizedStatementSets {
+export function getUser(
+    id: string,
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `
             SELECT ${createJsonbUser()}
                 FROM users
-                WHERE users.uniqueId = $1;
+                WHERE users.${field} = $1;
             `,
             userInput: [id],
         },

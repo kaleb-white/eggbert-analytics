@@ -15,7 +15,10 @@ import { insertOrUpdateQuestions } from "../sql_generators_by_table/questions";
 import { insertOrUpdateTurns } from "../sql_generators_by_table/turns";
 import { insertOrUpdateOneManyRelation } from "../sql_generators_by_table/one-many_tables";
 
-export function getResponses(ids: string[]): ParameterizedStatementSets {
+export function getResponses(
+    ids: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
     return [
         {
             sql: `SELECT ${createJsonbResponses()}
@@ -27,10 +30,10 @@ export function getResponses(ids: string[]): ParameterizedStatementSets {
                     "questionResponseId",
                     "questionResponses"
                 )}
-                WHERE responses.uniqueId IN ${createParameterizedStatement(
-                    ids.length,
-                    ids.length
-                )};
+                WHERE responses.${field} IN ${createParameterizedStatement(
+                ids.length,
+                ids.length
+            )};
 
             `,
 

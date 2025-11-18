@@ -62,9 +62,13 @@ export class StorageGatewayImpl implements StorageGateway {
         }
     }
 
-    async get<T>(id: string, objOfTypeT: T): Promise<T | null | Error> {
+    async get<T>(
+        id: string,
+        objOfTypeT: T,
+        field: string = "uniqueId"
+    ): Promise<T | null | Error> {
         // Object to hold result
-        const resultObj: Result<T> = {
+        const result: Result<T> = {
             error: null,
             result: null,
             success: false,
@@ -79,33 +83,37 @@ export class StorageGatewayImpl implements StorageGateway {
             !(tryCacheLoad instanceof Error) &&
             isT<T>(tryCacheLoad, objOfTypeT)
         ) {
-            resultObj.result = tryCacheLoad as T;
-            resultObj.finished = true;
-            resultObj.success = true;
+            result.result = tryCacheLoad as T;
+            result.finished = true;
+            result.success = true;
         }
         // Unexpected fail
         if (
-            !resultObj.finished &&
+            !result.finished &&
             !(tryCacheLoad instanceof Error) &&
             !isT<T>(tryCacheLoad, objOfTypeT)
         ) {
-            resultObj.error = new Error(
+            result.error = new Error(
                 `Cache returned something that wasn't of type T or an error: ${JSON.stringify(
                     tryCacheLoad
                 )}`
             );
-            resultObj.finished = true;
-            resultObj.success = false;
+            result.finished = true;
+            result.success = false;
         }
 
         // Check if finished
-        if (resultObj.finished) {
+        if (result.finished) {
             await this.cache.get("fake", true);
-            return returnResultOrError<T>(resultObj);
+            return returnResultOrError<T>(result);
         }
 
         // Try and get from database
-        const tryDatabaseLoad = await this.database.get<T>(id, objOfTypeT);
+        const tryDatabaseLoad = await this.database.get<T>(
+            id,
+            objOfTypeT,
+            field
+        );
         // Success
         if (
             !(tryDatabaseLoad instanceof Error) &&
@@ -114,43 +122,43 @@ export class StorageGatewayImpl implements StorageGateway {
             // Save to cache
             await this.cache.save(id, tryDatabaseLoad as object, true);
 
-            resultObj.result = tryDatabaseLoad as T;
-            resultObj.finished = true;
-            resultObj.success = true;
-            resultObj.cacheFinished = true;
+            result.result = tryDatabaseLoad as T;
+            result.finished = true;
+            result.success = true;
+            result.cacheFinished = true;
         }
         // No result means no data
-        if (!resultObj.finished && !tryDatabaseLoad) {
-            resultObj.result = null;
-            resultObj.finished = true;
-            resultObj.success = true;
+        if (!result.finished && !tryDatabaseLoad) {
+            result.result = null;
+            result.finished = true;
+            result.success = true;
         }
         // Unexpected failure where database did not error but unexpected obj was returned
         if (
-            !resultObj.finished &&
+            !result.finished &&
             !(tryDatabaseLoad instanceof Error) &&
             !isT<T>(tryDatabaseLoad, objOfTypeT)
         ) {
             console.log("is survey", isSurvey(tryDatabaseLoad));
-            resultObj.error = new Error(
+            result.error = new Error(
                 `Database returned something that wasn't of type T or an error: ${JSON.stringify(
                     tryDatabaseLoad
                 )}`
             );
-            resultObj.finished = true;
-            resultObj.success = false;
+            result.finished = true;
+            result.success = false;
         }
 
         // Both failed, but cache fail could be 'innocent'
-        if (!resultObj.finished && tryDatabaseLoad instanceof Error) {
-            resultObj.error = tryDatabaseLoad;
-            resultObj.finished = true;
-            resultObj.success = false;
+        if (!result.finished && tryDatabaseLoad instanceof Error) {
+            result.error = tryDatabaseLoad;
+            result.finished = true;
+            result.success = false;
         }
 
-        if (!resultObj.cacheFinished) {
+        if (!result.cacheFinished) {
             await this.cache.get("fake", true);
         }
-        return returnResultOrError(resultObj);
+        return returnResultOrError(result);
     }
 }
