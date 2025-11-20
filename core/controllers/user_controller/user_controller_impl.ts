@@ -7,16 +7,17 @@ import { Password } from "@/core/entities/users/password";
 
 export class UserControllerImpl implements UserController {
     async hashPassword(password: string): Promise<string | Error> {
-        let hash: string | Error | PromiseLike<string | Error>;
+        let hash: string;
         try {
             if (!process.env.PEPPER)
                 return new Error("Error while hashing: no pepper found");
             // Parameters: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#argon2id
-            hash = await argon2.hash(password.concat(process.env.PEPPER), {
+            hash = await argon2.hash(password, {
                 type: argon2.argon2id,
                 memoryCost: 47104,
                 timeCost: 1,
                 parallelism: 1,
+                secret: Buffer.from(process.env.PEPPER),
             });
         } catch (err) {
             return new Error(`Error while hashing pass: ${err}`);
@@ -54,7 +55,7 @@ export class UserControllerImpl implements UserController {
         return [user, password];
     }
 
-    async checkPassword(
+    async checkPasswordMatch(
         email: string,
         password: string
     ): Promise<boolean | Error> {
@@ -65,9 +66,13 @@ export class UserControllerImpl implements UserController {
             return userAndPassword;
         }
 
+        if (!process.env.PEPPER)
+            return new Error("Error while checking match: no pepper found");
+
         const [user, correctPasswordHash] = userAndPassword;
-        const providedPasswordHash = await this.hashPassword(password);
-        return providedPasswordHash === correctPasswordHash.hash;
+        return await argon2.verify(correctPasswordHash.hash, password, {
+            secret: Buffer.from(process.env.PEPPER),
+        });
     }
 
     async createOrUpdateUser(

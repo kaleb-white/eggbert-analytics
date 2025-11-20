@@ -7,6 +7,8 @@ import { Pool } from "pg";
 import { RandomGeneratorImpl } from "./core/controllers/crypto/random_buffer_generator_impl";
 import { InitializerImpl } from "./storage/postgres_db/initialization/initializer_impl";
 import testPool from "./tests/db/utilities/test_pool";
+import { UserControllerImpl } from "./core/controllers/user_controller/user_controller_impl";
+import { UserController } from "./core/controllers/user_controller/interfaces/user_controller";
 
 export const pool = new Pool({
     database: process.env.PGTESTDATABASE, // Change to PGDATABASE for prod
@@ -21,6 +23,8 @@ export const storage = new StorageGatewayImpl(cache, db);
 export const uniqueIdGen = new CryptographyUtilitiesImpl(
     new RandomGeneratorImpl()
 );
+
+export const userController: UserController = new UserControllerImpl();
 
 export const testInitializer = new InitializerImpl(testPool);
 export const initializer = new InitializerImpl(pool);
