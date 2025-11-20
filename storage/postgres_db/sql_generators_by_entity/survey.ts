@@ -1,8 +1,6 @@
 import { Survey } from "@/core/entities/surveys/survey";
-import { insertOrUpdateOneManyRelation } from "../sql_generators_by_table/one-many_tables";
 import { insertOrUpdateTurns } from "../sql_generators_by_table/turns";
 import {
-    createJsonbQuestions,
     insertOrUpdateQuestions,
     leftJoinQuestions,
 } from "../sql_generators_by_table/questions";
@@ -16,60 +14,13 @@ import {
     insertOrUpdateSurvey,
 } from "../sql_generators_by_table/surveys";
 import {
-    argumentsToInStatementFromArray,
-    createLeftJoin,
+    createParameterizedStatement,
     ParameterizedStatementSets,
 } from "../generation_types_and_utilities";
 import {
     insertOrUpdateUser,
     leftJoinUsers,
 } from "../sql_generators_by_table/user";
-
-export function insertOrUpdateOneManyRelationsOfSurvey(survey: Survey) {
-    const uncheckedResult = [
-        survey.responses.flatMap((response) =>
-            response.questionResponses.map((questionResponse) =>
-                insertOrUpdateOneManyRelation(
-                    "questionResponseId",
-                    "turnId",
-                    "questionResponsesTurns",
-                    questionResponse,
-                    "transcript"
-                )
-            )
-        ),
-        survey.responses.flatMap((response) =>
-            insertOrUpdateOneManyRelation(
-                "responseId",
-                "questionResponseId",
-                "responsesQuestionResponses",
-                response,
-                "questionResponses"
-            )
-        ),
-        insertOrUpdateOneManyRelation(
-            "surveyId",
-            "questionId",
-            "surveysQuestions",
-            survey,
-            "questions"
-        ),
-        insertOrUpdateOneManyRelation(
-            "surveyId",
-            "responseId",
-            "surveysResponses",
-            survey,
-            "responses"
-        ),
-    ];
-    return uncheckedResult.flatMap((possibleStatement) => {
-        if (possibleStatement) {
-            return possibleStatement;
-        } else {
-            return "pass";
-        }
-    });
-}
 
 export function insertOrUpdateTurnsBySurvey(survey: Survey) {
     return insertOrUpdateTurns(
@@ -95,23 +46,24 @@ export function insertOrUpdateResponsesBySurvey(survey: Survey) {
 
 export function saveSurveys(surveys: Survey[]): ParameterizedStatementSets {
     return [
+        surveys.map((survey) => {
+            return insertOrUpdateUser(survey.author);
+        }),
+        surveys.map((survey) => {
+            return insertOrUpdateSurvey(survey);
+        }),
         surveys.flatMap((survey) => {
             return [
                 insertOrUpdateQuestionsBySurvey(survey),
-                insertOrUpdateUser(survey.author),
-            ];
-        }),
-        surveys.flatMap((survey) => {
-            return [
-                insertOrUpdateTurnsBySurvey(survey),
-                insertOrUpdateQuestionResponsesBySurvey(survey),
                 insertOrUpdateResponsesBySurvey(survey),
-                insertOrUpdateSurvey(survey),
             ];
         }),
-        surveys.flatMap((survey) =>
-            insertOrUpdateOneManyRelationsOfSurvey(survey)
-        ),
+        surveys.map((survey) => {
+            return insertOrUpdateQuestionResponsesBySurvey(survey);
+        }),
+        surveys.map((survey) => {
+            return insertOrUpdateTurnsBySurvey(survey);
+        }),
     ];
 }
 
@@ -131,26 +83,15 @@ export function getSurveys(
         'author', COALESCE(u.user, '{}'::jsonb)
         )) AS surveysAgg
         FROM surveys
-        ${leftJoinResponses(
-            "surveys",
-            "surveysResponses",
-            "surveyId",
-            "responseId",
-            "responses"
-        )}
-        ${createLeftJoin(
-            "surveys",
-            "questions",
-            "surveysQuestions",
-            "surveyId",
-            "questionId",
-            createJsonbQuestions,
-            "sq"
-        )}
+        ${leftJoinResponses("surveys", "surveyId", "responses", "uniqueId")}
+        ${leftJoinQuestions("surveys", "surveyId", "sq", "uniqueId")}
         ${leftJoinUsers("surveys", "authorId", "u")}
-        WHERE surveys.${field} IN ${argumentsToInStatementFromArray(ids)};
+        WHERE surveys.${field} IN ${createParameterizedStatement(
+                ids.length,
+                ids.length
+            )};
     `,
-            userInput: [],
+            userInput: ids,
         },
     ];
 }
@@ -164,7 +105,7 @@ export function getSurveyWithoutResponses(
             sql: `
         SELECT ${createJsonbSurvey(true)}
         FROM surveys
-        ${leftJoinQuestions("surveys", "surveysQuestions", "surveyId")}
+        ${leftJoinQuestions("surveys", "surveyId", "questions", "uniqueId")}
         WHERE surveys.${field} = $1;
         `,
             userInput: [uniqueId],

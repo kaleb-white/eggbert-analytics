@@ -17,7 +17,7 @@ const defaultProps = {
     uniqueId: "",
     questions: [new Question()],
     responses: [new Response()],
-    author: new Author(""),
+    author: new Author(),
     timeCreated: Date.now(),
     lastEdited: Date.now(),
 };

@@ -16,6 +16,7 @@ export function insertOrUpdateQuestions(
         "maxNumberOfTurns",
         "timeCreated",
         "lastEdited",
+        "surveyId",
     ];
     const allQuestionValues = getAllEntityValuesAsArray(
         questions,
@@ -24,8 +25,11 @@ export function insertOrUpdateQuestions(
     if (!allQuestionValues) return "pass";
     return {
         sql: `
-        INSERT INTO questions (uniqueId, question, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited)
-            VALUES ${createParameterizedStatement(6, allQuestionValues.length)}
+        INSERT INTO questions (uniqueId, question, modelPrompt, maxNumberOfTurns, timeCreated, lastEdited, surveyId)
+            VALUES ${createParameterizedStatement(
+                orderedFields.length,
+                allQuestionValues.length
+            )}
             ON CONFLICT (uniqueId) DO NOTHING;`,
         userInput: allQuestionValues,
     };
@@ -39,7 +43,8 @@ export function createJsonbQuestions(as: string = "questionsAgg") {
         'modelPrompt', questions.modelPrompt,
         'maxNumberOfTurns', questions.maxNumberOfTurns,
         'timeCreated', questions.timeCreated,
-        'lastEdited', questions.lastEdited
+        'lastEdited', questions.lastEdited,
+        'surveyId', questions.surveyId
     )) AS ${as}`;
 }
 
@@ -51,24 +56,41 @@ export function createJsonbQuestion(as: string = "question") {
         'modelPrompt', questions.modelPrompt,
         'maxNumberOfTurns', questions.maxNumberOfTurns,
         'timeCreated', questions.timeCreated,
-        'lastEdited', questions.lastEdited
+        'lastEdited', questions.lastEdited,
+        'surveyId', questions.surveyId
     ) AS ${as}
     `;
 }
 
 export function leftJoinQuestions(
-    oneTableName: string,
-    oneManyTableName: string,
-    oneIdName: string,
-    as: string = "questions"
+    parentTableName: string,
+    parentIdNameInChildTable: string,
+    as: string,
+    parentIdName: string
 ) {
     return createLeftJoin(
-        oneTableName,
         "questions",
-        oneManyTableName,
-        oneIdName,
-        "questionId",
+        parentIdNameInChildTable,
+        parentTableName,
         createJsonbQuestions,
-        as
+        as,
+        parentIdName,
+        true
+    );
+}
+
+export function leftJoinQuestion(
+    parentTableName: string,
+    parentIdNameInChildTable: string,
+    parentIdName: string,
+    as: string
+) {
+    return createLeftJoin(
+        "questions",
+        parentIdNameInChildTable,
+        parentTableName,
+        createJsonbQuestion,
+        as,
+        parentIdName
     );
 }

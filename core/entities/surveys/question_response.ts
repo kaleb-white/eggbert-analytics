@@ -12,6 +12,7 @@ export type QuestionResponseProps = {
     lastEdited?: number;
     uniqueId?: string | CryptographyUtilities;
     question?: Question;
+    responseId?: string;
 };
 
 const defaultProps = {
@@ -21,6 +22,7 @@ const defaultProps = {
     timeCreated: Date.now(),
     lastEdited: Date.now(),
     summary: "",
+    responseId: "",
 };
 
 export class QuestionResponse {
@@ -32,6 +34,7 @@ export class QuestionResponse {
     lastEdited: number;
     uniqueId: string;
     question: Question;
+    responseId: string;
 
     constructor(partialProps?: QuestionResponseProps) {
         const props = partialProps ? partialProps : defaultProps;
@@ -58,6 +61,9 @@ export class QuestionResponse {
         this.summary = props.summary ? props.summary : defaultProps.summary;
 
         this.currentTurn = this.numOfTurnsTaken;
+        this.responseId = props.responseId
+            ? props.responseId
+            : defaultProps.responseId;
     }
 
     get numOfTurnsTaken() {

@@ -1,6 +1,6 @@
 import { Question } from "@/core/entities/surveys/question";
 import {
-    argumentsToInStatementFromArray,
+    createParameterizedStatement,
     ParameterizedStatementSets,
 } from "../generation_types_and_utilities";
 import {
@@ -17,11 +17,12 @@ export function getQuestions(
             sql: `
             SELECT ${createJsonbQuestions()}
                 FROM questions
-                WHERE questions.${field} in ${argumentsToInStatementFromArray(
-                ids
+                WHERE questions.${field} in ${createParameterizedStatement(
+                ids.length,
+                ids.length
             )};
             `,
-            userInput: [],
+            userInput: ids,
         },
     ];
 }

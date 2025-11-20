@@ -13,14 +13,18 @@ export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
         "respondentMessage",
         "timeCreated",
         "lastEdited",
+        "questionResponseId",
     ];
     const allTurnValues = getAllEntityValuesAsArray(turns, orderedFields);
     if (!allTurnValues) return "pass";
 
     return {
         sql: `
-        INSERT INTO turns (uniqueId, modelMessage, respondentMessage, timeCreated, lastEdited)
-            VALUES ${createParameterizedStatement(5, allTurnValues.length)}
+        INSERT INTO turns (uniqueId, modelMessage, respondentMessage, timeCreated, lastEdited, questionResponseId)
+            VALUES ${createParameterizedStatement(
+                orderedFields.length,
+                allTurnValues.length
+            )}
             ON CONFLICT (uniqueId) DO UPDATE SET modelMessage = EXCLUDED.modelMessage, respondentMessage = EXCLUDED.respondentMessage;
         `,
         userInput: allTurnValues,
@@ -34,25 +38,25 @@ export function createJsonbTurns(as: string = "turnsAgg") {
         'modelMessage', turns.modelMessage,
         'respondentMessage', turns.respondentMessage,
         'timeCreated', turns.timeCreated,
-        'lastEdited', turns.lastEdited
+        'lastEdited', turns.lastEdited,
+        'questionResponseId', turns.questionResponseId
     )) AS ${as}
     `;
 }
 
 export function leftJoinTurns(
-    oneTableName: string,
-    oneManyTableName: string,
-    oneIdName: string,
-    manyIdName: string,
-    as: string = "turnsAgg"
+    parentTableName: string,
+    parentIdNameInChildTable: string,
+    as: string,
+    parentIdName: string
 ) {
     return createLeftJoin(
-        oneTableName,
         "turns",
-        oneManyTableName,
-        oneIdName,
-        manyIdName,
+        parentIdNameInChildTable,
+        parentTableName,
         createJsonbTurns,
-        as
+        as,
+        parentIdName,
+        true
     );
 }

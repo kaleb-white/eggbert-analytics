@@ -1,7 +1,7 @@
 import { Turn } from "@/core/entities/surveys/turn";
 import {
     ParameterizedStatementSets,
-    argumentsToInStatementFromArray,
+    createParameterizedStatement,
 } from "../generation_types_and_utilities";
 import {
     createJsonbTurns,
@@ -17,9 +17,12 @@ export function getTurns(
             sql: `
     SELECT ${createJsonbTurns()}
         FROM turns
-        WHERE turns.${field} IN ${argumentsToInStatementFromArray(ids)};
+        WHERE turns.${field} IN ${createParameterizedStatement(
+                ids.length,
+                ids.length
+            )};
     `,
-            userInput: [],
+            userInput: ids,
         },
     ];
 }

@@ -9,6 +9,7 @@ export type ResponseProps = {
     respondent?: Respondent;
     timeCreated?: number;
     lastEdited?: number;
+    surveyId?: string;
 };
 
 const defaultProps = {
@@ -17,6 +18,7 @@ const defaultProps = {
     respondent: new Respondent(),
     timeCreated: Date.now(),
     lastEdited: Date.now(),
+    surveyId: "",
 };
 
 export class Response {
@@ -25,6 +27,7 @@ export class Response {
     respondent: Respondent;
     timeCreated: number;
     lastEdited: number;
+    surveyId: string;
 
     constructor(partialProps?: ResponseProps) {
         const props = partialProps ? partialProps : defaultProps;
@@ -43,5 +46,6 @@ export class Response {
         this.lastEdited = props.lastEdited
             ? props.lastEdited
             : defaultProps.lastEdited;
+        this.surveyId = props.surveyId ? props.surveyId : defaultProps.surveyId;
     }
 }

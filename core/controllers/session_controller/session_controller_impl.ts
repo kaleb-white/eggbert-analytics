@@ -68,6 +68,4 @@ export class SessionControllerImpl implements SessionController {
         const saveResult = await storage.save(session.userId, session);
         return saveResult;
     }
-
-    async;
 }

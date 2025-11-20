@@ -45,22 +45,6 @@ export function createParameterizedStatement(
     return stringResult;
 }
 
-export function joinTablesWhereUniqueIdMatchesCol(
-    tableWithUniqueIdCol: string,
-    tableWithSpecificCol: string,
-    col: string
-) {
-    return `
-    JOIN ${tableWithUniqueIdCol} ON ${tableWithUniqueIdCol}.uniqueId = ${tableWithSpecificCol}.${col}
-    `;
-}
-
-export function argumentsToInStatementFromArray(uniqueIds: string[]) {
-    return "("
-        .concat(uniqueIds.map((uniqueId) => `'${uniqueId}'`).join(","))
-        .concat(")");
-}
-
 export function getAllEntityValuesAsArray(
     entities: object[],
     orderedFields: (string | string[])[]
@@ -177,32 +161,34 @@ export function getAllEntities<T>(
 }
 
 /**
- *
- * @param oneTableName The name of the of parent table, for example `surveys`.
- * @param manyTableName The name of the child table, for example `questions`.
- * @param oneManyTableName The name of the one-many table, for example `surveysQuestions`.
- * @param oneIdName The name of the parent id in the oneManyTable, for example `surveyId`.
- * @param manyIdName The name of the child id in the oneManyTable, for example `questionId`.
- * @param jsonbFunction Function to create jsonb agg from the joined many table, for example `createJsonbQuestions()`.
- * @param additionalJoins Additional left join statements to add. Placed before the WHERE clause and after the JOIN clause.
- * @param whereStatement The statement to filter the one-many table on, for example `WHERE surveysQuestions.surveyId = $1`.
- * @param as The name of the table created within the left join statement, for example `LEFT JOIN (...) sq ON surveys.uniqueId = sq.surveyId`.
+ * @param childTableName The child table name. For example, `questions`.
+ * @param parentIdNameInChildTable The name of the parent id in the child table. For example, `surveyId`.
+ * @param parentTableName The parent table name. For example, `surveys`.
+ * @param jsonbFunction The function to create the jsonb entities. For example, `createJsonbQuestion`.
+ * @param as The name of the newly created table which contains the jsonb.
+ * @param parentIdName The name of the field in the parent table which corresponds to parentIdName in child table. For example, in the `questionResponses` table, when joining the corresponding question, it is `questions`. Defaults to `uniqueId`.
+ * @param additionalJoins Any necessary additional joins in order to complete the jsonb object.
  */
 export function createLeftJoin(
-    oneTableName: string,
-    manyTableName: string,
-    oneManyTableName: string,
-    oneIdName: string,
-    manyIdName: string,
+    childTableName: string,
+    parentIdNameInChildTable: string,
+    parentTableName: string,
     jsonbFunction: (as?: string) => string,
-    as: string = oneManyTableName,
+    as: string,
+    parentIdName: string = "uniqueId",
+    aggregation: boolean = false,
     additionalJoins: string = " "
 ) {
     return `LEFT JOIN (
-                SELECT ${oneManyTableName}.${oneIdName}, ${jsonbFunction()}
-                    FROM ${oneManyTableName}
-                    JOIN ${manyTableName} ON ${oneManyTableName}.${manyIdName} = ${manyTableName}.uniqueId
+                SELECT ${childTableName}.${parentIdNameInChildTable}, ${jsonbFunction()}
+                    FROM ${childTableName}
                     ${additionalJoins}
-                    GROUP BY ${oneManyTableName}.${oneIdName}
-            ) ${as} ON ${oneTableName}.uniqueId = ${as}.${oneIdName}`;
+                    ${
+                        aggregation
+                            ? `GROUP BY ${childTableName}.${parentIdNameInChildTable}`
+                            : ""
+                    }
+            ) ${as} ON ${as}.${parentIdNameInChildTable} = ${parentTableName}.${parentIdName}
+
+            `;
 }

@@ -8,6 +8,7 @@ export type QuestionProps = {
     maxNumberOfTurns?: number;
     timeCreated?: number;
     lastEdited?: number;
+    surveyId?: string;
 };
 
 const defaultProps = {
@@ -17,6 +18,7 @@ const defaultProps = {
     maxNumberOfTurns: 0,
     timeCreated: Date.now(),
     lastEdited: Date.now(),
+    surveyId: "",
 };
 
 export class Question {
@@ -26,6 +28,7 @@ export class Question {
     maxNumberOfTurns: number;
     timeCreated: number;
     lastEdited: number;
+    surveyId: string;
 
     constructor(partialProps?: QuestionProps) {
         const props = partialProps ? partialProps : defaultProps;
@@ -45,5 +48,6 @@ export class Question {
         this.lastEdited = props.lastEdited
             ? props.lastEdited
             : defaultProps.lastEdited;
+        this.surveyId = props.surveyId ? props.surveyId : defaultProps.surveyId;
     }
 }

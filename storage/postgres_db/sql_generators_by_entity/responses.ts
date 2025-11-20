@@ -11,9 +11,7 @@ import {
     createJsonbResponses,
     insertOrUpdateResponses,
 } from "../sql_generators_by_table/responses";
-import { insertOrUpdateQuestions } from "../sql_generators_by_table/questions";
 import { insertOrUpdateTurns } from "../sql_generators_by_table/turns";
-import { insertOrUpdateOneManyRelation } from "../sql_generators_by_table/one-many_tables";
 
 export function getResponses(
     ids: string[],
@@ -25,16 +23,14 @@ export function getResponses(
                 FROM responses
                 ${leftJoinQuestionResponses(
                     "responses",
-                    "responsesQuestionResponses",
                     "responseId",
-                    "questionResponseId",
+                    "uniqueId",
                     "questionResponses"
                 )}
                 WHERE responses.${field} IN ${createParameterizedStatement(
                 ids.length,
                 ids.length
             )};
-
             `,
 
             userInput: ids,
@@ -50,44 +46,15 @@ export function saveResponses(
     const insertQuestionResponsesCommand = insertOrUpdateQuestionResponses(
         responses.flatMap((r) => r.questionResponses)
     );
-    // Since all responses should be responding to the same set of questions, we'll only use the responses from the first response
-    const insertQuestionsCommand = insertOrUpdateQuestions(
-        responses.map((r) => r.questionResponses.map((qr) => qr.question))[0]
-    );
     const insertTurnsCommand = insertOrUpdateTurns(
         responses.flatMap((r) =>
             r.questionResponses.flatMap((qr) => qr.transcript)
         )
     );
 
-    const insertRQRs = responses.flatMap((r) =>
-        insertOrUpdateOneManyRelation(
-            "responseId",
-            "questionResponseId",
-            "responsesQuestionResponses",
-            r,
-            "questionResponses"
-        )
-    );
-    const insertQRTs = responses.flatMap((r) =>
-        r.questionResponses.flatMap((qr) =>
-            insertOrUpdateOneManyRelation(
-                "questionResponseId",
-                "turnId",
-                "questionResponsesTurns",
-                qr,
-                "transcript"
-            )
-        )
-    );
-
     return [
-        [insertQuestionsCommand],
-        [
-            insertResponsesCommand,
-            insertQuestionResponsesCommand,
-            insertTurnsCommand,
-        ],
-        insertRQRs.concat(insertQRTs),
+        [insertResponsesCommand],
+        [insertQuestionResponsesCommand],
+        [insertTurnsCommand],
     ];
 }
