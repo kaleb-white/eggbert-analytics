@@ -15,5 +15,5 @@ export interface UserController {
     checkPasswordMatch(
         email: string,
         password: string
-    ): Promise<boolean | Error>;
+    ): Promise<boolean | Error | null>;
 }

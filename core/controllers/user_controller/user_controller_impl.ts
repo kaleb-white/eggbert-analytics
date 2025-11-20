@@ -58,11 +58,9 @@ export class UserControllerImpl implements UserController {
     async checkPasswordMatch(
         email: string,
         password: string
-    ): Promise<boolean | Error> {
+    ): Promise<boolean | Error | null> {
         const userAndPassword = await this.getUserAndPasswordByEmail(email);
-        if (!userAndPassword) {
-            return new Error("No user found with that email");
-        } else if (userAndPassword instanceof Error) {
+        if (!userAndPassword || userAndPassword instanceof Error) {
             return userAndPassword;
         }
 

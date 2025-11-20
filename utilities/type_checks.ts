@@ -76,6 +76,14 @@ export function isSession(obj: unknown): boolean {
     );
 }
 
+export function isUser(obj: unknown): boolean {
+    const keys = Object.keys(new User());
+    return (
+        typeof obj == "object" &&
+        doUnorderedArraysMatch(keys, Object.keys(obj as object))
+    );
+}
+
 // These are all subsets of user, so check is slightly different
 export function isRespondent(obj: unknown): boolean {
     const keys = Object.keys(new User());

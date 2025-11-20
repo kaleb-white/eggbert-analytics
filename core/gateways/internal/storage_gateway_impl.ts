@@ -3,7 +3,6 @@ import { isT } from "@/utilities/global_type_check";
 import { Cache } from "../interfaces/external/cache";
 import { Database } from "../interfaces/external/database";
 import { StorageGateway } from "../interfaces/internal/storage_gateway";
-import { isSurvey } from "@/utilities/type_checks";
 
 type Result<T> = {
     error: Error | null;
@@ -139,11 +138,24 @@ export class StorageGatewayImpl implements StorageGateway {
             !(tryDatabaseLoad instanceof Error) &&
             !isT<T>(tryDatabaseLoad, objOfTypeT)
         ) {
-            console.log("is survey", isSurvey(tryDatabaseLoad));
             result.error = new Error(
                 `Database returned something that wasn't of type T or an error: ${JSON.stringify(
                     tryDatabaseLoad
-                )}`
+                )}. Missing fields from objOfTypeT include: ${Object.keys(
+                    objOfTypeT as object
+                )
+                    .map((field) => {
+                        if (
+                            tryDatabaseLoad instanceof Error ||
+                            !tryDatabaseLoad
+                        )
+                            return;
+                        if (!Object.keys(tryDatabaseLoad).includes(field))
+                            return field;
+                        return "xx";
+                    })
+                    .filter((fieldName) => fieldName !== "xx")
+                    .join(", ")}`
             );
             result.finished = true;
             result.success = false;

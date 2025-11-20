@@ -49,6 +49,7 @@ import {
     savePasswords,
 } from "@/storage/postgres_db/sql_generators_by_entity/passwords";
 import { Password } from "@/core/entities/users/password";
+import { User } from "@/core/entities/users/user";
 
 async function genAndExecuteSaveSql(
     sqlGen: (any: any[]) => ParameterizedStatementSets,
@@ -116,6 +117,7 @@ export class PostgresDbImpl implements Database {
             case "respondent":
             case "author":
             case "anonymous":
+            case "user":
                 res = await genAndExecuteSaveSql(saveUsers, [obj], this.pool);
                 break;
             case "session":
@@ -216,6 +218,15 @@ export class PostgresDbImpl implements Database {
                 break;
             case "author":
                 promise = genAndExecuteGetSql<Author>(
+                    getUsers,
+                    [id],
+                    this.pool,
+                    "users",
+                    field
+                );
+                break;
+            case "user":
+                promise = genAndExecuteGetSql<User>(
                     getUsers,
                     [id],
                     this.pool,
