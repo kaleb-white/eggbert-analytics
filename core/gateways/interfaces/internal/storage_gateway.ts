@@ -4,6 +4,7 @@ export interface StorageGateway {
     get<T>(
         id: string,
         objOfTypeT: T,
-        field?: string
+        field?: string,
+        noCache?: boolean
     ): Promise<T | null | Error>;
 }

@@ -38,7 +38,7 @@ export class UserControllerImpl implements UserController {
     }
 
     async getPassword(userId: string): Promise<Password | Error | null> {
-        return await storage.get(userId, new Password(), "userId");
+        return await storage.get(userId, new Password(), "userId", true);
     }
 
     async getUserAndPasswordByEmail(

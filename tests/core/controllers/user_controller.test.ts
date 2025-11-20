@@ -57,7 +57,7 @@ describe("test user controller", () => {
     const u2pass = "myPass2";
     const u3pass = "myPass3";
 
-    const s1 = new Session({ userId: "a" });
+    const s1 = new Session({ uniqueId: "d", userId: "a" });
 
     test("save one user", async () => {
         const result = await userController.createOrUpdateUser(u1, u1pass);
@@ -150,7 +150,7 @@ describe("test user controller", () => {
         const result = await userController.getUserAndPasswordByEmail("fake");
         expect(result).toBeNull();
     });
-    test("get one password", async () => {
+    test("get one user and password by email", async () => {
         const result = await userController.getUserAndPasswordByEmail(u1.email);
         expect(result).not.toBeInstanceOf(Error);
         expect(result).not.toBeNull();
@@ -158,7 +158,7 @@ describe("test user controller", () => {
         expect(user.uniqueId).toBe(u1.uniqueId);
         expect(password.userId).toBe(u1.uniqueId);
     });
-    test("get two passwords", async () => {
+    test("get two user and passwords by email", async () => {
         const res1 = await userController.getUserAndPasswordByEmail(u2.email);
         expect(res1).not.toBeInstanceOf(Error);
         expect(res1).not.toBeNull();

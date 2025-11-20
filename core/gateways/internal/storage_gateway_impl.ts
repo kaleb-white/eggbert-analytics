@@ -64,7 +64,8 @@ export class StorageGatewayImpl implements StorageGateway {
     async get<T>(
         id: string,
         objOfTypeT: T,
-        field: string = "uniqueId"
+        field: string = "uniqueId",
+        noCache: boolean = false
     ): Promise<T | null | Error> {
         // Object to hold result
         const result: Result<T> = {
@@ -75,36 +76,49 @@ export class StorageGatewayImpl implements StorageGateway {
             cacheFinished: false,
         };
 
-        // Try and get from cache
-        const tryCacheLoad = await this.cache.get(id, false);
-        // Success
-        if (
-            !(tryCacheLoad instanceof Error) &&
-            isT<T>(tryCacheLoad, objOfTypeT)
-        ) {
-            result.result = tryCacheLoad as T;
-            result.finished = true;
-            result.success = true;
-        }
-        // Unexpected fail
-        if (
-            !result.finished &&
-            !(tryCacheLoad instanceof Error) &&
-            !isT<T>(tryCacheLoad, objOfTypeT)
-        ) {
-            result.error = new Error(
-                `Cache returned something that wasn't of type T or an error: ${JSON.stringify(
-                    tryCacheLoad
-                )}`
-            );
-            result.finished = true;
-            result.success = false;
-        }
+        if (!noCache) {
+            // Try and get from cache
+            const tryCacheLoad = await this.cache.get(id, false);
+            // Success
+            if (
+                !(tryCacheLoad instanceof Error) &&
+                isT<T>(tryCacheLoad, objOfTypeT)
+            ) {
+                result.result = tryCacheLoad as T;
+                result.finished = true;
+                result.success = true;
+            }
+            // Unexpected fail
+            if (
+                !result.finished &&
+                !(tryCacheLoad instanceof Error) &&
+                !isT<T>(tryCacheLoad, objOfTypeT)
+            ) {
+                result.error = new Error(
+                    `Cache returned something that wasn't of type T or an error: ${JSON.stringify(
+                        tryCacheLoad
+                    )}. Missing fields from objOfTypeT include: ${Object.keys(
+                        objOfTypeT as object
+                    )
+                        .map((field) => {
+                            if (tryCacheLoad instanceof Error || !tryCacheLoad)
+                                return;
+                            if (!Object.keys(tryCacheLoad).includes(field))
+                                return field;
+                            return "xx";
+                        })
+                        .filter((fieldName) => fieldName !== "xx")
+                        .join(", ")}`
+                );
+                result.finished = true;
+                result.success = false;
+            }
 
-        // Check if finished
-        if (result.finished) {
-            await this.cache.get("fake", true);
-            return returnResultOrError<T>(result);
+            // Check if finished
+            if (result.finished) {
+                await this.cache.get("fake", true);
+                return returnResultOrError<T>(result);
+            }
         }
 
         // Try and get from database
@@ -118,8 +132,10 @@ export class StorageGatewayImpl implements StorageGateway {
             !(tryDatabaseLoad instanceof Error) &&
             isT<T>(tryDatabaseLoad, objOfTypeT)
         ) {
-            // Save to cache
-            await this.cache.save(id, tryDatabaseLoad as object, true);
+            if (!noCache) {
+                // Save to cache
+                await this.cache.save(id, tryDatabaseLoad as object, true);
+            }
 
             result.result = tryDatabaseLoad as T;
             result.finished = true;
@@ -168,7 +184,7 @@ export class StorageGatewayImpl implements StorageGateway {
             result.success = false;
         }
 
-        if (!result.cacheFinished) {
+        if (!result.cacheFinished && !noCache) {
             await this.cache.get("fake", true);
         }
         return returnResultOrError(result);

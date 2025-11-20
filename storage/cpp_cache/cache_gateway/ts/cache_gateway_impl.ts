@@ -66,6 +66,8 @@ export class CacheGatewayImpl implements CacheGateway {
             isLast
         );
         const send_result = await this.send(message);
+        if (isLast) this.client?.destroy();
+
         if (send_result instanceof Error) {
             return send_result;
         }
@@ -81,6 +83,7 @@ export class CacheGatewayImpl implements CacheGateway {
     async read(id: string, isLast: boolean = false): Promise<string | Error> {
         const message = message_to_protocol_format("read ".concat(id), isLast);
         const send_result = await this.send(message);
+        if (isLast) this.client?.destroy();
 
         if (send_result instanceof Error) {
             return send_result;
@@ -105,6 +108,8 @@ export class CacheGatewayImpl implements CacheGateway {
             isLast
         );
         const send_result = await this.send(message);
+        if (isLast) this.client?.destroy();
+
         if (send_result instanceof Error) {
             return send_result;
         }
