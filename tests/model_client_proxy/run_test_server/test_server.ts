@@ -6,17 +6,47 @@ import { DialogueContext } from "../../../model_client_proxy/core/entities/dialo
 import { ModelTest } from "../../../model_client_proxy/core/gateways/external/query_model/test_model";
 import { Response } from "@/core/entities/surveys/response";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
+import { initializer, storage } from "@/injections";
+import { Survey } from "@/core/entities/surveys/survey";
+import { Author } from "@/core/entities/users/author";
+import { Question } from "@/core/entities/surveys/question";
 
-function test_server() {
+async function test_server() {
+    // Db reset
+    await initializer.initialize();
+
     // Server setup
     const app = express();
     app.use(express.json());
     const server = createServer(app);
     const io = new Server(server);
 
+    // Survey so we are not violating foreign key on response
+    const q = new Question({
+        uniqueId: "sampleQuestion",
+        surveyId: "sampleSurvey",
+    });
+    const surveyToContainResponse = new Survey({
+        uniqueId: "sampleSurvey",
+        author: new Author(),
+        questions: [q],
+    });
+    const saveSurveyResult = await storage.save(
+        surveyToContainResponse.uniqueId,
+        surveyToContainResponse
+    );
+
+    if (saveSurveyResult) {
+        console.log("failed to save survey:", saveSurveyResult.message);
+        return;
+    }
+
     // Add additional callbacks here
     const responseForPeerHandler: Response = new Response({
-        questionResponses: [new QuestionResponse({ uniqueId: "test" })],
+        questionResponses: [
+            new QuestionResponse({ uniqueId: "test", question: q }),
+        ],
+        surveyId: "sampleSurvey",
     });
     const contextForPeerHandler: DialogueContext = new DialogueContext(
         "abc",
@@ -29,7 +59,11 @@ function test_server() {
             peer,
             contextForPeerHandler,
             testModelForPeerHandler,
-            responseForPeerHandler
+            responseForPeerHandler,
+            async (r: Response) => {
+                const saveResult = await storage.save(r.uniqueId, r);
+                return saveResult;
+            } // Note: DOES NOT TEST ROUTE ON MAIN SERVER!
         );
     });
 
@@ -45,4 +79,4 @@ function test_server() {
     });
 }
 
-test_server();
+await test_server();

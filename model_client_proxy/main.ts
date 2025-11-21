@@ -9,7 +9,6 @@ import { reconstructResponse } from "../utilities/reconstruct_obj/reconstruct_re
 import { finalizePeer } from "./core/gateways/internal/finalize_peer";
 import type { ProxySetupForServer } from "./core/entities/proxy_setup_for_server";
 import { dialogueContextFromProxySetupForServer } from "./core/entities/dialogue_context";
-import { ModelTest } from "./core/gateways/external/query_model/test_model";
 import {
     connectionIdsRouteName,
     createConnectionRouteName,

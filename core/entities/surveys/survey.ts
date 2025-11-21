@@ -15,8 +15,8 @@ export type SurveyProps = {
 
 const defaultProps = {
     uniqueId: "",
-    questions: [new Question()],
-    responses: [new Response()],
+    questions: [],
+    responses: [],
     author: new Author(),
     timeCreated: Date.now(),
     lastEdited: Date.now(),
