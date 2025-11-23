@@ -9,6 +9,8 @@ import { InitializerImpl } from "./storage/postgres_db/initialization/initialize
 import testPool from "./tests/db/utilities/test_pool";
 import { UserControllerImpl } from "./core/controllers/user_controller/user_controller_impl";
 import { UserController } from "./core/controllers/user_controller/interfaces/user_controller";
+import { SessionController } from "./core/controllers/session_controller/interfaces/session_controller";
+import { SessionControllerImpl } from "./core/controllers/session_controller/session_controller_impl";
 
 export const pool = new Pool({
     database: process.env.PGTESTDATABASE, // Change to PGDATABASE for prod
@@ -25,6 +27,7 @@ export const uniqueIdGen = new CryptographyUtilitiesImpl(
 );
 
 export const userController: UserController = new UserControllerImpl();
+export const sessionController: SessionController = new SessionControllerImpl();
 
 export const testInitializer = new InitializerImpl(testPool);
-export const initializer = new InitializerImpl(pool);
+// export const initializer = new InitializerImpl(pool);

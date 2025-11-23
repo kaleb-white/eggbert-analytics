@@ -44,6 +44,17 @@ export class SessionControllerImpl implements SessionController {
         return session;
     }
 
+    async getSessions(byUser: User): Promise<Session[] | Error> {
+        const sessions = await storage.getAll(
+            byUser.uniqueId,
+            new Session(),
+            "userId"
+        );
+
+        if (!sessions) return [];
+        return sessions;
+    }
+
     /**
      * Checks for an existing database session with the exact same values and an expiration date in the future.
      * @param session the session to check

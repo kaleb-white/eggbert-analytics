@@ -66,30 +66,23 @@ export function getAllEntityValuesAsArray(
 
 /**
  * Does not type check T, just casts the found entities to T.
+ * Assumes that the results look something like `[{\"sessionsagg\":[{\"role\":\"anonymous\",\"userId\":\"user\",\"uniqueId\":\"1\",\"expiration\":1766508077928,\"antiCsrfToken\":\"\"}]}]`,
+ *  a single row object with a single or aggregated json object.
  * @param queryResult A single QueryResult object, from the pg module.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Tries jsonb_build_object if not found as col name in result. If neither are found, errors. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
- * @param expectArray Whether or not the aggregation is an array or an object
  */
 export function getAllEntitiesFromOneResult<T>(
-    queryResult: QueryResult,
-    expectedAggregationName: string = "jsonb_build_object"
+    queryResult: QueryResult
 ): T[] | Error | null {
     if (queryResult.rows.length == 0 || !queryResult) return null;
-    const columnNames = Object.keys(queryResult.rows[0]);
-    if (
-        expectedAggregationName != "jsonb_build_object" &&
-        !columnNames.includes(expectedAggregationName.toLowerCase()) &&
-        !columnNames.includes("jsonb_build_object")
-    ) {
+    const aggOrObjName = Object.keys(queryResult.rows[0])[0];
+    if (!aggOrObjName)
         return new Error(
-            `Query returned a table with column names ${columnNames.join(
-                ", "
-            )}, when the expected name was ${expectedAggregationName}`
+            `Query returned a table with column names ${Object.keys(
+                queryResult.rows[0]
+            )}. Trying to access the first member resulted in undefined.`
         );
-    }
 
-    let entities = queryResult.rows[0][expectedAggregationName.toLowerCase()];
-    if (!entities) entities = queryResult.rows[0]["jsonb_build_object"];
+    const entities = queryResult.rows[0][aggOrObjName];
     if (Array.isArray(entities)) return entities as T[];
     else return [entities];
 }
@@ -97,17 +90,12 @@ export function getAllEntitiesFromOneResult<T>(
 /**
  * Does not type check T, just casts the found entities to T.
  * @param queryResult A single QueryResult object, from the pg module.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
  * @returns The first entity found.
  */
 export function getFirstEntityFromOneResult<T>(
-    queryResult: QueryResult,
-    expectedAggregationName = "jsonb_build_object"
+    queryResult: QueryResult
 ): T | Error | null {
-    const allEntities = getAllEntitiesFromOneResult<T>(
-        queryResult,
-        expectedAggregationName
-    );
+    const allEntities = getAllEntitiesFromOneResult<T>(queryResult);
     if (!allEntities || allEntities instanceof Error) return allEntities;
     else return allEntities[0];
 }
@@ -115,40 +103,30 @@ export function getFirstEntityFromOneResult<T>(
 /**
  * Does not type check T, just casts the found entities to T.
  * @param queryResults Multiple QueryResult objects, from the pg module. Usually the result of a call to `executeStatements`.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
  * @returns The first entity found or an error.
  */
 export function getFirstEntity<T>(
-    queryResults: QueryResult[],
-    expectedAggregationName = "jsonb_build_object"
+    queryResults: QueryResult[]
 ): T | Error | null {
     if (queryResults.length == 0)
         return new Error("No query results passed when getting first entity");
-    return getFirstEntityFromOneResult<T>(
-        queryResults[0],
-        expectedAggregationName
-    );
+    return getFirstEntityFromOneResult<T>(queryResults[0]);
 }
 
 /**
  * Does not type check T, just casts the found entities to T.
  * DO NOT include any column that is not the aggregation name in the select statement.
  * @param queryResults Multiple QueryResult objects, from the pg module. Usually the result of a call to `executeStatements`.
- * @param expectedAggregationName The expected aggregation name, if any. For example, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
  * @returns All entities found or an error.
  */
 export function getAllEntities<T>(
-    queryResults: QueryResult[],
-    expectedAggregationName: string = "jsonb_build_object"
+    queryResults: QueryResult[]
 ): T[] | Error | null {
     let entityFailed: Error | null = null;
     let allEntities: T[] = [];
 
     queryResults.forEach((queryResult) => {
-        const oneResultEntities = getAllEntitiesFromOneResult<T>(
-            queryResult,
-            expectedAggregationName
-        );
+        const oneResultEntities = getAllEntitiesFromOneResult<T>(queryResult);
         if (!oneResultEntities || oneResultEntities instanceof Error) {
             entityFailed = oneResultEntities;
         } else {

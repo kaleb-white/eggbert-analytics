@@ -207,6 +207,9 @@ export class StorageGatewayImpl implements StorageGateway {
         // Return if array empty
         if (tryDatabaseLoad.length == 0) return tryDatabaseLoad;
 
+        // Return if array just contains null
+        if (!tryDatabaseLoad[0]) return null;
+
         // Check type of object returned
         if (!isT<T>(tryDatabaseLoad[0], objOfTypeT)) {
             return new Error(

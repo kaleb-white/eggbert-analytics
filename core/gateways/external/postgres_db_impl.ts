@@ -71,8 +71,7 @@ async function genAndExecuteGetSql<T>(
     const getResult = await executeStatements(sqlGen(ids, field), pool);
     if (getResult instanceof Error) return getResult;
     if (getResult.length == 0) return null;
-    // This is a terrible way to do it lol
-    const entities = getAllEntities<T>(getResult, entityName.concat("Agg"));
+    const entities = getAllEntities<T>(getResult);
     return entities;
 }
 
@@ -148,8 +147,9 @@ export class PostgresDbImpl implements Database {
     async get<T>(
         id: string,
         objOfTypeT: T,
-        field: string = "uniqueId"
-    ): Promise<T | null | Error> {
+        field: string = "uniqueId",
+        all: boolean = false
+    ): Promise<T | T[] | null | Error> {
         const entityName = isEntity(objOfTypeT);
         let promise: Promise<any[] | Error | null>;
         switch (entityName) {
@@ -261,6 +261,7 @@ export class PostgresDbImpl implements Database {
         }
         const res = await promise;
         if (!res || res instanceof Error) return res;
-        return res[0] as T;
+        if (!all) return res[0] as T;
+        return res as T[];
     }
 }
