@@ -17,6 +17,25 @@ function returnResultOrError<T>(res: Result<T>) {
     else return res.error;
 }
 
+function formatObjectMismatchErrorMsg(
+    cacheOrDatabase: string,
+    returnedObject: object,
+    expectedObject: object
+) {
+    return `${cacheOrDatabase} returned something that wasn't of type T or an error: ${JSON.stringify(
+        returnedObject
+    )}. Missing fields from objOfTypeT include: ${Object.keys(
+        expectedObject as object
+    )
+        .map((field) => {
+            if (returnedObject instanceof Error || !returnedObject) return;
+            if (!Object.keys(returnedObject).includes(field)) return field;
+            return "xx";
+        })
+        .filter((fieldName) => fieldName !== "xx")
+        .join(", ")}`;
+}
+
 export class StorageGatewayImpl implements StorageGateway {
     private cache: Cache;
     private database: Database;
@@ -61,7 +80,7 @@ export class StorageGatewayImpl implements StorageGateway {
         }
     }
 
-    async get<T>(
+    async get<T extends object>(
         id: string,
         objOfTypeT: T,
         field: string = "uniqueId",
@@ -78,7 +97,7 @@ export class StorageGatewayImpl implements StorageGateway {
 
         if (!noCache) {
             // Try and get from cache
-            const tryCacheLoad = await this.cache.get(id, false);
+            const tryCacheLoad = await this.cache.get<T>(id, false);
             // Success
             if (
                 !(tryCacheLoad instanceof Error) &&
@@ -95,20 +114,11 @@ export class StorageGatewayImpl implements StorageGateway {
                 !isT<T>(tryCacheLoad, objOfTypeT)
             ) {
                 result.error = new Error(
-                    `Cache returned something that wasn't of type T or an error: ${JSON.stringify(
-                        tryCacheLoad
-                    )}. Missing fields from objOfTypeT include: ${Object.keys(
-                        objOfTypeT as object
+                    formatObjectMismatchErrorMsg(
+                        "Cache",
+                        tryCacheLoad,
+                        objOfTypeT
                     )
-                        .map((field) => {
-                            if (tryCacheLoad instanceof Error || !tryCacheLoad)
-                                return;
-                            if (!Object.keys(tryCacheLoad).includes(field))
-                                return field;
-                            return "xx";
-                        })
-                        .filter((fieldName) => fieldName !== "xx")
-                        .join(", ")}`
                 );
                 result.finished = true;
                 result.success = false;
@@ -155,23 +165,11 @@ export class StorageGatewayImpl implements StorageGateway {
             !isT<T>(tryDatabaseLoad, objOfTypeT)
         ) {
             result.error = new Error(
-                `Database returned something that wasn't of type T or an error: ${JSON.stringify(
-                    tryDatabaseLoad
-                )}. Missing fields from objOfTypeT include: ${Object.keys(
+                formatObjectMismatchErrorMsg(
+                    "Database",
+                    tryDatabaseLoad as object,
                     objOfTypeT as object
                 )
-                    .map((field) => {
-                        if (
-                            tryDatabaseLoad instanceof Error ||
-                            !tryDatabaseLoad
-                        )
-                            return;
-                        if (!Object.keys(tryDatabaseLoad).includes(field))
-                            return field;
-                        return "xx";
-                    })
-                    .filter((fieldName) => fieldName !== "xx")
-                    .join(", ")}`
             );
             result.finished = true;
             result.success = false;
@@ -188,5 +186,39 @@ export class StorageGatewayImpl implements StorageGateway {
             await this.cache.get("fake", true);
         }
         return returnResultOrError(result);
+    }
+
+    async getAll<T extends object>(id: string, objOfTypeT: T, field?: string) {
+        // Get all from database
+        const tryDatabaseLoad = await this.database.get(
+            id,
+            objOfTypeT,
+            field,
+            true
+        );
+
+        // Return if error / null
+        if (!tryDatabaseLoad || tryDatabaseLoad instanceof Error)
+            return tryDatabaseLoad;
+
+        if (!Array.isArray(tryDatabaseLoad))
+            return new Error("Database did not return an array");
+
+        // Return if array empty
+        if (tryDatabaseLoad.length == 0) return tryDatabaseLoad;
+
+        // Check type of object returned
+        if (!isT<T>(tryDatabaseLoad[0], objOfTypeT)) {
+            return new Error(
+                formatObjectMismatchErrorMsg(
+                    "Database",
+                    tryDatabaseLoad[0] as object,
+                    objOfTypeT as object
+                )
+            );
+        }
+
+        // Success, return
+        return tryDatabaseLoad;
     }
 }

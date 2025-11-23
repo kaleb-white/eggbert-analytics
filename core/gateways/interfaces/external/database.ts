@@ -4,6 +4,7 @@ export interface Database {
     get<T>(
         id: string,
         objOfTypeT: T,
-        field?: string
-    ): Promise<T | null | Error>;
+        field?: string,
+        all?: boolean
+    ): Promise<T | T[] | null | Error>;
 }
