@@ -150,9 +150,13 @@ Use `path` when referring to a path, route, or file location.
 
 ### Technical Terms
 
-#### load
+#### get
 
-Use load when referring to creating an object from storage.
+Use get when referring to creating an object from storage.
+
+#### user actions
+
+Actions related to changing the state of users within the application, such as signing in, signing up, etc.
 
 ## Casing conventions
 

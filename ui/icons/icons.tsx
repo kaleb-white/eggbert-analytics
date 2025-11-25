@@ -17,8 +17,6 @@ function WrapIcon(props: WrapProps) {
     const fillHexHover = useRef(props.fillHexHover ? props.fillHexHover : fillHex.current)
     const [fill, setFill] = useState(fillHex.current)
 
-
-
     return (
         <div
             className="mx-auto"

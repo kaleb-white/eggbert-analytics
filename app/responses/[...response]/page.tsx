@@ -7,7 +7,7 @@ import { ProxySetupForClient } from "@/model_client_proxy/core/entities/proxy_se
 import { ProxySetupForServer } from "@/model_client_proxy/core/entities/proxy_setup_for_server"
 import { addNewAllowedConnection } from "@/model_client_proxy/core/gateways/external/add_new_allowed_server"
 import { CustomError } from "@/ui/error/custom_error"
-import { ResponseBox } from "@/ui/response/response"
+import { ResponseBox } from "@/ui/response/container/response"
 
 export default async function ResponsesPage({ params }:{ params: Promise<{response: string}>}) {
     const {response} = await params

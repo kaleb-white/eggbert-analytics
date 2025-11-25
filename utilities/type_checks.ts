@@ -22,7 +22,9 @@ function doUnorderedArraysMatch(arr1: unknown[], arr2: unknown[]): boolean {
 }
 
 export function isCryptographyUtilities(obj: unknown): boolean {
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         Object.keys(obj as object).includes("createUniqueId")
     );
@@ -30,7 +32,9 @@ export function isCryptographyUtilities(obj: unknown): boolean {
 
 export function isSurvey(obj: unknown): boolean {
     const keys = Object.keys(new Survey());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
@@ -38,7 +42,9 @@ export function isSurvey(obj: unknown): boolean {
 
 export function isResponse(obj: unknown): boolean {
     const keys = Object.keys(new Response());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
@@ -46,7 +52,9 @@ export function isResponse(obj: unknown): boolean {
 
 export function isQuestionResponse(obj: unknown): boolean {
     const keys = Object.keys(new QuestionResponse());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
@@ -54,7 +62,9 @@ export function isQuestionResponse(obj: unknown): boolean {
 
 export function isQuestion(obj: unknown): boolean {
     const keys = Object.keys(new Question());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
@@ -62,7 +72,9 @@ export function isQuestion(obj: unknown): boolean {
 
 export function isTurn(obj: unknown): boolean {
     const keys = Object.keys(new Turn());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
@@ -70,7 +82,9 @@ export function isTurn(obj: unknown): boolean {
 
 export function isSession(obj: unknown): boolean {
     const keys = Object.keys(new Session());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj == "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
@@ -78,7 +92,9 @@ export function isSession(obj: unknown): boolean {
 
 export function isUser(obj: unknown): boolean {
     const keys = Object.keys(new User());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj == "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );
@@ -87,7 +103,9 @@ export function isUser(obj: unknown): boolean {
 // These are all subsets of user, so check is slightly different
 export function isRespondent(obj: unknown): boolean {
     const keys = Object.keys(new User());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object)) &&
         (obj as User).role &&
@@ -97,7 +115,9 @@ export function isRespondent(obj: unknown): boolean {
 
 export function isAuthor(obj: unknown): boolean {
     const keys = Object.keys(new User());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object)) &&
         (obj as User).role &&
@@ -107,7 +127,9 @@ export function isAuthor(obj: unknown): boolean {
 
 export function isAnonymous(obj: unknown): boolean {
     const keys = Object.keys(new User());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object)) &&
         (obj as User).role &&
@@ -117,7 +139,9 @@ export function isAnonymous(obj: unknown): boolean {
 
 export function isPassword(obj: unknown): boolean {
     const keys = Object.keys(new Password());
+    if (!obj) return false;
     return (
+        !(typeof obj === "undefined") &&
         typeof obj === "object" &&
         doUnorderedArraysMatch(keys, Object.keys(obj as object))
     );

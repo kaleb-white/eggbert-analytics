@@ -10,16 +10,9 @@ import { cookies } from "next/headers";
 import { z, ZodSafeParseError } from "zod/v4";
 import { Roles } from "@/core/entities/users/user_roles";
 import { sessionController, uniqueIdGen, userController } from "@/injections";
+import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
-const zodUser = z.object({
-    role: z.literal(Roles), // Stupid
-    email: z.email(),
-    uniqueId: z.string(),
-    timeCreated: z.number(),
-    lastLogin: z.number(),
-});
-
-const zodPassword = z.string().min(8).max(256);
+const zodPassword = z.object({ password: z.string().min(8).max(256) });
 
 function stringArrayToErrorArray(strings: string[]): Error[] {
     return strings.map((string) => new Error(string));
@@ -41,31 +34,41 @@ function addZodErrorsToTracker(
     });
 }
 
-export class UserServerActionsImpl implements UserServerActions {
-    updateSession(session: Session): Promise<UserServerActionResult> {
-        throw new Error("Method not implemented.");
-    }
+function createCookieConfiguration(expires: number): Partial<ResponseCookie> {
+    return {
+        httpOnly: true,
+        expires: expires,
+        sameSite: "lax",
+        secure: true,
+        path: "/",
+    };
+}
 
-    async signUp(
-        user: User,
+const UserServerActionsImpl: UserServerActions = {
+    updateSession: async (
+        session: Session
+    ): Promise<UserServerActionResult> => {
+        throw new Error("Method not implemented.");
+    },
+
+    signUp: async (
+        email: string,
         password: string
-    ): Promise<UserServerActionResult> {
+    ): Promise<UserServerActionResult> => {
         // Validate form input
         const errors: UserServerActionResult = {
             succesful: false,
             errorCount: 0,
         };
-        const parseUserErrors = zodUser.safeParse({
-            role: user.role,
-            email: user.email,
-            uniqueId: user.uniqueId,
-            timeCreated: user.timeCreated,
-            lastLogin: user.lastLogin,
+        const parseEmailErrors = z
+            .object({ email: z.email() })
+            .safeParse({ email: email });
+        const parsePasswordErrors = zodPassword.safeParse({
+            password: password,
         });
-        const parsePasswordErrors = zodPassword.safeParse(password);
 
-        if (!parseUserErrors.success) {
-            addZodErrorsToTracker(errors, parseUserErrors);
+        if (!parseEmailErrors.success) {
+            addZodErrorsToTracker(errors, parseEmailErrors);
         }
         if (!parsePasswordErrors.success) {
             addZodErrorsToTracker(errors, parsePasswordErrors);
@@ -73,15 +76,23 @@ export class UserServerActionsImpl implements UserServerActions {
 
         if (errors.errorCount > 0) return errors;
 
+        // Create user
+        const user = new User({
+            email: email,
+            lastLogin: Date.now(),
+            role: "respondent",
+            timeCreated: Date.now(),
+            uniqueId: uniqueIdGen.createUniqueId(),
+        });
+
         // Try and persist user and password
-        user.uniqueId = uniqueIdGen.createUniqueId(); // Ignore whatever id they used
         const userSaveResult = await userController.createOrUpdateUser(
             user,
             password
         );
         if (userSaveResult instanceof Error) {
             errors.errorCount = 1;
-            errors["Failed to save user"] = [new Error(userSaveResult.message)];
+            errors["other"] = [new Error(userSaveResult.message)];
             return errors;
         }
 
@@ -91,9 +102,7 @@ export class UserServerActionsImpl implements UserServerActions {
         );
         if (sessionSaveResult instanceof Error) {
             errors.errorCount = 1;
-            errors["Failed to save session"] = [
-                new Error(sessionSaveResult.message),
-            ];
+            errors["other"] = [new Error(sessionSaveResult.message)];
             return errors;
         }
         // TODO: delete old session and migrate responses
@@ -103,15 +112,19 @@ export class UserServerActionsImpl implements UserServerActions {
         if (cookieStore.get("session")) {
             cookieStore.delete("session");
         }
-        cookieStore.set("session", JSON.stringify(sessionSaveResult));
+        cookieStore.set(
+            "session",
+            JSON.stringify(sessionSaveResult),
+            createCookieConfiguration(sessionSaveResult.expiration)
+        );
 
         return { succesful: true, message: "Success!" };
-    }
+    },
 
-    async signIn(
+    signIn: async (
         email: string,
         password: string
-    ): Promise<UserServerActionResult> {
+    ): Promise<UserServerActionResult> => {
         const errors: UserServerActionResult = {
             succesful: false,
             errorCount: 0,
@@ -119,7 +132,9 @@ export class UserServerActionsImpl implements UserServerActions {
 
         // Validate input
         const parseEmailErrors = z.email().safeParse(email);
-        const parsePasswordErrors = zodPassword.safeParse(password);
+        const parsePasswordErrors = zodPassword.safeParse({
+            password: password,
+        });
 
         if (!parseEmailErrors.success) {
             addZodErrorsToTracker(errors, parseEmailErrors);
@@ -137,21 +152,17 @@ export class UserServerActionsImpl implements UserServerActions {
         );
         if (!(typeof checkPasswordMatch === "boolean") && !checkPasswordMatch) {
             errors.errorCount = 1;
-            errors["No user found"] = [
-                new Error("No user found with that email"),
-            ];
+            errors["other"] = [new Error("No user found with that email")];
             return errors;
         }
         if (checkPasswordMatch instanceof Error) {
             errors.errorCount = 1;
-            errors["Error while finding user"] = [
-                new Error(checkPasswordMatch.message),
-            ];
+            errors["other"] = [new Error(checkPasswordMatch.message)];
             return errors;
         }
         if (!checkPasswordMatch) {
             errors.errorCount = 1;
-            errors["Wrong password"] = [new Error("Password was incorrect")];
+            errors["other"] = [new Error("Password was incorrect")];
             return errors;
         }
 
@@ -159,7 +170,7 @@ export class UserServerActionsImpl implements UserServerActions {
         const user = await userController.getUserByEmail(email);
         if (!user || user instanceof Error) {
             errors.errorCount = 1;
-            errors["Hmm, this shouldn't happen"] = [
+            errors["other"] = [
                 new Error(
                     `Password was correct, but user then wasn't found in database! Contact us and sorry for the issue!${
                         user instanceof Error
@@ -170,18 +181,44 @@ export class UserServerActionsImpl implements UserServerActions {
             ];
             return errors;
         }
-        const sessionSaveResult = sessionController.createAndSaveSession(user);
+        const sessionSaveResult = await sessionController.createAndSaveSession(
+            user
+        );
         if (sessionSaveResult instanceof Error) {
             errors.errorCount = 1;
-            errors["Failed to save session"] = [
-                new Error(sessionSaveResult.message),
+            errors["other"] = [
+                new Error(
+                    `Failed to save session: ${sessionSaveResult.message}`
+                ),
             ];
             return errors;
         }
+        if (sessionSaveResult instanceof Error) {
+            errors.errorCount = 1;
+            errors["other"] = [new Error(sessionSaveResult.message)];
+            return errors;
+        }
+
+        // Save cookies
+        const cookieStore = await cookies();
+        if (cookieStore.get("session")) {
+            cookieStore.delete("session");
+        }
+        cookieStore.set(
+            "session",
+            JSON.stringify(sessionSaveResult),
+            createCookieConfiguration(sessionSaveResult.expiration)
+        );
 
         return { succesful: true, message: "Signed in!" };
-    }
-    signOut(session: Session): Promise<UserServerActionResult> {
+    },
+
+    signOut: (session: Session): Promise<UserServerActionResult> => {
         throw new Error("Method not implemented.");
-    }
-}
+    },
+};
+
+export const signUp = UserServerActionsImpl.signUp;
+export const signIn = UserServerActionsImpl.signIn;
+export const signOut = UserServerActionsImpl.signOut;
+export const updateSession = UserServerActionsImpl.updateSession;
