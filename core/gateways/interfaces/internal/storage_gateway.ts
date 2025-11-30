@@ -12,4 +12,9 @@ export interface StorageGateway {
         objOfTypeT: T,
         field?: string
     ): Promise<T[] | Error | null>;
+    delete<T extends object>(
+        ids: string | string[],
+        objOfTypeT: T,
+        field?: string
+    ): Promise<string[] | null | Error>;
 }

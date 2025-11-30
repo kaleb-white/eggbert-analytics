@@ -1,5 +1,8 @@
 import { Survey } from "@/core/entities/surveys/survey";
-import { PossibleStatementFormat } from "../generation_types_and_utilities";
+import {
+    createParameterizedStatement,
+    PossibleStatementFormat,
+} from "../generation_types_and_utilities";
 
 export function insertOrUpdateSurvey(survey: Survey): PossibleStatementFormat {
     return {
@@ -42,4 +45,21 @@ export function createJsonbSurvey(
         }
     )) AS ${as}
     `;
+}
+
+export function deleteSurveysSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM surveys
+        WHERE surveys.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING surveys.uniqueId;
+    `,
+        userInput: identifiers,
+    };
 }

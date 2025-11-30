@@ -72,3 +72,20 @@ export function createJsonbSession(as: string = "jsonb_build_object") {
     ) AS ${as}
     `;
 }
+
+export function deleteSessionsSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM sessions
+        WHERE sessions.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING sessions.uniqueId;
+    `,
+        userInput: identifiers,
+    };
+}

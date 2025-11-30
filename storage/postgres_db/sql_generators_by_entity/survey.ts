@@ -11,6 +11,7 @@ import {
 } from "../sql_generators_by_table/responses";
 import {
     createJsonbSurvey,
+    deleteSurveysSql,
     insertOrUpdateSurvey,
 } from "../sql_generators_by_table/surveys";
 import {
@@ -111,4 +112,12 @@ export function getSurveyWithoutResponses(
             userInput: [uniqueId],
         },
     ];
+}
+
+export function deleteSurveys(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteSurveysSql(identifiers, field)];
 }

@@ -9,6 +9,7 @@ import {
 } from "../sql_generators_by_table/question_responses";
 import {
     createJsonbResponses,
+    deleteResponsesSql,
     insertOrUpdateResponses,
 } from "../sql_generators_by_table/responses";
 import { insertOrUpdateTurns } from "../sql_generators_by_table/turns";
@@ -57,4 +58,11 @@ export function saveResponses(
         [insertQuestionResponsesCommand],
         [insertTurnsCommand],
     ];
+}
+export function deleteResponses(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteResponsesSql(identifiers, field)];
 }

@@ -5,6 +5,7 @@ import {
 } from "../generation_types_and_utilities";
 import {
     createJsonbTurns,
+    deleteTurnsSql,
     insertOrUpdateTurns,
 } from "../sql_generators_by_table/turns";
 
@@ -30,4 +31,12 @@ export function getTurns(
 export function saveTurns(turns: Turn[]): ParameterizedStatementSets {
     if (turns.length == 0) return ["pass"];
     return [insertOrUpdateTurns(turns)];
+}
+
+export function deleteTurns(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteTurnsSql(identifiers, field)];
 }

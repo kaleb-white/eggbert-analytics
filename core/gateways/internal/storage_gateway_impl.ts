@@ -224,4 +224,27 @@ export class StorageGatewayImpl implements StorageGateway {
         // Success, return
         return tryDatabaseLoad;
     }
+    async delete<T extends object>(
+        ids: string | string[],
+        objOfTypeT: T,
+        field: string = "uniqueId"
+    ): Promise<string[] | null | Error> {
+        // Create promises
+        let toBeExecuted: Promise<Error | string[] | null>[];
+        if (!Array.isArray(ids) || (Array.isArray(ids) && ids.length === 1)) {
+            const id = Array.isArray(ids) ? ids[0] : ids;
+            toBeExecuted = [
+                this.database.delete(id, objOfTypeT, field),
+                this.cache.delete(id),
+            ];
+        } else {
+            toBeExecuted = [
+                this.database.delete(ids, objOfTypeT, field),
+            ].concat(ids.map((id) => this.cache.delete(id)));
+        }
+
+        // Return result or error
+        const deleteResult = await Promise.all(toBeExecuted);
+        return deleteResult[0];
+    }
 }

@@ -53,3 +53,20 @@ export function createJsonbPassword(as: string = "jsonb_build_object") {
         ) AS ${as}
     `;
 }
+
+export function deletePasswordsSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM passwords
+        WHERE passwords.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING passwords.userId;
+    `,
+        userInput: identifiers,
+    };
+}

@@ -5,6 +5,7 @@ import {
 import {
     createJsonbUser,
     createJsonbUsers,
+    deleteUsersSql,
     insertOrUpdateUser,
     insertOrUpdateUsers,
 } from "../sql_generators_by_table/user";
@@ -52,4 +53,12 @@ export function saveUsers(users: User[]): ParameterizedStatementSets {
 
 export function saveUser(user: User): ParameterizedStatementSets {
     return [insertOrUpdateUser(user)];
+}
+
+export function deleteUsers(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteUsersSql(identifiers, field)];
 }

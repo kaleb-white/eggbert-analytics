@@ -6,14 +6,15 @@ import { DialogueContext } from "../../../model_client_proxy/core/entities/dialo
 import { ModelTest } from "../../../model_client_proxy/core/gateways/external/query_model/test_model";
 import { Response } from "@/core/entities/surveys/response";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
-import { initializer, storage } from "@/injections";
+
 import { Survey } from "@/core/entities/surveys/survey";
 import { Author } from "@/core/entities/users/author";
 import { Question } from "@/core/entities/surveys/question";
+import { storage, testInitializer } from "@/injections";
 
 async function test_server() {
     // Db reset
-    await initializer.initialize();
+    await testInitializer.removeAllRows();
 
     // Server setup
     const app = express();

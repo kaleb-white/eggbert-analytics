@@ -68,3 +68,20 @@ export function leftJoinResponses(
         )
     );
 }
+
+export function deleteResponsesSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM responses
+        WHERE responses.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING responses.uniqueId;
+    `,
+        userInput: identifiers,
+    };
+}

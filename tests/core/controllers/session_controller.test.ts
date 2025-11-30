@@ -4,7 +4,7 @@ import { sessionController, storage, testInitializer } from "@/injections";
 import { describe, expect, test } from "bun:test";
 
 describe("test session controller", async () => {
-    await testInitializer.initialize();
+    await testInitializer.removeAllRows();
     const u = new User({
         email: "email",
         lastLogin: Date.now(),

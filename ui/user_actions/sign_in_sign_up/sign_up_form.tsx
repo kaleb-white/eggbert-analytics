@@ -7,7 +7,6 @@ import { FormErrors } from "../form_errors";
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react";
 import { z } from "zod/v4-mini"
 import { signUp } from "@/client_injections";
-import { User } from "@/core/entities/users/user";
 
 export function SignUpForm() {
     const [errors, setErrors] = useState<UserServerActionResult>({succesful: true})
@@ -109,7 +108,6 @@ export function SignUpForm() {
 
         // Talk to controller
         const signInResult = await signUp((email as Bun.FormDataEntryValue).toString(), (password as Bun.FormDataEntryValue).toString())
-
 
         setErrors(signInResult)
     }

@@ -8,4 +8,8 @@ export interface Cache {
         uniqueId: string,
         isLastCacheInteraction?: boolean
     ): Promise<T | Error>;
+    delete(
+        uniqueId: string,
+        isLastCacheInteraction?: boolean
+    ): Promise<null | Error>;
 }

@@ -15,10 +15,10 @@ const cache = new CacheImpl(cacheGateway);
 const db = new PostgresDbImpl(testPool);
 const storage = new StorageGatewayImpl(cache, db);
 
-describe("test storage gateway", async () => {
-    await testInitializer.initialize();
+describe.serial("test storage gateway", async () => {
+    await testInitializer.removeAllRows();
 
-    test("test store survey", async () => {
+    test.serial("test store survey", async () => {
         const storeResult = await storage.save(
             sampleSurvey.uniqueId,
             sampleSurvey
@@ -42,7 +42,7 @@ describe("test storage gateway", async () => {
         expect((storedToDb as Survey).uniqueId).toBe(sampleSurvey.uniqueId);
     });
 
-    test("test retrieve survey with responses", async () => {
+    test.serial("test retrieve survey with responses", async () => {
         const retrievedSurveyOrError = await storage.get<Survey>(
             sampleSurvey.uniqueId,
             sampleSurvey
@@ -55,13 +55,13 @@ describe("test storage gateway", async () => {
     });
 });
 
-describe("test storage gateway get all", async () => {
-    await testInitializer.initialize();
+const u = new User({ uniqueId: "user", email: "userEmail" });
+const s1 = new Session({ userId: "user", uniqueId: "1" });
+const s2 = new Session({ userId: "user", uniqueId: "2" });
+const s3 = new Session({ userId: "user", uniqueId: "3" });
 
-    const u = new User({ uniqueId: "user", email: "userEmail" });
-    const s1 = new Session({ userId: "user", uniqueId: "1" });
-    const s2 = new Session({ userId: "user", uniqueId: "2" });
-    const s3 = new Session({ userId: "user", uniqueId: "3" });
+describe.serial("test storage gateway get all", async () => {
+    await testInitializer.removeAllRows();
 
     test.serial("test save user", async () => {
         const saveResult = await storage.save(u.uniqueId, u);
@@ -141,5 +141,36 @@ describe("test storage gateway get all", async () => {
         (getResult as Session[]).map((s) => {
             expect(expectedIds.includes(s.uniqueId)).toBeTrue();
         });
+    });
+});
+
+describe.serial("test storage gateway delete", async () => {
+    test.serial("delete nonexistent", async () => {
+        const deleteResult = await storage.delete("user2", new User());
+        expect(deleteResult).toBeNull();
+    });
+
+    test.serial("delete one session", async () => {
+        const deleteResult = await storage.delete("1", new Session());
+        expect(deleteResult).toBeArray();
+        expect((deleteResult as string[]).length).toBe(1);
+        expect((deleteResult as string[])[0]).toBe("1");
+    });
+    test.serial("delete two sessions", async () => {
+        const deleteResult = await storage.delete(["2", "3"], new Session());
+        expect(deleteResult).toBeArray();
+        expect((deleteResult as string[]).length).toBe(2);
+        expect((deleteResult as string[]).includes("2")).toBeTrue();
+        expect((deleteResult as string[]).includes("3")).toBeTrue();
+    });
+    test.serial("delete one user", async () => {
+        const deleteResult = await storage.delete("user", new User());
+        expect(deleteResult).toBeArray();
+        expect((deleteResult as string[]).length).toBe(1);
+        expect((deleteResult as string[])[0]).toBe("user");
+    });
+    test.serial("get user after delete", async () => {
+        const getResult = await storage.get("user", new User());
+        expect(getResult).toBeNull();
     });
 });

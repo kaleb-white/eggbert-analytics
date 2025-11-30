@@ -7,4 +7,9 @@ export interface Database {
         field?: string,
         all?: boolean
     ): Promise<T | T[] | null | Error>;
+    delete<T>(
+        ids: string | string[],
+        objOfTypeT: T,
+        field?: string
+    ): Promise<string[] | null | Error>;
 }

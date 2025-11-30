@@ -6,6 +6,7 @@ import {
 import {
     createJsonbPassword,
     createJsonbPasswords,
+    deletePasswordsSql,
     insertOrUpdatePassword,
     insertOrUpdatePasswords,
 } from "../sql_generators_by_table/passwords";
@@ -54,4 +55,12 @@ export function savePasswords(
 
 export function savePassword(password: Password): ParameterizedStatementSets {
     return [insertOrUpdatePassword(password)];
+}
+
+export function deletePasswords(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deletePasswordsSql(identifiers, field)];
 }

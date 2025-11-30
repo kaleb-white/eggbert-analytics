@@ -94,3 +94,20 @@ export function leftJoinQuestion(
         parentIdName
     );
 }
+
+export function deleteQuestionsSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM questions
+        WHERE questions.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING questions.uniqueId;
+    `,
+        userInput: identifiers,
+    };
+}

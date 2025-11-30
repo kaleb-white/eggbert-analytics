@@ -60,3 +60,20 @@ export function leftJoinTurns(
         true
     );
 }
+
+export function deleteTurnsSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM turns
+        WHERE turns.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING turns.uniqueId;
+    `,
+        userInput: identifiers,
+    };
+}

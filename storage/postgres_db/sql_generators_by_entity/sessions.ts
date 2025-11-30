@@ -6,6 +6,7 @@ import {
 import {
     createJsonbSession,
     createJsonbSessions,
+    deleteSessionsSql,
     insertOrUpdateSession,
     insertOrUpdateSessions,
 } from "../sql_generators_by_table/sessions";
@@ -52,4 +53,12 @@ export function saveSessions(sessions: Session[]): ParameterizedStatementSets {
 
 export function saveSession(session: Session): ParameterizedStatementSets {
     return [insertOrUpdateSession(session)];
+}
+
+export function deleteSessions(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteSessionsSql(identifiers, field)];
 }

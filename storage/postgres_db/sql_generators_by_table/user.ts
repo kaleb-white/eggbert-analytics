@@ -78,3 +78,20 @@ export function leftJoinUsers(
     ) ${as} ON ${manyTableName}.${manyTableRelevantId} = ${as}.uniqueId
     `;
 }
+
+export function deleteUsersSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM users
+        WHERE users.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING users.uniqueId;
+    `,
+        userInput: identifiers,
+    };
+}

@@ -1,6 +1,7 @@
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import {
     createJsonbQuestionResponses,
+    deleteQuestionResponsesSql,
     insertOrUpdateQuestionResponses,
 } from "../sql_generators_by_table/question_responses";
 import {
@@ -55,4 +56,11 @@ export function saveQuestionResponses(
     );
 
     return [[insertQuestionResponseCommand], [insertTurnsCommand]];
+}
+export function deleteQuestionResponses(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteQuestionResponsesSql(identifiers, field)];
 }

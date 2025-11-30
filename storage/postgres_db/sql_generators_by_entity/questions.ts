@@ -5,6 +5,7 @@ import {
 } from "../generation_types_and_utilities";
 import {
     createJsonbQuestions,
+    deleteQuestionsSql,
     insertOrUpdateQuestions,
 } from "../sql_generators_by_table/questions";
 
@@ -32,4 +33,11 @@ export function saveQuestions(
 ): ParameterizedStatementSets {
     if (questions.length == 0) return ["pass"];
     return [insertOrUpdateQuestions(questions)];
+}
+export function deleteQuestions(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteQuestionsSql(identifiers, field)];
 }
