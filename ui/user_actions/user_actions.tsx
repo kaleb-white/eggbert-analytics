@@ -3,10 +3,10 @@ import { useState } from "react";
 import { SignInForm } from "./sign_in_sign_up/sign_in_form";
 import { SignUpForm } from "./sign_in_sign_up/sign_up_form";
 
-export function UserActions() {
-    type UserActions = "signUp" | "signIn"
+type UserActions = "signUp" | "signIn"
+export function UserActions({formOnOpen}: {formOnOpen: UserActions}) {
     const userActions: UserActions[] = ["signUp", "signIn"]
-    const [selectedForm, setSelectedForm] = useState<UserActions>("signUp")
+    const [selectedForm, setSelectedForm] = useState<UserActions>(formOnOpen)
     return (
         <Container>
             <div className="flex flex-col gap-2.5 text-xl">

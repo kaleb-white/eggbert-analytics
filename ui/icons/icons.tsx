@@ -1,6 +1,6 @@
 "use client"
-import { JSX, MouseEventHandler, useEffect, useRef, useState } from "react";
-import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, ErrorRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, InfoRaw, LeftRaw, LockedRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, QuestionRaw, RedoRaw, RightRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
+import { JSX, MouseEventHandler, useRef, useState } from "react";
+import { AttachRaw, BackRaw, ChartRaw, CheckRaw, DangerRaw, DeleteRaw, DownRaw, EnterRaw, ErrorRaw, ExitRaw, FeedRaw, FileRaw, FilterRaw, ForwardRaw, GlobeRaw, InfoRaw, LeftRaw, LockedRaw, MaximizeRaw, MinimizeRaw, NewRaw, PinRaw, QuestionRaw, RedoRaw, RightRaw, SwitchRaw, UndoRaw, UploadRaw, UpRaw, WindowRaw } from "./raw_icons";
 
 export type onClickFuncType = (() => MouseEventHandler<HTMLDivElement> | undefined | void) | undefined
 export type IconType = (edgeLengthPx: number, fillHex?: string) => JSX.Element
@@ -56,8 +56,16 @@ export function Down(props: FaviconProps) {
 	return <WrapIcon icon={DownRaw} {...props} />
 }
 
+export function Enter(props: FaviconProps) {
+    return <WrapIcon icon={EnterRaw} {...props} />
+}
+
 export function Error(props: FaviconProps) {
 	return <WrapIcon icon={ErrorRaw} {...props} />
+}
+
+export function Exit(props: FaviconProps) {
+	return <WrapIcon icon={ExitRaw} {...props} />
 }
 
 export function File(props: FaviconProps) {
