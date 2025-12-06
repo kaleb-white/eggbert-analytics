@@ -1,9 +1,11 @@
-import { userController } from "@/injections";
+import { storage, userController } from "@/injections";
 import { describe, expect, test } from "bun:test";
 import * as argon2 from "argon2";
 import { User } from "@/core/entities/users/user";
 import { Session } from "@/core/entities/users/session";
 import { Password } from "@/core/entities/users/password";
+import { Response } from "@/core/entities/surveys/response";
+import { sampleSurvey } from "@/storage/postgres_db/initialization/sample_data";
 
 // Note: the UserController depends on the StorageGateway, so it is assumed that the storage gateway is working - in the sense that it is reporting errors properly or returning results.
 
@@ -222,5 +224,77 @@ describe("test user controller", () => {
         expect(badResult2).not.toBeInstanceOf(Error);
         expect(badResult2).not.toBeNull();
         expect(badResult2).toBeFalse();
+    });
+
+    const newUser = new User({
+        uniqueId: "getUsersResponses",
+        email: "getUsersResponses",
+    });
+    const response1 = new Response({
+        uniqueId: "getUsersResponses1",
+        respondentId: newUser.uniqueId,
+        surveyId: sampleSurvey.uniqueId,
+    });
+    test("get users responses no responses", async () => {
+        await storage.save(sampleSurvey.uniqueId, sampleSurvey);
+
+        const res = await storage.save(newUser.uniqueId, newUser);
+        expect(res).not.toBeInstanceOf(Error);
+
+        const allResponsesResult = await userController.getUsersResponses(
+            newUser.uniqueId
+        );
+        expect(allResponsesResult).toBeNull();
+    });
+    test("get users responses one response", async () => {
+        const res2 = await storage.save(response1.uniqueId, response1);
+        expect(res2).not.toBeInstanceOf(Error);
+
+        const allResponsesResult = await userController.getUsersResponses(
+            newUser.uniqueId
+        );
+        expect(allResponsesResult).toBeArray();
+        expect(
+            (allResponsesResult as Response[])
+                .map((r) => r.uniqueId)
+                .includes(response1.uniqueId)
+        ).toBeTrue();
+    });
+    test("get users responses two responses", async () => {
+        const response2 = new Response({
+            uniqueId: "getUsersResponses2",
+            respondentId: newUser.uniqueId,
+            surveyId: sampleSurvey.uniqueId,
+        });
+        const res3 = await storage.save(response2.uniqueId, response2);
+        expect(res3).not.toBeInstanceOf(Error);
+
+        const response3 = new Response({
+            uniqueId: "getUsersResponses3",
+            respondentId: newUser.uniqueId,
+            surveyId: sampleSurvey.uniqueId,
+        });
+        const res4 = await storage.save(response3.uniqueId, response3);
+        expect(res4).not.toBeInstanceOf(Error);
+
+        const allResponsesResult = await userController.getUsersResponses(
+            newUser.uniqueId
+        );
+        expect(allResponsesResult).toBeArray();
+        expect(
+            (allResponsesResult as Response[])
+                .map((r) => r.uniqueId)
+                .includes(response1.uniqueId)
+        ).toBeTrue();
+        expect(
+            (allResponsesResult as Response[])
+                .map((r) => r.uniqueId)
+                .includes(response2.uniqueId)
+        ).toBeTrue();
+        expect(
+            (allResponsesResult as Response[])
+                .map((r) => r.uniqueId)
+                .includes(response2.uniqueId)
+        ).toBeTrue();
     });
 });

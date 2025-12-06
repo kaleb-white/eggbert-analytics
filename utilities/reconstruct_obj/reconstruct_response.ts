@@ -1,6 +1,5 @@
 import { Response } from "@/core/entities/surveys/response";
 import { reconstructQuestionResponse } from "./reconstruct_question_response";
-import { reconstructRespondent } from "./reconstruct_respondent";
 
 export function reconstructResponse(response: string | Response): Response {
     const asResponse =
@@ -13,7 +12,7 @@ export function reconstructResponse(response: string | Response): Response {
         questionResponses: asResponse.questionResponses.map((qr) =>
             reconstructQuestionResponse(qr)
         ),
-        respondent: reconstructRespondent(asResponse.respondent),
+        respondentId: asResponse.respondentId,
         timeCreated: asResponse.timeCreated,
         lastEdited: asResponse.lastEdited,
     });

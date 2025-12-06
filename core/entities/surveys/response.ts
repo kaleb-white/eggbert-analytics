@@ -1,12 +1,11 @@
 import { assignOrCreateUniqueId } from "@/utilities/assign_or_create_uid";
 import { CryptographyUtilities } from "../../controllers/crypto/interfaces/crypto_utility_creator";
 import { QuestionResponse } from "./question_response";
-import { Respondent } from "../users/respondent";
 
 export type ResponseProps = {
     uniqueId?: string | CryptographyUtilities;
     questionResponses?: QuestionResponse[];
-    respondent?: Respondent;
+    respondentId?: string;
     timeCreated?: number;
     lastEdited?: number;
     surveyId?: string;
@@ -15,7 +14,7 @@ export type ResponseProps = {
 const defaultProps = {
     uniqueId: "",
     questionResponses: [],
-    respondent: new Respondent(),
+    respondentId: "",
     timeCreated: Date.now(),
     lastEdited: Date.now(),
     surveyId: "",
@@ -24,7 +23,7 @@ const defaultProps = {
 export class Response {
     uniqueId: string;
     questionResponses: QuestionResponse[];
-    respondent: Respondent;
+    respondentId: string;
     timeCreated: number;
     lastEdited: number;
     surveyId: string;
@@ -37,9 +36,9 @@ export class Response {
         this.questionResponses = props.questionResponses
             ? props.questionResponses
             : defaultProps.questionResponses;
-        this.respondent = props.respondent
-            ? props.respondent
-            : defaultProps.respondent;
+        this.respondentId = props.respondentId
+            ? props.respondentId
+            : defaultProps.respondentId;
         this.timeCreated = props.timeCreated
             ? props.timeCreated
             : defaultProps.timeCreated;

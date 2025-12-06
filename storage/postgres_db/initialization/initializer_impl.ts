@@ -3,6 +3,8 @@ import { Initializer } from "../interfaces/initializer";
 import { initializationStatements } from "./initializer_sql";
 import { Pool } from "pg";
 import { truncateStatements } from "./truncation_sql";
+import { storage, userController } from "@/injections";
+import { respondent1, respondent2, sampleSurvey } from "./sample_data";
 
 export class InitializerImpl implements Initializer {
     pool: Pool;
@@ -49,5 +51,30 @@ export class InitializerImpl implements Initializer {
         }
         if (errors.length == 0) return null;
         return errors;
+    }
+
+    async resetWithSampleSurvey(): Promise<Error[] | null> {
+        const resetResult = await this.removeAllRows();
+        if (resetResult) return resetResult;
+
+        let createUserResult = await userController.createOrUpdateUser(
+            respondent1,
+            "kalebwhite"
+        );
+        if (createUserResult) return [createUserResult];
+
+        createUserResult = await userController.createOrUpdateUser(
+            respondent2,
+            "kalebwhite"
+        );
+        if (createUserResult) return [createUserResult];
+
+        const surveySaveResult = await storage.save(
+            sampleSurvey.uniqueId,
+            sampleSurvey
+        );
+        if (surveySaveResult) return [surveySaveResult];
+
+        return null;
     }
 }

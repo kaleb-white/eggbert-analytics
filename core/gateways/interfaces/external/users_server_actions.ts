@@ -20,5 +20,6 @@ export type UserServerActions = {
     signUp(email: string, password: string): Promise<UserServerActionResult>;
     signIn(email: string, password: string): Promise<UserServerActionResult>;
     signOut(session: Session): Promise<UserServerActionResult>;
+    newSessionCookie(session: Session): Promise<void>;
     updateSession(session: Session): Promise<UserServerActionResult>;
 };

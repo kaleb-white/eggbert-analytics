@@ -1,3 +1,4 @@
+import { Response } from "@/core/entities/surveys/response";
 import { Password } from "@/core/entities/users/password";
 import { Session } from "@/core/entities/users/session";
 import { User } from "@/core/entities/users/user";
@@ -16,4 +17,5 @@ export interface UserController {
         email: string,
         password: string
     ): Promise<boolean | Error | null>;
+    getUsersResponses(userId: string): Promise<Response[] | Error | null>;
 }

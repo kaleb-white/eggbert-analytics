@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { sampleSurvey } from "./utilities/sample_data";
+import { sampleSurvey } from "../../storage/postgres_db/initialization/sample_data";
 import { executeStatements } from "@/storage/postgres_db/execution_utilities";
 import {
     getSurveys,

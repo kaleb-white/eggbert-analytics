@@ -8,7 +8,6 @@ import {
 } from "../interfaces/external/users_server_actions";
 import { cookies } from "next/headers";
 import { z, ZodSafeParseError } from "zod/v4";
-import { Roles } from "@/core/entities/users/user_roles";
 import { sessionController, uniqueIdGen, userController } from "@/injections";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
@@ -36,7 +35,7 @@ function addZodErrorsToTracker(
 
 function createCookieConfiguration(expires: number): Partial<ResponseCookie> {
     return {
-        httpOnly: true,
+        httpOnly: false,
         expires: expires,
         sameSite: "lax",
         secure: true,
@@ -106,7 +105,6 @@ const UserServerActionsImpl: UserServerActions = {
             return errors;
         }
         // TODO: delete old session and migrate responses
-
         // Set cookies
         const cookieStore = await cookies();
         if (cookieStore.get("session")) {
@@ -213,12 +211,26 @@ const UserServerActionsImpl: UserServerActions = {
         return { succesful: true, message: "Signed in!" };
     },
 
-    signOut: (session: Session): Promise<UserServerActionResult> => {
+    signOut: async (session: Session): Promise<UserServerActionResult> => {
         throw new Error("Method not implemented.");
+    },
+
+    newSessionCookie: async (session: Session): Promise<void> => {
+        // Save cookies
+        const cookieStore = await cookies();
+        if (cookieStore.get("session")) {
+            cookieStore.delete("session");
+        }
+        cookieStore.set(
+            "session",
+            JSON.stringify(session),
+            createCookieConfiguration(session.expiration)
+        );
     },
 };
 
 export const signUp = UserServerActionsImpl.signUp;
 export const signIn = UserServerActionsImpl.signIn;
 export const signOut = UserServerActionsImpl.signOut;
+export const newSessionCookie = UserServerActionsImpl.newSessionCookie;
 export const updateSession = UserServerActionsImpl.updateSession;

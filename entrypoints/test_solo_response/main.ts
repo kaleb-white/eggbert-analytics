@@ -215,7 +215,7 @@ async function main() {
 
     // Reset db
     printOp("Resetting test database...");
-    await testInitializer.initialize();
+    await testInitializer.removeAllRows();
     printOpDone();
 
     // Create sample question response and save
@@ -305,7 +305,7 @@ async function main() {
     const res = new Response({
         uniqueId: "test",
         questionResponses: qrs,
-        respondent: new Respondent({ uniqueId: "test6" }),
+        respondentId: "test6",
     });
 
     printSubOp("Creating storage gateway...");
@@ -355,7 +355,7 @@ async function main() {
         printOpDone();
     }
 
-    console.log(redString("Go to http://localhost:3000/responses/test"));
+    console.log(redString("Go to http://localhost:3000/responses/chat/test"));
     console.log(magentaString("Running next..."));
     const nextDevProcess = Bun.spawn(["next", "dev", "--turbopack"], {
         env: { ...process.env, NODE_ENV: "development" },

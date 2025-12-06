@@ -61,6 +61,7 @@ export const initializationStatements = {
             uniqueId text PRIMARY KEY,
             timeCreated bigint NOT NULL,
             lastEdited bigint NOT NULL,
+            respondentId text REFERENCES users (uniqueId) ON DELETE RESTRICT,
             surveyId text REFERENCES surveys (uniqueId) ON DELETE CASCADE
         );
         `,

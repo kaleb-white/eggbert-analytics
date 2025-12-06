@@ -10,7 +10,13 @@ import { leftJoinQuestionResponses } from "./question_responses";
 export function insertOrUpdateResponses(
     responses: Response[]
 ): PossibleStatementFormat {
-    const orderedFields = ["uniqueId", "timeCreated", "lastEdited", "surveyId"];
+    const orderedFields = [
+        "uniqueId",
+        "timeCreated",
+        "lastEdited",
+        "respondentId",
+        "surveyId",
+    ];
     const allResponsesValues = getAllEntityValuesAsArray(
         responses,
         orderedFields
@@ -18,7 +24,7 @@ export function insertOrUpdateResponses(
     if (!allResponsesValues) return "pass";
     return {
         sql: `
-    INSERT INTO responses (uniqueId, timeCreated, lastEdited, surveyId)
+    INSERT INTO responses (uniqueId, timeCreated, lastEdited, respondentId, surveyId)
         VALUES ${createParameterizedStatement(
             orderedFields.length,
             allResponsesValues.length
@@ -39,7 +45,7 @@ export function createJsonbResponses(
         'uniqueId', responses.uniqueId,
         'timeCreated', responses.timeCreated,
         'lastEdited', responses.lastEdited,
-        'respondent', '{}'::jsonb,
+        'respondentId', responses.respondentId,
         'questionResponses', COALESCE(${tableContainingQuestionResponses}.${questionResponsesAggName}, '[]'::jsonb),
         'surveyId', responses.surveyId
     )) AS ${as}

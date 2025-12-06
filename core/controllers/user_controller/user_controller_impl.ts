@@ -4,6 +4,7 @@ import { UserController } from "./interfaces/user_controller";
 import * as argon2 from "argon2";
 import { storage } from "@/injections";
 import { Password } from "@/core/entities/users/password";
+import { Response } from "@/core/entities/surveys/response";
 
 export class UserControllerImpl implements UserController {
     async hashPassword(password: string): Promise<string | Error> {
@@ -79,6 +80,8 @@ export class UserControllerImpl implements UserController {
     ): Promise<Error | null> {
         const userSaveResult = await storage.save(newUser.uniqueId, newUser);
         if (userSaveResult instanceof Error) {
+            if (userSaveResult.message.includes("duplicate key value"))
+                return new Error("A user with that email already exists");
             return userSaveResult;
         }
 
@@ -96,11 +99,18 @@ export class UserControllerImpl implements UserController {
             passwordEntity,
             true
         );
-        if (passwordSaveResult instanceof Error) return passwordSaveResult;
-        //TODO: delete user in this case
+        if (passwordSaveResult instanceof Error) {
+            await storage.delete(newUser.uniqueId, new User());
+            return passwordSaveResult;
+        }
         return null;
     }
     deleteUser(identifier: User | Session): Promise<Error | null> {
         throw new Error("Method not implemented.");
+    }
+    async getUsersResponses(
+        userId: string
+    ): Promise<Response[] | Error | null> {
+        return await storage.getAll(userId, new Response(), "respondentId");
     }
 }

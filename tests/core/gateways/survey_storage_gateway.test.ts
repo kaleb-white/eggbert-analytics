@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { sampleSurvey } from "@/tests/db/utilities/sample_data";
+import { sampleSurvey } from "@/storage/postgres_db/initialization/sample_data";
 import { StorageGatewayImpl } from "@/core/gateways/internal/storage_gateway_impl";
 import { CacheImpl } from "@/core/gateways/external/cpp_socket_cache_impl";
 import { CacheGatewayImpl } from "@/storage/cpp_cache/cache_gateway/ts/cache_gateway_impl";

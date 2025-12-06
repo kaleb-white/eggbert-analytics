@@ -7,6 +7,8 @@ import {
     rawTsxOutputFilePath,
     usableTsxOutputFilePath,
 } from "./ui/icons/create_icons_config";
+import { testInitializer } from "./injections";
+import testPool from "./tests/db/utilities/test_pool";
 
 // const insertResult1 = await testPool.query(`
 // INSERT INTO
@@ -35,4 +37,22 @@ import {
 // const strings = ["a", "b", "C"];
 // console.log(createParameterizedStatement(strings.length, 2 * strings.length));
 
-console.log(readFileSync(usableTsxOutputFilePath, "ascii"));
+// console.log(readFileSync(usableTsxOutputFilePath, "ascii"));
+
+// const reset = await testInitializer.resetWithSampleSurvey();
+// if (reset) console.log("Errors:", reset.map((e) => e.message).join(", "));
+// else {
+//     console.log("Success!");
+// }
+
+console.log(
+    (
+        await testPool.query(`
+SELECT *
+FROM responses
+WHERE responses.respondentId = '19b34efb2db892aab4816747b47bd339375f389a39d7fb1f445a14df7cc0e00a8830098af320735d63af23ccbd9e3944053f3a6354967d8d9055c0fa41ad79fb';
+    `)
+    ).rows
+);
+
+process.exit();

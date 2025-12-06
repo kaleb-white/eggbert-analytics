@@ -7,10 +7,10 @@ import { FormErrors } from "../form_errors";
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react";
 import { z } from "zod/v4-mini"
 import { signIn } from "@/client_injections";
+import { FormSuccess } from "../form_success";
 
 export function SignInForm() {
     const [errors, setErrors] = useState<UserServerActionResult>({succesful: true})
-    useEffect(() => {console.log(errors)}, [errors])
 
     // Show errors controls
     const [emailInput, setEmailInput] = useState("")
@@ -34,11 +34,17 @@ export function SignInForm() {
         setHideOtherErrors(!(passwordInput.length + emailInput.length === 0 || (passwordInput === prevPasswordInput && emailInput=== prevEmailInput)))
     }, [prevEmailInput, emailInput, prevPasswordInput, passwordInput])
 
+    // Sign in success
+    const [success, setSuccess] = useState(false)
 
     const zodEmail = z.email("Please provide a valid email")
     const zodPassword = z.string()
 
     async function handleSignInForm(formData: FormData) {
+        // Reset success and errors
+        setSuccess(false)
+        setErrors({succesful: false, errorCount: 0})
+
         const parseEmailResult = zodEmail.safeParse(formData.get("email"))
         const parsePasswordResult = zodPassword.safeParse(formData.get("password"))
 
@@ -56,10 +62,6 @@ export function SignInForm() {
             newErrorsObject.errorCount += 1
         }
         if (newErrorsObject.errorCount > 0) {setErrors(newErrorsObject); return}
-
-        // Set the prev inputs
-        setPrevEmailInput(email!.toString())
-        setPrevPasswordInput(password!.toString())
 
         if (password && password.toString().length < 8) {
             newErrorsObject["password"] = [new Error("Password must be greater than 8 characters in length")]
@@ -89,6 +91,9 @@ export function SignInForm() {
         // Return if erred
         if (newErrorsObject.errorCount > 0) {
             setErrors(newErrorsObject)
+            // Set the prev inputs
+            setPrevEmailInput(email!.toString())
+            setPrevPasswordInput(password!.toString())
             return
         }
 
@@ -96,6 +101,11 @@ export function SignInForm() {
         const signInResult = await signIn((email as Bun.FormDataEntryValue).toString(), (password as Bun.FormDataEntryValue).toString())
 
         setErrors(signInResult)
+        if (signInResult.succesful) setSuccess(true)
+
+        // Set the prev inputs
+        setPrevEmailInput(email!.toString())
+        setPrevPasswordInput(password!.toString())
     }
 
     return (
@@ -112,6 +122,7 @@ export function SignInForm() {
                 </Container>
                 <FormErrors result={errors} forName="password" hide={hidePasswordErrors} />
                 <FormErrors result={errors} forName="exclude: email, password" hide={hideOtherErrors} />
+                <FormSuccess show={success} />
             </div>
             <div className="p-0 flex flex-col gap-1">
                 <div className="flex flex-row g-2.5 pr-2">

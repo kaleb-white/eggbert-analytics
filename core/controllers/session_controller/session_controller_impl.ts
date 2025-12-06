@@ -79,4 +79,14 @@ export class SessionControllerImpl implements SessionController {
         const saveResult = await storage.save(session.userId, session);
         return saveResult;
     }
+
+    /**
+     * Can fail silently - a null result might mean that no session was actually deleted. However, since there is no point in telling the user that deleting their session from storage failed, the error is supressed.
+     * @param id The id of the session.
+     */
+    async deleteSession(id: string): Promise<Error | null> {
+        const deleteResult = await storage.delete(id, new Session());
+        if (!deleteResult || deleteResult instanceof Error) return deleteResult;
+        return null;
+    }
 }

@@ -1,6 +1,6 @@
 import { DetailedHTMLProps, FC, HTMLAttributes } from "react";
-import { ThemeColor } from "../types_enums";
-import { generalUseContainerStyles } from "../container";
+import { generalUseContainerStyles } from "@/ui/container";
+import { ThemeColor } from "@/ui/types_enums";
 
 type Props = {borderColor: ThemeColor, text: string, additClassNames?:string} & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 

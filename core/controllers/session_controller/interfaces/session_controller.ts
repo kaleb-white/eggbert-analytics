@@ -7,4 +7,5 @@ export interface SessionController {
     getSessions(byUser: User): Promise<Session[] | Error>;
     checkSessionValid(session: Session): Promise<boolean | Error>;
     updateSession(session: Session): Promise<Error | null>;
+    deleteSession(id: string): Promise<Error | null>;
 }

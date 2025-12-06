@@ -29,10 +29,10 @@ export function FormErrors({result, forName, hide = false}: {result: UserServerA
     if (!Array.isArray(errors)) return <></>
 
     return (
-        <div className="ml-3 text-warning font-semibold text-2xs flex flex-col g-1 p-0 m-0">
+        <div className="ml-3 text-warning font-semibold w-full text-2xs flex flex-col flex-wrap gap-1 p-0 m-0">
             {errors.map((error, i) => {
                 return (
-                    <div key={i}>• {error.message}</div>
+                    <div key={i} className="whitespace-normal max-w-48">• {error.message}</div>
                 )
             })}
         </div>

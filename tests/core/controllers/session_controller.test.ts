@@ -116,4 +116,44 @@ describe("test session controller", async () => {
             expect((s as Session).expiration).toBe(noUpdate.expiration);
         });
     });
+    describe.serial(async () => {
+        test("test delete no session", async () => {
+            const deleteResult = await sessionController.deleteSession("fake");
+            expect(deleteResult).toBeNull();
+        });
+        test("test delete one session", async () => {
+            const deleteResult = await sessionController.deleteSession(
+                s1.uniqueId
+            );
+            expect(deleteResult).toBeNull();
+            const doesSessionStillExist = await sessionController.getSessions(
+                u
+            );
+            expect(doesSessionStillExist).not.toBeInstanceOf(Error);
+            const remainingIds = (doesSessionStillExist as Session[]).map(
+                (s) => s.uniqueId
+            );
+            expect(remainingIds.includes(s1.uniqueId)).toBeFalse();
+        });
+        test("test delete two sessions", async () => {
+            const deleteResult1 = await sessionController.deleteSession(
+                s2.uniqueId
+            );
+            expect(deleteResult1).toBeNull();
+            const deleteResult2 = await sessionController.deleteSession(
+                s3.uniqueId
+            );
+            expect(deleteResult2).toBeNull();
+
+            const doesSessionStillExist = await sessionController.getSessions(
+                u
+            );
+            expect(doesSessionStillExist).not.toBeInstanceOf(Error);
+            const remainingIds = (doesSessionStillExist as Session[]).map(
+                (s) => s.uniqueId
+            );
+            expect(remainingIds.includes(s2.uniqueId)).toBeFalse();
+            expect(remainingIds.includes(s2.uniqueId)).toBeFalse();
+        });
+    });
 });

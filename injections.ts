@@ -19,7 +19,7 @@ export const pool = new Pool({
 
 const cacheGateway = new CacheGatewayImpl();
 const cache = new CacheImpl(cacheGateway);
-const db = new PostgresDbImpl(pool);
+const db = new PostgresDbImpl(testPool);
 export const storage = new StorageGatewayImpl(cache, db);
 
 export const uniqueIdGen = new CryptographyUtilitiesImpl(

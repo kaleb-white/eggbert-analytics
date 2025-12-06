@@ -4,13 +4,14 @@ import { SignInForm } from "./sign_in_sign_up/sign_in_form";
 import { SignUpForm } from "./sign_in_sign_up/sign_up_form";
 import { Enter } from "../icons/icons";
 
-type UserActions = "signUp" | "signIn"
+export type UserActions = "signUp" | "signIn"
+
 export function UserActions({formOnOpen}: {formOnOpen: UserActions}) {
     const userActions: UserActions[] = ["signUp", "signIn"]
     const [selectedForm, setSelectedForm] = useState<UserActions>(formOnOpen)
     return (
         <Container>
-            <div className="flex flex-col gap-2.5 text-xl">
+            <div className="flex flex-col gap-2.5 text-xl bg-white">
                 <div className="flex flex-row">
                     <div className="flex items-center mr-1">
                         <Enter edgeLengthPx={24} />
@@ -26,8 +27,12 @@ export function UserActions({formOnOpen}: {formOnOpen: UserActions}) {
                         })}
                     </div>
                 </div>
-                {selectedForm === "signIn"? <SignInForm /> : <SignUpForm />}
-
+                <div hidden={selectedForm !== "signIn"}>
+                    <SignInForm />
+                </div>
+                <div hidden={selectedForm !== "signUp"}>
+                <SignUpForm />
+                </div>
             </div>
         </Container>
     )

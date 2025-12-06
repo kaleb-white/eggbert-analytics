@@ -25,3 +25,7 @@ Useful for various utility functions, such as `isEqual`. Only used for developme
 ## Argon2id
 
 A prebuilt node version of the winning Argon2id algorithm for hashing passwords. More info [here.](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+## js-cookie
+
+A library for interacting with cookies without dealing with text matching. Documentation [here.](https://www.npmjs.com/package/js-cookie/v/3.0.0-rc.0)

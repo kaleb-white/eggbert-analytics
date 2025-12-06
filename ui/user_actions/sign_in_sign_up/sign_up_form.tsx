@@ -7,6 +7,7 @@ import { FormErrors } from "../form_errors";
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react";
 import { z } from "zod/v4-mini"
 import { signUp } from "@/client_injections";
+import { FormSuccess } from "../form_success";
 
 export function SignUpForm() {
     const [errors, setErrors] = useState<UserServerActionResult>({succesful: true})
@@ -37,10 +38,18 @@ export function SignUpForm() {
         setHideOtherErrors(!(passwordInput.length + passwordMatch.length + emailInput.length === 0 || (passwordInput === prevPasswordInput && emailInput=== prevEmailInput && passwordMatch === prevPasswordMatch)))
     }, [prevEmailInput, emailInput, prevPasswordInput, passwordInput, prevPasswordMatch, passwordMatch])
 
+    // Sign in success
+    const [success, setSuccess] = useState(false)
+
     const zodEmail = z.email("Please provide a valid email")
     const zodPassword = z.string()
 
     async function handleSignUpForm(formData: FormData) {
+        // Reset success and errors
+        setSuccess(false)
+        setErrors({succesful: false, errorCount: 0})
+
+        // Parse
         const parseEmailResult = zodEmail.safeParse(formData.get("email"))
         const parsePasswordResult = zodPassword.safeParse(formData.get("password"))
 
@@ -54,14 +63,17 @@ export function SignUpForm() {
         if (!password) {
             newErrorsObject["password"] = [new Error("Please include a password")]
             newErrorsObject.errorCount += 1
+            setPrevPasswordInput("")
         }
         if (!passwordMatch) {
             newErrorsObject["passwordMatch"] = [new Error("Please repeat your password")]
             newErrorsObject.errorCount += 1
+            setPrevPasswordMatch("")
         }
         if (!email) {
             newErrorsObject["email"] = [new Error("Please include an email")]
             newErrorsObject.errorCount += 1
+            setPrevEmailInput("")
         }
         if (newErrorsObject.errorCount > 0) {setErrors(newErrorsObject); return}
 
@@ -110,6 +122,7 @@ export function SignUpForm() {
         const signInResult = await signUp((email as Bun.FormDataEntryValue).toString(), (password as Bun.FormDataEntryValue).toString())
 
         setErrors(signInResult)
+        if (signInResult.succesful) setSuccess(true)
     }
 
     return (
@@ -132,6 +145,7 @@ export function SignUpForm() {
                 </Container>
                 <FormErrors result={errors} forName="passwordMatch" hide={hidePasswordMatchErrors} />
                 <FormErrors result={errors} forName="exclude: email, password" hide={hideOtherErrors} />
+                <FormSuccess show={success} />
             </div>
             <div className="p-0 flex flex-col gap-1">
                 <div className="flex flex-row g-2.5 pr-2">
