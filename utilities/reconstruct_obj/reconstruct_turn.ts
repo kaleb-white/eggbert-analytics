@@ -11,5 +11,6 @@ export function reconstructTurn(turn: string | Turn): Turn {
         respondentMessage: asTurn.respondentMessage,
         timeCreated: asTurn.timeCreated,
         lastEdited: asTurn.lastEdited,
+        questionResponseId: asTurn.questionResponseId,
     });
 }

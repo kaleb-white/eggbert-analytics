@@ -6,6 +6,24 @@ If you see terms within the code that are not covered in here, add them! Creatin
 
 ## Terms
 
+### Architecture
+
+#### Controller
+
+A grouped set of internal data pathways; for example, actions related to users are in the user controller, and actions related to crypto are in the crypto folder under controllers.
+
+#### Use Case
+
+A specific internal data pathway.
+
+#### Gateway
+
+An external interface which provides access to core functionality from the outside or an internal interface which provides access to external functionality from the inside.
+
+#### Server Action
+
+A react term for a function which exists on the server but is called from client components. Documentation [here](https://react.dev/reference/rsc/server-functions).
+
 ### People
 
 #### respondent
@@ -15,6 +33,18 @@ The survey taker.
 #### user
 
 Anyone who uses the app.
+
+#### anonymous
+
+A respondent who has not signed in.
+
+#### author
+
+Someone who creates surveys.
+
+#### role
+
+A string which corresponds to a set of authorized actions.
 
 ### Surveys
 
@@ -76,6 +106,10 @@ Demographic information about a survey response.
 
 Input that is meant to hijack the server.
 
+#### identifier
+
+A group of means by which to identify an entity. For example, a user could be identified by their email.
+
 ### AI
 
 #### model
@@ -116,9 +150,13 @@ Use `path` when referring to a path, route, or file location.
 
 ### Technical Terms
 
-#### load
+#### get
 
-Use load when referring to creating an object from storage.
+Use get when referring to creating an object from storage.
+
+#### user actions
+
+Actions related to changing the state of users within the application, such as signing in, signing up, etc.
 
 ## Casing conventions
 

@@ -1,24 +1,22 @@
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import {
     createJsonbQuestionResponses,
+    deleteQuestionResponsesSql,
     insertOrUpdateQuestionResponses,
 } from "../sql_generators_by_table/question_responses";
 import {
     insertOrUpdateTurns,
     leftJoinTurns,
 } from "../sql_generators_by_table/turns";
+import { leftJoinQuestion } from "../sql_generators_by_table/questions";
 import {
-    createJsonbQuestion,
-    insertOrUpdateQuestions,
-} from "../sql_generators_by_table/questions";
-import {
-    argumentsToInStatementFromArray,
+    createParameterizedStatement,
     ParameterizedStatementSets,
 } from "../generation_types_and_utilities";
-import { insertOrUpdateOneManyRelation } from "../sql_generators_by_table/one-many_tables";
 
 export function getQuestionResponses(
-    ids: string[]
+    ids: string[],
+    field: string = "uniqueId"
 ): ParameterizedStatementSets {
     return [
         {
@@ -27,18 +25,22 @@ export function getQuestionResponses(
     FROM questionResponses
     ${leftJoinTurns(
         "questionResponses",
-        "questionResponsesTurns",
         "questionResponseId",
-        "turnId",
-        "turns"
+        "turns",
+        "uniqueId"
     )}
-    JOIN (
-        SELECT questions.uniqueId, ${createJsonbQuestion("question")}
-        FROM questions
-    ) questions ON questions.uniqueId = questionResponses.question
-    WHERE questionResponses.uniqueId IN ${argumentsToInStatementFromArray(ids)};
+    ${leftJoinQuestion(
+        "questionResponses",
+        "uniqueId",
+        "question",
+        "questions"
+    )}
+    WHERE questionResponses.${field} IN ${createParameterizedStatement(
+                ids.length,
+                ids.length
+            )};
     `,
-            userInput: [],
+            userInput: ids,
         },
     ];
 }
@@ -49,25 +51,16 @@ export function saveQuestionResponses(
     if (questionResponses.length == 0) return ["pass"];
     const insertQuestionResponseCommand =
         insertOrUpdateQuestionResponses(questionResponses);
-    const insertQuestionsCommand = insertOrUpdateQuestions(
-        questionResponses.map((qr) => qr.question)
-    );
     const insertTurnsCommand = insertOrUpdateTurns(
         questionResponses.flatMap((qr) => qr.transcript)
     );
 
-    const insertQRTs = questionResponses.flatMap((qr) =>
-        insertOrUpdateOneManyRelation(
-            "questionResponseId",
-            "turnId",
-            "questionResponsesTurns",
-            qr,
-            "transcript"
-        )
-    );
-    return [
-        [insertQuestionsCommand],
-        [insertQuestionResponseCommand, insertTurnsCommand],
-        insertQRTs,
-    ];
+    return [[insertQuestionResponseCommand], [insertTurnsCommand]];
+}
+export function deleteQuestionResponses(
+    identifiers: string[],
+    field: string = "uniqueId"
+): ParameterizedStatementSets {
+    if (identifiers.length === 0) return ["pass"];
+    return [deleteQuestionResponsesSql(identifiers, field)];
 }

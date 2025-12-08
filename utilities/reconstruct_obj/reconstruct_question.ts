@@ -12,5 +12,6 @@ export function reconstructQuestion(question: string | Question): Question {
         maxNumberOfTurns: asQuestion.maxNumberOfTurns,
         timeCreated: asQuestion.timeCreated,
         lastEdited: asQuestion.lastEdited,
+        surveyId: asQuestion.surveyId,
     });
 }

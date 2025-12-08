@@ -2,7 +2,6 @@ import { Question } from "@/core/entities/surveys/question";
 import { QuestionResponse } from "@/core/entities/surveys/question_response";
 import { Response } from "@/core/entities/surveys/response";
 import { Turn } from "@/core/entities/surveys/turn";
-import { Respondent } from "@/core/entities/users/respondent";
 import { CacheImpl } from "@/core/gateways/external/cpp_socket_cache_impl";
 import { PostgresDbImpl } from "@/core/gateways/external/postgres_db_impl";
 import { StorageGatewayImpl } from "@/core/gateways/internal/storage_gateway_impl";
@@ -15,9 +14,10 @@ import {
     yellowString,
 } from "@/utilities/logging";
 import { isProcessRunningOnPort } from "@/utilities/process_running";
-import { initialize } from "@/tests/db/utilities/reset_and_initialize";
 import { exec } from "child_process";
 import { pool } from "@/injections";
+import { Respondent } from "@/core/entities/users/respondent";
+import { testInitializer } from "@/injections";
 
 function createStreamEchoingToStdout() {
     const decoder = new TextDecoder("utf-8");
@@ -215,7 +215,7 @@ async function main() {
 
     // Reset db
     printOp("Resetting test database...");
-    await initialize();
+    await testInitializer.removeAllRows();
     printOpDone();
 
     // Create sample question response and save
@@ -241,10 +241,16 @@ async function main() {
         transcript: [
             new Turn({
                 uniqueId: "a",
-                modelMessage: "model msg 1.1",
-                respondentMessage: "resp msg 1.1",
+                modelMessage:
+                    "What are your thoughts on the rise of AI in everyday life?",
+                respondentMessage:
+                    "I don't know much about it, but it's a little scary. Is AI really making our lives better?",
             }),
-            new Turn({ uniqueId: "b", modelMessage: "model msg 2.1" }),
+            new Turn({
+                uniqueId: "b",
+                modelMessage:
+                    "AI definitely has its drawbacks, but experts agree that its potential for augmenting human ability could bring about changes in human society. What specific aspects of AI do you find frustrating?",
+            }),
         ],
     });
     const qr2 = new QuestionResponse({
@@ -299,7 +305,7 @@ async function main() {
     const res = new Response({
         uniqueId: "test",
         questionResponses: qrs,
-        respondent: new Respondent("test6"),
+        respondentId: "test6",
     });
 
     printSubOp("Creating storage gateway...");
@@ -349,7 +355,7 @@ async function main() {
         printOpDone();
     }
 
-    console.log(redString("Go to http://localhost:3000/responses/test"));
+    console.log(redString("Go to http://localhost:3000/responses/chat/test"));
     console.log(magentaString("Running next..."));
     const nextDevProcess = Bun.spawn(["next", "dev", "--turbopack"], {
         env: { ...process.env, NODE_ENV: "development" },

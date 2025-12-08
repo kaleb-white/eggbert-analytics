@@ -1,4 +1,4 @@
-import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "../../controllers/crypto/interfaces/crypto_utility_creator";
 import { Author } from "../users/author";
 import { Question } from "./question";
 import { Response } from "./response";
@@ -15,9 +15,9 @@ export type SurveyProps = {
 
 const defaultProps = {
     uniqueId: "",
-    questions: [new Question()],
-    responses: [new Response()],
-    author: new Author(""),
+    questions: [],
+    responses: [],
+    author: new Author(),
     timeCreated: Date.now(),
     lastEdited: Date.now(),
 };

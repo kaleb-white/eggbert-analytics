@@ -10,21 +10,24 @@ import { leftJoinQuestionResponses } from "./question_responses";
 export function insertOrUpdateResponses(
     responses: Response[]
 ): PossibleStatementFormat {
-    const orderedFields = ["uniqueId", "timeCreated", "lastEdited"];
-    const timestampFieldIndices = [1, 2];
+    const orderedFields = [
+        "uniqueId",
+        "timeCreated",
+        "lastEdited",
+        "respondentId",
+        "surveyId",
+    ];
     const allResponsesValues = getAllEntityValuesAsArray(
         responses,
-        orderedFields,
-        timestampFieldIndices
+        orderedFields
     );
     if (!allResponsesValues) return "pass";
     return {
         sql: `
-    INSERT INTO responses (uniqueId, timeCreated, lastEdited)
+    INSERT INTO responses (uniqueId, timeCreated, lastEdited, respondentId, surveyId)
         VALUES ${createParameterizedStatement(
-            3,
-            allResponsesValues.length,
-            timestampFieldIndices
+            orderedFields.length,
+            allResponsesValues.length
         )}
         ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;
     `,
@@ -42,33 +45,49 @@ export function createJsonbResponses(
         'uniqueId', responses.uniqueId,
         'timeCreated', responses.timeCreated,
         'lastEdited', responses.lastEdited,
-        'respondent', '{}'::jsonb,
-        'questionResponses', COALESCE(${tableContainingQuestionResponses}.${questionResponsesAggName}, '[]'::jsonb)
+        'respondentId', responses.respondentId,
+        'questionResponses', COALESCE(${tableContainingQuestionResponses}.${questionResponsesAggName}, '[]'::jsonb),
+        'surveyId', responses.surveyId
     )) AS ${as}
     `;
 }
 
 export function leftJoinResponses(
-    oneTableName: string,
-    oneManyTableName: string,
-    oneIdName: string,
-    manyIdName: string,
-    as: string
+    parentTableName: string,
+    parentIdNameInChildTable: string,
+    as: string,
+    parentIdName: string
 ) {
     return createLeftJoin(
-        oneTableName,
         "responses",
-        oneManyTableName,
-        oneIdName,
-        manyIdName,
+        parentIdNameInChildTable,
+        parentTableName,
         createJsonbResponses,
         as,
+        parentIdName,
+        true,
         leftJoinQuestionResponses(
             "responses",
-            "responsesQuestionResponses",
             "responseId",
-            "questionResponseId",
+            "uniqueId",
             "questionResponses"
         )
     );
+}
+
+export function deleteResponsesSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM responses
+        WHERE responses.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING responses.uniqueId;
+    `,
+        userInput: identifiers,
+    };
 }

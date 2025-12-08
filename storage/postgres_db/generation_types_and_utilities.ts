@@ -20,22 +20,23 @@ export type ParameterizedStatementSets = (
     | PossibleStatementFormat
 )[];
 
+/**
+ *
+ * @param numCols The total number of columns. For example, if an entity has two fields (`name`, `email`), then numCols would be 2.
+ * @param numParameters The total number of parameters. For example, say there are three entities which are being inserted, and each entity has two fields, then numParameters would be 6.
+ * @returns
+ */
 export function createParameterizedStatement(
-    numRows: number,
-    numParameters: number,
-    timestampFieldIndices: number[] = []
+    numCols: number,
+    numParameters: number
 ) {
     let stringResult = "(";
     for (let i = 1; i <= numParameters; i++) {
-        if (timestampFieldIndices.includes((i - 1) % numRows)) {
-            stringResult = stringResult.concat(`to_timestamp($${i})`);
-        } else {
-            stringResult = stringResult.concat(`$${i}`);
-        }
+        stringResult = stringResult.concat(`$${i}`);
 
         if (i == numParameters) {
             stringResult = stringResult.concat(`)`);
-        } else if (i % numRows == 0) {
+        } else if (i % numCols == 0) {
             stringResult = stringResult.concat(`), (`);
         } else {
             stringResult = stringResult.concat(`,`);
@@ -44,43 +45,19 @@ export function createParameterizedStatement(
     return stringResult;
 }
 
-export function joinTablesWhereUniqueIdMatchesCol(
-    tableWithUniqueIdCol: string,
-    tableWithSpecificCol: string,
-    col: string
-) {
-    return `
-    JOIN ${tableWithUniqueIdCol} ON ${tableWithUniqueIdCol}.uniqueId = ${tableWithSpecificCol}.${col}
-    `;
-}
-
-export function argumentsToInStatementFromArray(uniqueIds: string[]) {
-    return "("
-        .concat(uniqueIds.map((uniqueId) => `'${uniqueId}'`).join(","))
-        .concat(")");
-}
-
-export function jsDateToSqlTimestamp(date: number) {
-    return `${Math.floor(date / 1000)}`;
-}
-
 export function getAllEntityValuesAsArray(
     entities: object[],
-    orderedFields: (string | string[])[],
-    timestampFieldIndices: number[] = []
+    orderedFields: (string | string[])[]
 ) {
     if (entities.length == 0) return null;
     return entities.flatMap((entity) =>
-        orderedFields.map((field, i) => {
+        orderedFields.map((field) => {
             if (Array.isArray(field)) {
                 let subObj = entity;
                 for (const subField of field) {
                     subObj = subObj[subField];
                 }
                 return subObj;
-            }
-            if (timestampFieldIndices.includes(i)) {
-                return jsDateToSqlTimestamp(entity[field] as number);
             }
             return entity[field];
         })
@@ -89,30 +66,23 @@ export function getAllEntityValuesAsArray(
 
 /**
  * Does not type check T, just casts the found entities to T.
+ * Assumes that the results look something like `[{\"sessionsagg\":[{\"role\":\"anonymous\",\"userId\":\"user\",\"uniqueId\":\"1\",\"expiration\":1766508077928,\"antiCsrfToken\":\"\"}]}]`,
+ *  a single row object with a single or aggregated json object.
  * @param queryResult A single QueryResult object, from the pg module.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Tries jsonb_build_object if not found as col name in result. If neither are found, errors. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
- * @param expectArray Whether or not the aggregation is an array or an object
  */
 export function getAllEntitiesFromOneResult<T>(
-    queryResult: QueryResult,
-    expectedAggregationName: string = "jsonb_build_object"
+    queryResult: QueryResult
 ): T[] | Error | null {
     if (queryResult.rows.length == 0 || !queryResult) return null;
-    const columnNames = Object.keys(queryResult.rows[0]);
-    if (
-        expectedAggregationName != "jsonb_build_object" &&
-        !columnNames.includes(expectedAggregationName.toLowerCase()) &&
-        !columnNames.includes("jsonb_build_object")
-    ) {
+    const aggOrObjName = Object.keys(queryResult.rows[0])[0];
+    if (!aggOrObjName)
         return new Error(
-            `Query returned a table with column names ${columnNames.join(
-                ", "
-            )}, when the expected name was ${expectedAggregationName}`
+            `Query returned a table with column names ${Object.keys(
+                queryResult.rows[0]
+            )}. Trying to access the first member resulted in undefined.`
         );
-    }
 
-    let entities = queryResult.rows[0][expectedAggregationName.toLowerCase()];
-    if (!entities) entities = queryResult.rows[0]["jsonb_build_object"];
+    const entities = queryResult.rows[0][aggOrObjName];
     if (Array.isArray(entities)) return entities as T[];
     else return [entities];
 }
@@ -120,17 +90,12 @@ export function getAllEntitiesFromOneResult<T>(
 /**
  * Does not type check T, just casts the found entities to T.
  * @param queryResult A single QueryResult object, from the pg module.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
  * @returns The first entity found.
  */
 export function getFirstEntityFromOneResult<T>(
-    queryResult: QueryResult,
-    expectedAggregationName = "jsonb_build_object"
+    queryResult: QueryResult
 ): T | Error | null {
-    const allEntities = getAllEntitiesFromOneResult<T>(
-        queryResult,
-        expectedAggregationName
-    );
+    const allEntities = getAllEntitiesFromOneResult<T>(queryResult);
     if (!allEntities || allEntities instanceof Error) return allEntities;
     else return allEntities[0];
 }
@@ -138,40 +103,30 @@ export function getFirstEntityFromOneResult<T>(
 /**
  * Does not type check T, just casts the found entities to T.
  * @param queryResults Multiple QueryResult objects, from the pg module. Usually the result of a call to `executeStatements`.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
  * @returns The first entity found or an error.
  */
 export function getFirstEntity<T>(
-    queryResults: QueryResult[],
-    expectedAggregationName = "jsonb_build_object"
+    queryResults: QueryResult[]
 ): T | Error | null {
     if (queryResults.length == 0)
         return new Error("No query results passed when getting first entity");
-    return getFirstEntityFromOneResult<T>(
-        queryResults[0],
-        expectedAggregationName
-    );
+    return getFirstEntityFromOneResult<T>(queryResults[0]);
 }
 
 /**
  * Does not type check T, just casts the found entities to T.
  * DO NOT include any column that is not the aggregation name in the select statement.
  * @param queryResults Multiple QueryResult objects, from the pg module. Usually the result of a call to `executeStatements`.
- * @param expectedAggregationName The expected aggregation name, if any. For exmaple, `turnsAgg`. Returns an error if incorrect. Both the expected aggregation name and the found aggregation name are lowercased. Defaults to "jsonb_build_object", which, if one object, not an aggregation, is the result of the 'get', will likely be the column name.
  * @returns All entities found or an error.
  */
 export function getAllEntities<T>(
-    queryResults: QueryResult[],
-    expectedAggregationName: string = "jsonb_build_object"
+    queryResults: QueryResult[]
 ): T[] | Error | null {
     let entityFailed: Error | null = null;
     let allEntities: T[] = [];
 
     queryResults.forEach((queryResult) => {
-        const oneResultEntities = getAllEntitiesFromOneResult<T>(
-            queryResult,
-            expectedAggregationName
-        );
+        const oneResultEntities = getAllEntitiesFromOneResult<T>(queryResult);
         if (!oneResultEntities || oneResultEntities instanceof Error) {
             entityFailed = oneResultEntities;
         } else {
@@ -184,32 +139,34 @@ export function getAllEntities<T>(
 }
 
 /**
- *
- * @param oneTableName The name of the of parent table, for example `surveys`.
- * @param manyTableName The name of the child table, for example `questions`.
- * @param oneManyTableName The name of the one-many table, for example `surveysQuestions`.
- * @param oneIdName The name of the parent id in the oneManyTable, for example `surveyId`.
- * @param manyIdName The name of the child id in the oneManyTable, for example `questionId`.
- * @param jsonbFunction Function to create jsonb agg from the joined many table, for example `createJsonbQuestions()`.
- * @param additionalJoins Additional left join statements to add. Placed before the WHERE clause and after the JOIN clause.
- * @param whereStatement The statement to filter the one-many table on, for example `WHERE surveysQuestions.surveyId = $1`.
- * @param as The name of the table created within the left join statement, for example `LEFT JOIN (...) sq ON surveys.uniqueId = sq.surveyId`.
+ * @param childTableName The child table name. For example, `questions`.
+ * @param parentIdNameInChildTable The name of the parent id in the child table. For example, `surveyId`.
+ * @param parentTableName The parent table name. For example, `surveys`.
+ * @param jsonbFunction The function to create the jsonb entities. For example, `createJsonbQuestion`.
+ * @param as The name of the newly created table which contains the jsonb.
+ * @param parentIdName The name of the field in the parent table which corresponds to parentIdName in child table. For example, in the `questionResponses` table, when joining the corresponding question, it is `questions`. Defaults to `uniqueId`.
+ * @param additionalJoins Any necessary additional joins in order to complete the jsonb object.
  */
 export function createLeftJoin(
-    oneTableName: string,
-    manyTableName: string,
-    oneManyTableName: string,
-    oneIdName: string,
-    manyIdName: string,
+    childTableName: string,
+    parentIdNameInChildTable: string,
+    parentTableName: string,
     jsonbFunction: (as?: string) => string,
-    as: string = oneManyTableName,
+    as: string,
+    parentIdName: string = "uniqueId",
+    aggregation: boolean = false,
     additionalJoins: string = " "
 ) {
     return `LEFT JOIN (
-                SELECT ${oneManyTableName}.${oneIdName}, ${jsonbFunction()}
-                    FROM ${oneManyTableName}
-                    JOIN ${manyTableName} ON ${oneManyTableName}.${manyIdName} = ${manyTableName}.uniqueId
+                SELECT ${childTableName}.${parentIdNameInChildTable}, ${jsonbFunction()}
+                    FROM ${childTableName}
                     ${additionalJoins}
-                    GROUP BY ${oneManyTableName}.${oneIdName}
-            ) ${as} ON ${oneTableName}.uniqueId = ${as}.${oneIdName}`;
+                    ${
+                        aggregation
+                            ? `GROUP BY ${childTableName}.${parentIdNameInChildTable}`
+                            : ""
+                    }
+            ) ${as} ON ${as}.${parentIdNameInChildTable} = ${parentTableName}.${parentIdName}
+
+            `;
 }

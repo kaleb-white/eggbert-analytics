@@ -150,12 +150,12 @@ private:
         return std::chrono::duration<double>(now - start_time).count() > (double)args.MaxTransmissionWaitTimeSeconds.value;
     }
 
-    bool check_for_socket_error(int socket_response_code, CustomCout *&printer, PeerCommunicationResult &res)
+    bool check_for_socket_error(int socket_response_code, PeerCommunicationResult &res)
     {
         if (socket_response_code == SOCKET_ERROR)
         {
             std::string failure_message{"\tSending or receiving resulted in SOCKET_ERROR"};
-            res.set_failure(failure_message);
+            res.set_failure(failure_message, this->printer);
             return true;
         }
         return false;
@@ -174,7 +174,7 @@ private:
         {
             receive_result = recv(client_sock, &single_char_buffer, 1, 0);
 
-            if (check_for_socket_error(receive_result, printer))
+            if (check_for_socket_error(receive_result, res))
                 return;
 
             if (receive_result >= 1 && single_char_buffer == STX)
@@ -206,7 +206,7 @@ private:
         int receive_result;
         receive_result = recv(client_sock, temp_char_buffer, max_number_of_digits, 0);
 
-        if (check_for_socket_error(receive_result, printer))
+        if (check_for_socket_error(receive_result, res))
             return;
         if (receive_result < max_number_of_digits)
         {
@@ -241,7 +241,7 @@ private:
         {
             recv_result_as_int = recv(client_sock, receiving_buffer.get(), peer_reported_message_length - total_bytes_received, 0);
 
-            if (check_for_socket_error(recv_result_as_int, printer, res))
+            if (check_for_socket_error(recv_result_as_int, res))
                 return;
 
             last_request_bytes_received = static_cast<uint32_t>(recv_result_as_int);
@@ -268,7 +268,7 @@ private:
 
         int bytes_received = 0;
         bytes_received = recv(client_sock, &peer_end_char, 1, 0);
-        if (check_for_socket_error(bytes_received, printer, res))
+        if (check_for_socket_error(bytes_received, res))
             return;
         if (bytes_received == 1)
             return;

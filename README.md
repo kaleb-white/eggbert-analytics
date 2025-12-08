@@ -15,11 +15,11 @@
 1. Follow the install steps without changing defaults until the set password page. Use the PGPASSWORD value from the nextJS .env file. Ensure it matches exactly!
 1. Use 5432 as the default port, or, if for some reason you'd like a different port, set the value of PGPORT to be the same as the port you'd selected.
 1. Allow the install to complete.
-1. Create the two databases (for production, with the name `eggbert`, and for development, with the name `test`):
+1. Create three databases (for production, with the name `eggbert`, for development, with the name `test`, and for testing the database initializer, with the name `test_initializer`.):
     - Search for psql (a psql shell should be included in the postgreSQL install.)
     - If you are asked for credentials, hit enter until you are asked for password. Your default options should be `Server [localhost]`, `Database [postgres]`, `Port [5432]`, `Username [postgres]`. Copy the password and then right click by the prompt in the shell (which will paste it).
-    - To create the database run `CREATE DATABASE test` and `CREATE DATABASE eggbert`.
-    - Verify that the databases were created by running `\l`; a table should be printed which lists `eggbert` and `test` in the `Name` column.
+    - To create the database run `CREATE DATABASE test;`, `CREATE DATABASE eggbert;`, `CREATE DATABASE test_initializer;`.
+    - Verify that the databases were created by running `\l`; a table should be printed which lists `eggbert`, `test`, and `test_initializer` in the `Name` column.
 1. That should be it! PostgreSQL runs as a service in the background.
 
 ### Working locally
@@ -46,6 +46,10 @@
 Refer to [the architecture file](./docs/eggbert_architecture.md) to learn more about the project's implementation of the philosophies of Robert C. Martin's _Clean Architecture_.
 
 There is a also an [abbreviated summary of the key principles of Martin's book.](/docs/clean_architecture.md)
+
+## Demo
+
+Check it our [here](/public/eggbert%20demo.mp4)!
 
 ## Credit
 

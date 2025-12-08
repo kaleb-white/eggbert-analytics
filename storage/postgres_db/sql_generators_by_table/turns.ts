@@ -13,22 +13,17 @@ export function insertOrUpdateTurns(turns: Turn[]): PossibleStatementFormat {
         "respondentMessage",
         "timeCreated",
         "lastEdited",
+        "questionResponseId",
     ];
-    const timestampFieldIndices = [3, 4];
-    const allTurnValues = getAllEntityValuesAsArray(
-        turns,
-        orderedFields,
-        timestampFieldIndices
-    );
+    const allTurnValues = getAllEntityValuesAsArray(turns, orderedFields);
     if (!allTurnValues) return "pass";
 
     return {
         sql: `
-        INSERT INTO turns (uniqueId, modelMessage, respondentMessage, timeCreated, lastEdited)
+        INSERT INTO turns (uniqueId, modelMessage, respondentMessage, timeCreated, lastEdited, questionResponseId)
             VALUES ${createParameterizedStatement(
-                5,
-                allTurnValues.length,
-                timestampFieldIndices
+                orderedFields.length,
+                allTurnValues.length
             )}
             ON CONFLICT (uniqueId) DO UPDATE SET modelMessage = EXCLUDED.modelMessage, respondentMessage = EXCLUDED.respondentMessage;
         `,
@@ -43,25 +38,42 @@ export function createJsonbTurns(as: string = "turnsAgg") {
         'modelMessage', turns.modelMessage,
         'respondentMessage', turns.respondentMessage,
         'timeCreated', turns.timeCreated,
-        'lastEdited', turns.lastEdited
+        'lastEdited', turns.lastEdited,
+        'questionResponseId', turns.questionResponseId
     )) AS ${as}
     `;
 }
 
 export function leftJoinTurns(
-    oneTableName: string,
-    oneManyTableName: string,
-    oneIdName: string,
-    manyIdName: string,
-    as: string = "turnsAgg"
+    parentTableName: string,
+    parentIdNameInChildTable: string,
+    as: string,
+    parentIdName: string
 ) {
     return createLeftJoin(
-        oneTableName,
         "turns",
-        oneManyTableName,
-        oneIdName,
-        manyIdName,
+        parentIdNameInChildTable,
+        parentTableName,
         createJsonbTurns,
-        as
+        as,
+        parentIdName,
+        true
     );
+}
+
+export function deleteTurnsSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM turns
+        WHERE turns.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING turns.uniqueId;
+    `,
+        userInput: identifiers,
+    };
 }

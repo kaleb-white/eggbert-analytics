@@ -1,3 +1,4 @@
+"use client";
 import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
 
 export default function useOpenChildOnClick({

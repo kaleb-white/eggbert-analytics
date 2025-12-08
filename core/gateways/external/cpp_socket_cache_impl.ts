@@ -38,4 +38,18 @@ export class CacheImpl implements Cache {
         if (didCacheRead instanceof Error) return didCacheRead;
         return JSON.parse(didCacheRead) as T;
     }
+
+    async delete(
+        uniqueId: string,
+        isLastCacheInteraction: boolean = false
+    ): Promise<null | Error> {
+        const didCacheConnect = await this.cacheGateway.connect();
+        if (didCacheConnect instanceof Error) return didCacheConnect;
+
+        const didCacheDelete = await this.cacheGateway.delete(
+            uniqueId,
+            isLastCacheInteraction
+        );
+        return didCacheDelete;
+    }
 }

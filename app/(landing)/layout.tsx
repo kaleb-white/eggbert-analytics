@@ -1,6 +1,4 @@
 "use client"
-import { Navbar } from "@/ui/navigation/navbar/navbar";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -8,7 +6,6 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-        <Navbar />
         {children}
     </div>
   );

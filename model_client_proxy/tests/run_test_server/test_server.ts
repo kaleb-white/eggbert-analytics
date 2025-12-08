@@ -5,6 +5,7 @@ import { handlePeer } from "../../core/use_cases/handle_peer";
 import { DialogueContext } from "../../core/entities/dialogue_context";
 import { ModelTest } from "../../core/gateways/external/query_model/test_model";
 import { Response } from "../../../core/entities/surveys/response";
+import { storage } from "../../../injections";
 
 function test_server() {
     // Server setup
@@ -25,7 +26,11 @@ function test_server() {
             peer,
             contextForPeerHandler,
             testModelForPeerHandler,
-            responseForPeerHandler
+            responseForPeerHandler,
+            async (r: Response) => {
+                const saveResult = await storage.save(r.uniqueId, r);
+                return saveResult;
+            } // Note: DOES NOT TEST ROUTE ON MAIN SERVER!
         );
     });
 

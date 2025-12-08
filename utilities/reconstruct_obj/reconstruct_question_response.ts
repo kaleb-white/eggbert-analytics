@@ -18,5 +18,7 @@ export function reconstructQuestionResponse(
         ),
         timeCreated: asQuestionResponse.timeCreated,
         lastEdited: asQuestionResponse.lastEdited,
+        responseId: asQuestionResponse.responseId,
+        summary: asQuestionResponse.summary,
     });
 }

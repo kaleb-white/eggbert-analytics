@@ -1,0 +1,116 @@
+import { Session } from "@/core/entities/users/session";
+import { User } from "@/core/entities/users/user";
+import { UserController } from "./interfaces/user_controller";
+import * as argon2 from "argon2";
+import { storage } from "@/injections";
+import { Password } from "@/core/entities/users/password";
+import { Response } from "@/core/entities/surveys/response";
+
+export class UserControllerImpl implements UserController {
+    async hashPassword(password: string): Promise<string | Error> {
+        let hash: string;
+        try {
+            if (!process.env.PEPPER)
+                return new Error("Error while hashing: no pepper found");
+            // Parameters: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#argon2id
+            hash = await argon2.hash(password, {
+                type: argon2.argon2id,
+                memoryCost: 47104,
+                timeCost: 1,
+                parallelism: 1,
+                secret: Buffer.from(process.env.PEPPER),
+            });
+        } catch (err) {
+            return new Error(`Error while hashing pass: ${err}`);
+        }
+        return hash;
+    }
+
+    async getUser(uniqueId: string | Session): Promise<User | Error | null> {
+        const uniqueIdDetermination =
+            typeof uniqueId === "string" ? uniqueId : uniqueId.userId;
+        const dbResult = await storage.get(uniqueIdDetermination, new User());
+        return dbResult;
+    }
+
+    async getUserByEmail(email: string): Promise<User | Error | null> {
+        const dbResult = await storage.get(email, new User(), "email");
+        return dbResult;
+    }
+
+    async getPassword(userId: string): Promise<Password | Error | null> {
+        return await storage.get(userId, new Password(), "userId", true);
+    }
+
+    async getUserAndPasswordByEmail(
+        email: string
+    ): Promise<[User, Password] | Error | null> {
+        const user = await this.getUserByEmail(email);
+        if (!user || user instanceof Error) {
+            return user;
+        }
+        const password = await this.getPassword(user.uniqueId);
+        if (!password || password instanceof Error) {
+            return password;
+        }
+        return [user, password];
+    }
+
+    async checkPasswordMatch(
+        email: string,
+        password: string
+    ): Promise<boolean | Error | null> {
+        const userAndPassword = await this.getUserAndPasswordByEmail(email);
+        if (!userAndPassword || userAndPassword instanceof Error) {
+            return userAndPassword;
+        }
+
+        if (!process.env.PEPPER)
+            return new Error("Error while checking match: no pepper found");
+
+        const [user, correctPasswordHash] = userAndPassword;
+        return await argon2.verify(correctPasswordHash.hash, password, {
+            secret: Buffer.from(process.env.PEPPER),
+        });
+    }
+
+    async createOrUpdateUser(
+        newUser: User,
+        password: string
+    ): Promise<Error | null> {
+        const userSaveResult = await storage.save(newUser.uniqueId, newUser);
+        if (userSaveResult instanceof Error) {
+            if (userSaveResult.message.includes("duplicate key value"))
+                return new Error("A user with that email already exists");
+            return userSaveResult;
+        }
+
+        const hash = await this.hashPassword(password);
+        if (hash instanceof Error) {
+            return hash;
+        }
+
+        const passwordEntity = new Password({
+            hash: hash,
+            userId: newUser.uniqueId,
+        });
+        const passwordSaveResult = await storage.save(
+            "none",
+            passwordEntity,
+            true
+        );
+        if (passwordSaveResult instanceof Error) {
+            await storage.delete(newUser.uniqueId, new User());
+            return passwordSaveResult;
+        }
+        return null;
+    }
+    deleteUser(identifier: User | Session): Promise<Error | null> {
+        throw new Error("Method not implemented.");
+    }
+    async getUsersResponses(
+        userId: string
+    ): Promise<Response[] | Error | null> {
+        return await storage.getAll(userId, new Response(), "respondentId");
+    }
+}

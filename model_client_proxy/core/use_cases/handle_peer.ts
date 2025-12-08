@@ -134,6 +134,7 @@ export function handlePeer(
             const thisTurn = new Turn({
                 uniqueId: uniqueIdGen,
                 modelMessage: modelMessage,
+                questionResponseId: questionResponseInProgress.uniqueId,
             });
             questionResponseInProgress.addTurn(thisTurn);
             questionResponseInProgress.lastEdited = Date.now();

@@ -6,7 +6,7 @@ import {
     createLeftJoin,
 } from "../generation_types_and_utilities";
 import { leftJoinTurns } from "./turns";
-import { createJsonbQuestion } from "./questions";
+import { leftJoinQuestion } from "./questions";
 
 export function insertOrUpdateQuestionResponses(
     questionResponses: QuestionResponse[]
@@ -17,21 +17,19 @@ export function insertOrUpdateQuestionResponses(
         "timeCreated",
         "lastEdited",
         ["question", "uniqueId"],
+        "responseId",
     ];
-    const timestampFieldIndices = [2, 3];
     const allQuestionResponseValues = getAllEntityValuesAsArray(
         questionResponses,
-        orderedFields,
-        timestampFieldIndices
+        orderedFields
     );
     if (allQuestionResponseValues == null) return "pass";
     return {
         sql: `
-    INSERT INTO questionResponses (uniqueId, currentTurn, timeCreated, lastEdited, question)
+    INSERT INTO questionResponses (uniqueId, currentTurn, timeCreated, lastEdited, question, responseId)
         VALUES ${createParameterizedStatement(
-            5,
-            allQuestionResponseValues.length,
-            timestampFieldIndices
+            orderedFields.length,
+            allQuestionResponseValues.length
         )}
         ON CONFLICT (uniqueId) DO UPDATE SET lastEdited = EXCLUDED.lastEdited;
     `,
@@ -54,36 +52,59 @@ export function createJsonbQuestionResponses(
         'timeCreated', questionResponses.timeCreated,
         'lastEdited', questionResponses.lastEdited,
         'transcript', COALESCE(${tableContainingTurnsAgg}.${turnsAggName}, '[]'::jsonb),
-        'question', ${tableContainingQuestions}.${questionName}
+        'question', ${tableContainingQuestions}.${questionName},
+        'responseId', questionResponses.responseId
     )) AS ${as}
     `;
 }
 
 export function leftJoinQuestionResponses(
-    oneTableName: string,
-    oneManyTableName: string,
-    oneIdName: string,
-    manyIdName: string,
+    parentTableName: string,
+    parentIdNameInChildTable: string,
+    parentIdName: string,
     as: string
 ) {
     return createLeftJoin(
-        oneTableName,
         "questionResponses",
-        oneManyTableName,
-        oneIdName,
-        manyIdName,
+        parentIdNameInChildTable,
+        parentTableName,
         createJsonbQuestionResponses,
         as,
-        leftJoinTurns(
-            "questionResponses",
-            "questionResponsesTurns",
-            "questionResponseId",
-            "turnId",
-            "turns"
-        ).concat(
-            `\nJOIN ( SELECT questions.uniqueId, ${createJsonbQuestion(
-                "question"
-            )} FROM questions ) questions ON questions.uniqueId = questionResponses.question`
-        )
+        parentIdName,
+        true,
+        ""
+            .concat(
+                leftJoinTurns(
+                    "questionResponses",
+                    "questionResponseId",
+                    "turns",
+                    "uniqueId"
+                )
+            )
+            .concat(
+                leftJoinQuestion(
+                    "questionResponses",
+                    "uniqueId",
+                    "question",
+                    "questions"
+                )
+            )
     );
+}
+
+export function deleteQuestionResponsesSql(
+    identifiers: string[],
+    field: string = "uniqueId"
+): PossibleStatementFormat {
+    return {
+        sql: `
+    DELETE FROM questionResponses
+        WHERE questionResponses.${field} IN ${createParameterizedStatement(
+            identifiers.length,
+            identifiers.length
+        )}
+        RETURNING questionResponses.uniqueId;
+    `,
+        userInput: identifiers,
+    };
 }

@@ -3,6 +3,7 @@ import * as tc from "./type_checks";
 /**
  * Checks an entity against all type checks.
  * Requires that type check exists for the given entity and that the name of the type check function is in the format `isEntityName(obj: unkown): boolean`.
+ * Important: any object that is a subset of another object will be identified as the parent object! For example, 'Respondents' and 'Authors' are both 'Users'.
  * @param obj the object that might be an entity
  * @returns either the lowercase name of the entity or 'none'
  */

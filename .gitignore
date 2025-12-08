@@ -52,3 +52,6 @@ persistent_storage/cpp_cache/headers/doctest
 #lock files
 bun.lock
 package-lock.json
+
+# random
+./test.ts

@@ -1,5 +1,5 @@
 import { assignOrCreateUniqueId } from "@/utilities/assign_or_create_uid";
-import { CryptographyUtilities } from "../interfaces/crypto_utility_creator";
+import { CryptographyUtilities } from "../../controllers/crypto/interfaces/crypto_utility_creator";
 
 export type TurnProps = {
     uniqueId?: string | CryptographyUtilities;
@@ -7,6 +7,7 @@ export type TurnProps = {
     respondentMessage?: string;
     timeCreated?: number;
     lastEdited?: number;
+    questionResponseId?: string;
 };
 
 const defaultProps = {
@@ -15,6 +16,7 @@ const defaultProps = {
     respondentMessage: "",
     timeCreated: Date.now(),
     lastEdited: Date.now(),
+    questionResponseId: "",
 };
 
 export class Turn {
@@ -23,6 +25,7 @@ export class Turn {
     respondentMessage: string;
     timeCreated: number;
     lastEdited: number;
+    questionResponseId: string;
 
     constructor(partialProps?: TurnProps) {
         const props = partialProps ? partialProps : defaultProps;
@@ -41,6 +44,9 @@ export class Turn {
         this.lastEdited = props.lastEdited
             ? props.lastEdited
             : defaultProps.lastEdited;
+        this.questionResponseId = props.questionResponseId
+            ? props.questionResponseId
+            : defaultProps.questionResponseId;
     }
 
     /** Returns an empty string if the turn is not complete. */
